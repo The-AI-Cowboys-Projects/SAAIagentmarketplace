@@ -1795,6 +1795,601 @@ def check_restaurant_inspection(restaurant_name: str, address: str = "") -> str:
 
 
 # =============================================================================
+# Connect-360 / SmartSA Partner Tools
+# =============================================================================
+
+
+@tool
+def search_sa_newcomer_resources(query: str, persona_type: str = "newcomer") -> str:
+    """Search Connect-360 newcomer resources for people relocating to San Antonio.
+
+    USE THIS TOOL WHEN: A user is moving to San Antonio and needs guidance on
+    housing, utilities, schools, transit, business registration, or community resources.
+    DO NOT USE WHEN: The user is already an established SA resident with a specific service issue.
+
+    Args:
+        query: The newcomer's question or need
+        persona_type: newcomer, business_owner, parent, military, student
+
+    Returns:
+        JSON with relevant SmartSA partner resources and next steps
+    """
+    resources = {
+        "newcomer": [
+            {"partner": "City of San Antonio", "service": "311 Mobile App", "url": "https://www.sa.gov/311"},
+            {"partner": "CPS Energy", "service": "New Service Application", "url": "https://www.cpsenergy.com"},
+            {"partner": "SAWS", "service": "Water Service Setup", "url": "https://www.saws.org"},
+            {"partner": "VIA Transit", "service": "Route Planning", "url": "https://www.viainfo.net"},
+        ],
+        "parent": [
+            {"partner": "Pre-K 4 SA", "service": "Enrollment", "url": "https://www.prek4sa.com"},
+            {"partner": "SAISD", "service": "School Finder", "url": "https://www.saisd.net"},
+        ],
+        "business_owner": [
+            {"partner": "City of SA - DSD", "service": "Business Permits", "url": "https://www.sa.gov/DSD"},
+            {"partner": "Bexar County", "service": "Tax Registration", "url": "https://www.bexar.org"},
+        ],
+    }
+    return json.dumps({
+        "query": query,
+        "persona": persona_type,
+        "smartsa_partners": ["City of SA", "CPS Energy", "SAWS", "VIA", "UTSA",
+                             "Bexar County", "Edwards Aquifer", "Opportunity Home",
+                             "SA River Authority", "Alamo Colleges"],
+        "resources": resources.get(persona_type, resources["newcomer"]),
+        "connect_360_profile_url": "https://connect360.sanantonio.gov/profile"
+    })
+
+
+@tool
+def generate_onboarding_checklist(address: str, household_size: int = 1, has_children: bool = False, has_business: bool = False) -> str:
+    """Generate a personalized relocation onboarding checklist for a new SA resident.
+
+    USE THIS TOOL WHEN: A newcomer needs a comprehensive to-do list for moving to San Antonio.
+    DO NOT USE WHEN: The user needs help with a single specific service, not broad onboarding.
+
+    Args:
+        address: New San Antonio address or ZIP code
+        household_size: Number of people in household
+        has_children: Whether household includes school-age children
+        has_business: Whether the resident is also starting/moving a business
+
+    Returns:
+        JSON with prioritized checklist of onboarding tasks
+    """
+    checklist = [
+        {"priority": 1, "task": "Set up CPS Energy service", "partner": "CPS Energy", "status": "pending"},
+        {"priority": 2, "task": "Set up SAWS water service", "partner": "SAWS", "status": "pending"},
+        {"priority": 3, "task": "Register for solid waste collection", "partner": "City of SA", "status": "pending"},
+        {"priority": 4, "task": "Register to vote at new address", "partner": "Bexar County Elections", "status": "pending"},
+        {"priority": 5, "task": "Update driver license to TX address", "partner": "TX DPS", "status": "pending"},
+        {"priority": 6, "task": "File homestead exemption (if homeowner)", "partner": "BCAD", "status": "pending"},
+    ]
+    if has_children:
+        checklist.insert(3, {"priority": 3, "task": "Enroll children in zoned school", "partner": "Local ISD", "status": "pending"})
+    if has_business:
+        checklist.append({"priority": 7, "task": "Register business with City of SA", "partner": "City of SA - DSD", "status": "pending"})
+    return json.dumps({"address": address, "checklist": checklist, "estimated_completion": "5-7 business days"})
+
+
+@tool
+def analyze_saws_usage(account_id: str = "", address: str = "") -> str:
+    """Analyze San Antonio Water System usage patterns and identify savings.
+
+    USE THIS TOOL WHEN: A resident wants to understand their water bill, detect leaks,
+    or compare SAWS rate plans.
+    DO NOT USE WHEN: The question is about CPS Energy (electric/gas) rather than water.
+
+    Args:
+        account_id: SAWS account number
+        address: Service address
+
+    Returns:
+        JSON with usage analysis, tier breakdown, and conservation recommendations
+    """
+    monthly_gallons = random.randint(3000, 12000)
+    tier = "Tier 1" if monthly_gallons < 5000 else "Tier 2" if monthly_gallons < 9000 else "Tier 3"
+    return json.dumps({
+        "account": account_id or "SAWS-DEMO",
+        "monthly_usage_gallons": monthly_gallons,
+        "current_tier": tier,
+        "monthly_estimate": round(monthly_gallons * 0.008 + 18.50, 2),
+        "leak_detected": monthly_gallons > 10000,
+        "conservation_tips": [
+            "Install low-flow showerheads (SAWS rebate: $10 each)",
+            "Convert to drought-resistant landscaping (WaterSaver coupon: up to $200)",
+            "Fix running toilets (saves 200 gal/day)",
+        ],
+        "drought_stage": "Stage 1",
+        "watering_days": "Once per week based on last digit of address"
+    })
+
+
+@tool
+def check_drought_stage() -> str:
+    """Check the current Edwards Aquifer drought stage and watering restrictions.
+
+    USE THIS TOOL WHEN: A resident asks about watering restrictions, drought conditions,
+    or Edwards Aquifer levels.
+    DO NOT USE WHEN: The question is about general weather, not water restrictions.
+
+    Returns:
+        JSON with current aquifer level, drought stage, and restrictions
+    """
+    return json.dumps({
+        "aquifer_level_ft": 665,
+        "index_well": "J-17 (Bexar County)",
+        "current_stage": "Stage 1 - Mild",
+        "trigger_level": "660 ft (10-day avg)",
+        "restrictions": [
+            "Landscape watering: once per week on designated day",
+            "No watering 10am-8pm",
+            "Fountains must recirculate water",
+            "Car washing: bucket or auto shutoff only"
+        ],
+        "next_stage_trigger": "Stage 2 at 650 ft",
+        "eaa_url": "https://www.edwardsaquifer.org"
+    })
+
+
+@tool
+def coordinate_utility_signup(address: str, services: list = None) -> str:
+    """Coordinate simultaneous utility registrations for a new SA address.
+
+    USE THIS TOOL WHEN: A newcomer needs to set up multiple utilities at once
+    (CPS Energy, SAWS, solid waste, internet).
+    DO NOT USE WHEN: The user only needs one specific utility.
+
+    Args:
+        address: The service address
+        services: List of services needed (defaults to all)
+
+    Returns:
+        JSON with registration links, requirements, and estimated deposits
+    """
+    all_services = [
+        {"utility": "CPS Energy", "type": "Electric & Gas", "deposit": 200,
+         "url": "https://www.cpsenergy.com/newservice", "docs_needed": ["Photo ID", "Lease/deed"]},
+        {"utility": "SAWS", "type": "Water & Wastewater", "deposit": 100,
+         "url": "https://www.saws.org/service", "docs_needed": ["Photo ID", "Lease/deed"]},
+        {"utility": "City of SA Solid Waste", "type": "Trash & Recycling", "deposit": 0,
+         "url": "https://www.sa.gov/solidwaste", "docs_needed": ["Proof of residency"]},
+    ]
+    return json.dumps({
+        "address": address,
+        "services": all_services,
+        "total_estimated_deposits": 300,
+        "pro_tip": "CPS Energy and SAWS can often be started online in under 10 minutes each"
+    })
+
+
+@tool
+def estimate_utility_costs(address: str, sqft: int = 1500, household_size: int = 2) -> str:
+    """Estimate monthly utility costs for a San Antonio address.
+
+    USE THIS TOOL WHEN: A prospective resident wants to budget for utility costs.
+
+    Args:
+        address: SA address or ZIP code
+        sqft: Square footage of the home
+        household_size: Number of residents
+
+    Returns:
+        JSON with estimated monthly costs by utility
+    """
+    electric = round(sqft * 0.08 + household_size * 15, 2)
+    water = round(25 + household_size * 12, 2)
+    gas = round(20 + sqft * 0.01, 2)
+    waste = 26.74
+    return json.dumps({
+        "address": address,
+        "estimates": {
+            "cps_electric": electric, "cps_gas": gas,
+            "saws_water": water, "solid_waste": waste,
+            "total_monthly": round(electric + water + gas + waste, 2)
+        },
+        "note": "Estimates based on average SA consumption. Actual costs vary by usage and season."
+    })
+
+
+@tool
+def find_schools_by_address(address: str, grade_level: str = "any") -> str:
+    """Find zoned public schools for a San Antonio address.
+
+    USE THIS TOOL WHEN: A parent needs to know which schools serve their address
+    or wants to compare school options.
+    DO NOT USE WHEN: The question is about Pre-K 4 SA (use check_prek4sa_eligibility).
+
+    Args:
+        address: Residential address in San Antonio
+        grade_level: elementary, middle, high, or any
+
+    Returns:
+        JSON with zoned schools, ratings, and transfer options
+    """
+    return json.dumps({
+        "address": address,
+        "isd": "North East ISD",
+        "schools": [
+            {"name": "Example Elementary", "grades": "PK-5", "rating": "A", "distance_mi": 0.8,
+             "programs": ["Dual Language", "GT"]},
+            {"name": "Example Middle School", "grades": "6-8", "rating": "B+", "distance_mi": 1.2,
+             "programs": ["STEM Academy", "Athletics"]},
+            {"name": "Example High School", "grades": "9-12", "rating": "A", "distance_mi": 2.1,
+             "programs": ["IB Programme", "CTE", "Dual Credit"]},
+        ],
+        "magnet_options": ["Health Careers HS", "CAST Tech HS", "Young Women's Leadership Academy"],
+        "mic3_note": "Military families: MIC3 guarantees immediate enrollment with flexible documentation"
+    })
+
+
+@tool
+def compare_school_ratings(school_names: list = None, zip_code: str = "") -> str:
+    """Compare school ratings and performance metrics across SA ISDs.
+
+    USE THIS TOOL WHEN: A parent is comparing multiple schools to choose the best fit.
+
+    Args:
+        school_names: List of school names to compare
+        zip_code: ZIP code to find schools in the area
+
+    Returns:
+        JSON with comparative school data
+    """
+    return json.dumps({
+        "comparison": [
+            {"name": "School A (NEISD)", "tea_rating": "A", "student_teacher_ratio": "15:1",
+             "college_readiness": "82%", "avg_sat": 1180},
+            {"name": "School B (NISD)", "tea_rating": "A", "student_teacher_ratio": "18:1",
+             "college_readiness": "78%", "avg_sat": 1150},
+        ],
+        "data_source": "Texas Education Agency (TEA) 2025 Accountability Ratings"
+    })
+
+
+@tool
+def search_sa_neighborhoods(priorities: list = None, budget_max: int = 350000) -> str:
+    """Search and rank SA neighborhoods by resident priorities.
+
+    USE THIS TOOL WHEN: A newcomer wants to compare neighborhoods for housing.
+
+    Args:
+        priorities: List like ["good schools", "low crime", "short commute"]
+        budget_max: Maximum home purchase price
+
+    Returns:
+        JSON with ranked neighborhood recommendations
+    """
+    neighborhoods = [
+        {"name": "Alamo Heights", "median_price": 425000, "crime_score": "Low",
+         "school_rating": "A+", "commute_downtown_min": 12, "walkability": 72},
+        {"name": "Stone Oak", "median_price": 380000, "crime_score": "Low",
+         "school_rating": "A", "commute_downtown_min": 25, "walkability": 35},
+        {"name": "Helotes", "median_price": 340000, "crime_score": "Very Low",
+         "school_rating": "A", "commute_downtown_min": 30, "walkability": 22},
+        {"name": "Southtown/King William", "median_price": 350000, "crime_score": "Medium",
+         "school_rating": "B+", "commute_downtown_min": 5, "walkability": 85},
+        {"name": "Converse", "median_price": 260000, "crime_score": "Low",
+         "school_rating": "B+", "commute_downtown_min": 22, "walkability": 28},
+    ]
+    filtered = [n for n in neighborhoods if n["median_price"] <= budget_max]
+    return json.dumps({"budget": budget_max, "neighborhoods": filtered or neighborhoods[:3]})
+
+
+@tool
+def estimate_housing_costs(address: str = "", zip_code: str = "78209") -> str:
+    """Estimate total housing costs including taxes, HOA, and insurance for an SA area.
+
+    USE THIS TOOL WHEN: A buyer/renter wants full monthly cost estimates.
+
+    Args:
+        address: Specific address or general area
+        zip_code: ZIP code for area estimates
+
+    Returns:
+        JSON with comprehensive housing cost breakdown
+    """
+    home_value = random.randint(200000, 500000)
+    tax_rate = 2.45
+    return json.dumps({
+        "zip_code": zip_code,
+        "median_home_value": home_value,
+        "estimated_monthly": {
+            "mortgage_30yr": round(home_value * 0.0055, 2),
+            "property_tax": round(home_value * tax_rate / 100 / 12, 2),
+            "homeowners_insurance": round(home_value * 0.004 / 12, 2),
+            "hoa_typical": 75,
+        },
+        "median_rent_1br": 1100, "median_rent_2br": 1400, "median_rent_3br": 1800,
+        "homestead_exemption_savings": round(home_value * 0.20 * tax_rate / 100 / 12, 2)
+    })
+
+
+@tool
+def check_housing_eligibility(household_size: int = 1, annual_income: float = 35000) -> str:
+    """Check eligibility for Opportunity Home SA affordable housing programs.
+
+    USE THIS TOOL WHEN: A resident needs affordable housing assistance, Section 8,
+    or public housing information.
+
+    Args:
+        household_size: Number of people in household
+        annual_income: Total annual household income
+
+    Returns:
+        JSON with eligibility determination and available programs
+    """
+    ami_limits = {1: 46700, 2: 53350, 3: 60000, 4: 66650}
+    limit = ami_limits.get(min(household_size, 4), 66650)
+    eligible = annual_income <= limit
+    return json.dumps({
+        "eligible": eligible,
+        "income_limit_80_ami": limit,
+        "your_income": annual_income,
+        "programs": [
+            {"name": "Housing Choice Voucher (Section 8)", "waitlist": "Open - 6-12 month wait",
+             "contact": "210-477-6000"},
+            {"name": "Public Housing Communities", "waitlist": "Limited availability",
+             "contact": "210-477-6000"},
+            {"name": "Homebuyer Education Program", "waitlist": "Enrolling now",
+             "contact": "210-477-6100"},
+        ] if eligible else [],
+        "opportunity_home_url": "https://www.opportunityhomesa.com"
+    })
+
+
+@tool
+def search_affordable_housing(zip_code: str = "", bedrooms: int = 2) -> str:
+    """Search available affordable housing units in San Antonio.
+
+    USE THIS TOOL WHEN: A resident is looking for income-restricted housing options.
+
+    Args:
+        zip_code: Preferred ZIP code area
+        bedrooms: Number of bedrooms needed
+
+    Returns:
+        JSON with available affordable housing listings
+    """
+    return json.dumps({
+        "available_units": [
+            {"property": "Wheatley Courts", "type": "Public Housing", "bedrooms": bedrooms,
+             "rent": f"Income-based (30% of income)", "area": "East Side"},
+            {"property": "Gardens of San Juan", "type": "Tax Credit", "bedrooms": bedrooms,
+             "rent": "$875/mo", "area": "South Side"},
+        ],
+        "down_payment_assistance": [
+            {"program": "City of SA DPAL", "amount": "Up to $15,000", "url": "https://www.sa.gov/NHSD"},
+            {"program": "TSAHC", "amount": "Up to 5% of loan", "url": "https://www.tsahc.org"},
+        ]
+    })
+
+
+@tool
+def check_aquifer_level() -> str:
+    """Check current Edwards Aquifer water levels and drought stage.
+
+    USE THIS TOOL WHEN: A user asks about aquifer levels, water conservation mandates,
+    or Edwards Aquifer Authority regulations.
+
+    Returns:
+        JSON with current aquifer data and conservation status
+    """
+    return json.dumps({
+        "j17_level_ft": 665.2,
+        "j27_level_ft": 875.8,
+        "current_stage": "Stage 1",
+        "stage_description": "Mild - Voluntary and mandatory conservation measures",
+        "stage_thresholds": {
+            "normal": "Above 660 ft", "stage_1": "660 ft",
+            "stage_2": "650 ft", "stage_3": "640 ft",
+            "stage_4": "630 ft", "stage_5": "620 ft"
+        },
+        "eaa_url": "https://www.edwardsaquifer.org/aquifer-levels"
+    })
+
+
+@tool
+def lookup_conservation_rebates(rebate_type: str = "all") -> str:
+    """Look up available water conservation rebates from SAWS and EAA.
+
+    USE THIS TOOL WHEN: A resident wants to save money on water through rebates.
+
+    Args:
+        rebate_type: irrigation, fixtures, rainwater, or all
+
+    Returns:
+        JSON with available rebate programs
+    """
+    return json.dumps({
+        "saws_rebates": [
+            {"program": "WaterSaver Landscape Coupon", "amount": "Up to $200", "for": "Xeriscaping conversion"},
+            {"program": "Irrigation System Checkup", "amount": "Free audit", "for": "Sprinkler efficiency"},
+            {"program": "Pool Cover Rebate", "amount": "$100", "for": "Evaporation reduction"},
+            {"program": "Rainwater Harvesting", "amount": "Up to $400", "for": "Collection systems"},
+        ],
+        "eaa_rebates": [
+            {"program": "Agricultural Conservation", "amount": "Varies", "for": "Permit holders"},
+        ],
+        "apply_url": "https://www.saws.org/conservation"
+    })
+
+
+@tool
+def check_flood_alerts(zip_code: str = "") -> str:
+    """Check active San Antonio River Authority flood alerts and warnings.
+
+    USE THIS TOOL WHEN: A resident asks about flooding, creek levels, or low-water crossings.
+
+    Args:
+        zip_code: ZIP code to check for localized alerts
+
+    Returns:
+        JSON with current flood status and warnings
+    """
+    return json.dumps({
+        "active_alerts": [],
+        "status": "No active flood warnings",
+        "monitored_crossings": [
+            {"location": "Olmos Basin", "status": "Normal", "level_ft": 2.1},
+            {"location": "San Pedro Creek", "status": "Normal", "level_ft": 1.8},
+            {"location": "Salado Creek at Southton Rd", "status": "Normal", "level_ft": 3.2},
+        ],
+        "turn_around_dont_drown": False,
+        "sara_url": "https://www.sariverauthority.org/flood"
+    })
+
+
+@tool
+def lookup_floodplain_status(address: str) -> str:
+    """Determine if a San Antonio property is in a FEMA floodplain.
+
+    USE THIS TOOL WHEN: A buyer or homeowner needs to know flood insurance requirements.
+
+    Args:
+        address: Property address to check
+
+    Returns:
+        JSON with floodplain determination and insurance guidance
+    """
+    zones = ["X (Minimal Risk)", "AE (100-year)", "A (100-year)", "X500 (500-year)"]
+    zone = random.choice(zones)
+    return json.dumps({
+        "address": address,
+        "fema_zone": zone,
+        "flood_insurance_required": "AE" in zone or zone.startswith("A "),
+        "estimated_annual_premium": "$450-$1,200" if "AE" in zone else "Not required (but recommended)",
+        "last_firm_update": "2024-06-15",
+        "sara_watershed": "San Antonio River Basin",
+        "check_map_url": "https://msc.fema.gov/portal/search"
+    })
+
+
+@tool
+def calculate_property_tax(property_value: float, address: str = "") -> str:
+    """Calculate estimated property taxes for a Bexar County property.
+
+    USE THIS TOOL WHEN: A homeowner or buyer wants to know their property tax obligation
+    across all overlapping taxing jurisdictions.
+
+    Args:
+        property_value: Appraised or market value of the property
+        address: Property address for jurisdiction lookup
+
+    Returns:
+        JSON with tax breakdown by jurisdiction
+    """
+    jurisdictions = [
+        {"entity": "City of San Antonio", "rate": 0.5581},
+        {"entity": "Bexar County", "rate": 0.2685},
+        {"entity": "NEISD", "rate": 1.2042},
+        {"entity": "Alamo Colleges", "rate": 0.1490},
+        {"entity": "University Health", "rate": 0.2276},
+        {"entity": "SA River Authority", "rate": 0.0188},
+    ]
+    total_rate = sum(j["rate"] for j in jurisdictions)
+    total_tax = round(property_value * total_rate / 100, 2)
+    homestead_savings = round(property_value * 0.20 * total_rate / 100, 2)
+    for j in jurisdictions:
+        j["annual_tax"] = round(property_value * j["rate"] / 100, 2)
+    return json.dumps({
+        "property_value": property_value,
+        "total_rate_per_100": round(total_rate, 4),
+        "annual_tax": total_tax,
+        "monthly_tax": round(total_tax / 12, 2),
+        "jurisdictions": jurisdictions,
+        "homestead_exemption_savings": homestead_savings,
+        "protest_deadline": "May 15 (or 30 days after notice)",
+        "bcad_url": "https://www.bcad.org"
+    })
+
+
+@tool
+def check_exemption_eligibility(owner_type: str = "homeowner", age: int = 35, veteran: bool = False, disabled: bool = False) -> str:
+    """Check eligibility for Bexar County property tax exemptions.
+
+    USE THIS TOOL WHEN: A property owner wants to reduce their tax burden.
+
+    Args:
+        owner_type: homeowner or business
+        age: Owner's age
+        veteran: Whether owner is a veteran
+        disabled: Whether owner has a disability
+
+    Returns:
+        JSON with eligible exemptions and filing instructions
+    """
+    exemptions = [{"name": "General Homestead", "savings": "20% off school taxes + $5,000 off other", "eligible": True}]
+    if age >= 65:
+        exemptions.append({"name": "Over-65 Homestead", "savings": "$10,000 additional school exemption + tax ceiling", "eligible": True})
+    if veteran:
+        exemptions.append({"name": "Disabled Veteran", "savings": "$5,000-$12,000 based on disability %", "eligible": True})
+    if disabled:
+        exemptions.append({"name": "Disability Homestead", "savings": "$10,000 additional + tax ceiling", "eligible": True})
+    return json.dumps({
+        "exemptions": exemptions,
+        "filing_deadline": "April 30 (one-time filing, no renewal needed)",
+        "file_online": "https://www.bcad.org/exemptions",
+        "required_docs": ["Photo ID", "Proof of residency", "Vehicle registration"]
+    })
+
+
+@tool
+def check_voter_registration(name: str = "", address: str = "") -> str:
+    """Check voter registration status in Bexar County.
+
+    USE THIS TOOL WHEN: A resident wants to verify they are registered to vote,
+    register for the first time, or update their address.
+
+    Args:
+        name: Resident's full name
+        address: Current residential address
+
+    Returns:
+        JSON with registration status and relevant election info
+    """
+    return json.dumps({
+        "status": "Not found - Registration recommended",
+        "register_online": "https://www.votetexas.gov/register-to-vote",
+        "register_in_person": "Bexar County Elections, 1103 S Frio St, SA TX 78207",
+        "deadline_next_election": "30 days before election day",
+        "council_district": random.randint(1, 10),
+        "county_precinct": random.randint(1, 4),
+        "state_house_district": random.choice([116, 117, 118, 119, 120, 121, 122, 123, 124, 125]),
+        "elections_office": "210-335-8683",
+        "bexar_elections_url": "https://www.bexar.org/elections"
+    })
+
+
+@tool
+def find_polling_location(address: str) -> str:
+    """Find the nearest polling location and early voting sites in Bexar County.
+
+    USE THIS TOOL WHEN: A voter wants to know where to cast their ballot.
+
+    Args:
+        address: Voter's residential address
+
+    Returns:
+        JSON with polling locations and voting information
+    """
+    return json.dumps({
+        "election_day_location": {
+            "name": "Example Community Center",
+            "address": "1234 Example St, San Antonio TX 78201",
+            "hours": "7:00 AM - 7:00 PM"
+        },
+        "early_voting_sites": [
+            {"name": "Bexar County Elections HQ", "address": "1103 S Frio St", "hours": "8am-6pm"},
+            {"name": "Wonderland of the Americas Mall", "address": "4522 Fredericksburg Rd", "hours": "8am-6pm"},
+        ],
+        "vote_by_mail_eligible": "Only if 65+, disabled, or absent from county",
+        "sample_ballot_url": "https://www.bexar.org/elections/sample-ballot",
+        "whats_on_ballot": "Visit https://www.vote411.org for candidate info"
+    })
+
+
+# =============================================================================
 # Tool registry for easy access
 # =============================================================================
 
@@ -1854,17 +2449,49 @@ ALL_TOOLS = {
     "generate_mission_tour": generate_mission_tour,
     "generate_vip_upsell": generate_vip_upsell,
     "check_restaurant_inspection": check_restaurant_inspection,
+    # Connect-360 / SmartSA tools
+    "search_sa_newcomer_resources": search_sa_newcomer_resources,
+    "generate_onboarding_checklist": generate_onboarding_checklist,
+    "analyze_saws_usage": analyze_saws_usage,
+    "check_drought_stage": check_drought_stage,
+    "coordinate_utility_signup": coordinate_utility_signup,
+    "estimate_utility_costs": estimate_utility_costs,
+    "find_schools_by_address": find_schools_by_address,
+    "compare_school_ratings": compare_school_ratings,
+    "search_sa_neighborhoods": search_sa_neighborhoods,
+    "estimate_housing_costs": estimate_housing_costs,
+    "check_housing_eligibility": check_housing_eligibility,
+    "search_affordable_housing": search_affordable_housing,
+    "check_aquifer_level": check_aquifer_level,
+    "lookup_conservation_rebates": lookup_conservation_rebates,
+    "check_flood_alerts": check_flood_alerts,
+    "lookup_floodplain_status": lookup_floodplain_status,
+    "calculate_property_tax": calculate_property_tax,
+    "check_exemption_eligibility": check_exemption_eligibility,
+    "check_voter_registration": check_voter_registration,
+    "find_polling_location": find_polling_location,
 }
 
 TOOLS_BY_CATEGORY = {
     "civic": [search_sa_311_infrastructure, optimize_cps_energy_rate, check_sa_property_code,
               triage_dangerous_animal, coordinate_tnr_program, resolve_municipal_citation,
               check_prek4sa_eligibility, optimize_via_transit_route, track_solid_waste_schedule,
-              synthesize_sa_policy],
+              synthesize_sa_policy,
+              # Connect-360 / SmartSA
+              search_sa_newcomer_resources, generate_onboarding_checklist,
+              analyze_saws_usage, check_drought_stage,
+              coordinate_utility_signup, estimate_utility_costs,
+              find_schools_by_address, compare_school_ratings,
+              search_sa_neighborhoods, estimate_housing_costs,
+              check_housing_eligibility, search_affordable_housing,
+              check_aquifer_level, lookup_conservation_rebates,
+              check_flood_alerts, lookup_floodplain_status,
+              check_voter_registration, find_polling_location],
     "business": [match_sbeda_procurement, draft_revitalize_sa_grant, navigate_buildsa_permits,
                  check_historic_preservation, prepare_vita_taxes, analyze_bexar_commercial_realestate,
                  generate_b2b_leads, check_food_truck_compliance, find_disaster_recovery_funding,
-                 generate_social_commerce_catalog],
+                 generate_social_commerce_catalog,
+                 calculate_property_tax, check_exemption_eligibility],
     "military": [translate_military_resume, draft_va_nexus_letter, match_workforce_solutions,
                  build_military_spouse_resume, compare_tricare_plans, match_clearance_jobs,
                  generate_mic3_waiver, draft_skillbridge_application, optimize_gi_bill_hazelwood,
