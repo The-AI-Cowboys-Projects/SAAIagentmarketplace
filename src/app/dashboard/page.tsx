@@ -5,14 +5,13 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { CATEGORY_CONFIG, TIER_CONFIG, type Agent, type Profile } from '@/lib/types'
+import { CATEGORY_CONFIG, type Agent, type Profile } from '@/lib/types'
 import { SA_AGENTS } from '@/lib/agents-data'
 import {
-  Bot, Zap, BarChart3, Settings, ArrowRight, Shield, Star,
+  Bot, Zap, BarChart3, ArrowRight, Shield,
   LogOut, Crown, CreditCard, Activity
 } from 'lucide-react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
@@ -21,7 +20,6 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [recentAgents, setRecentAgents] = useState<Agent[]>([])
-  const [stats, setStats] = useState({ totalAgents: 60, freeAgents: 0, proAgents: 60, entAgents: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -42,82 +40,119 @@ export default function DashboardPage() {
   }, [])
 
   if (loading) return (
-    <div className="min-h-screen pt-28 flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-white pt-28 flex items-center justify-center">
+      <div className="w-7 h-7 border-2 border-navy-950 border-t-transparent rounded-full animate-spin" aria-label="Loading dashboard" />
     </div>
   )
 
   const plan = profile?.plan || 'starter'
   const planLabel = plan === 'all-access' ? 'Pro' : plan === 'team' ? 'Enterprise' : 'Basic'
 
+  const stats = [
+    {
+      label: 'Available Agents',
+      value: plan === 'starter' ? '10' : '60',
+      icon: Bot,
+      iconClass: 'text-brand-500',
+      bgClass: 'bg-brand-50',
+    },
+    {
+      label: 'Token Balance',
+      value: plan === 'starter' ? '50 / day' : 'Unlimited',
+      icon: Zap,
+      iconClass: 'text-emerald-600',
+      bgClass: 'bg-emerald-50',
+    },
+    {
+      label: 'Agents Used',
+      value: '0',
+      icon: Activity,
+      iconClass: 'text-sky-600',
+      bgClass: 'bg-sky-50',
+    },
+    {
+      label: 'Tokens Used',
+      value: '0',
+      icon: BarChart3,
+      iconClass: 'text-violet-600',
+      bgClass: 'bg-violet-50',
+    },
+  ]
+
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
   return (
-    <div className="min-h-screen pt-24 lg:pt-28 pb-16">
+    <div className="min-h-screen bg-white pt-24 lg:pt-28 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Welcome */}
-        <div className="flex items-center justify-between mb-8">
+
+        {/* Page header */}
+        <div className="flex items-start sm:items-center justify-between mb-8 border-b border-gray-100 pb-6 gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
               Welcome back{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}
             </h1>
-            <p className="text-midnight-400">Your agent command center</p>
+            <p className="text-gray-500 text-base">Your agent command center</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge variant={plan === 'starter' ? 'success' : 'warning'} size="md">
+          <div className="flex items-center gap-3 shrink-0">
+            <Badge variant={plan === 'starter' ? 'default' : 'warning'} size="md">
               <Crown className="w-3 h-3 mr-1" />
               {planLabel} Plan
             </Badge>
+            <button
+              onClick={handleSignOut}
+              aria-label="Sign out"
+              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-150"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Available Agents', value: plan === 'starter' ? '10' : plan === 'all-access' ? '60' : '60', icon: Bot, color: 'text-brand-400' },
-            { label: 'Token Balance', value: plan === 'starter' ? '50/day' : plan === 'all-access' ? 'Unlimited' : 'Unlimited', icon: Zap, color: 'text-emerald-400' },
-            { label: 'Agents Used', value: '0', icon: Activity, color: 'text-sky-400' },
-            { label: 'Tokens Used', value: '0', icon: BarChart3, color: 'text-violet-400' },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Card className="p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                  <span className="text-xs text-midnight-500">{stat.label}</span>
+          {stats.map((stat) => (
+            <div key={stat.label} className="bg-white border border-gray-200 rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${stat.bgClass}`}>
+                  <stat.icon className={`w-4 h-4 ${stat.iconClass}`} />
                 </div>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-              </Card>
-            </motion.div>
+                <span className="text-xs font-medium text-gray-500">{stat.label}</span>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+            </div>
           ))}
         </div>
 
-        {/* Upgrade banner (for starter users) */}
+        {/* Upgrade banner — starter users only */}
         {plan === 'starter' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="p-6 mb-8 bg-gradient-to-r from-brand-500/5 to-amber-500/5 border-brand-500/20">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Unlock all 60 agents</h3>
-                  <p className="text-sm text-midnight-400">Upgrade to Texas Pro for $29/mo and access all 60 agents with unlimited usage.</p>
-                </div>
-                <Link href="/pricing">
-                  <Button variant="primary" size="md">
-                    Upgrade Now <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
+          <div className="bg-navy-50 border border-navy-200 rounded-xl p-6 mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-semibold text-navy-950 mb-1">Unlock all 60 agents</h3>
+                <p className="text-sm text-navy-700">
+                  Upgrade to Texas Pro for $29/mo and access all 60 agents with unlimited usage.
+                </p>
               </div>
-            </Card>
-          </motion.div>
+              <Link href="/pricing" className="shrink-0">
+                <Button variant="primary" size="md">
+                  Upgrade Now <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         )}
 
-        {/* Quick access agents */}
+        {/* Top agents */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Top Agents</h2>
-            <Link href="/agents" className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1">
+            <h2 className="text-lg font-semibold text-gray-900">Top Agents</h2>
+            <Link
+              href="/agents"
+              className="text-sm font-medium text-navy-700 hover:text-navy-950 flex items-center gap-1 transition-colors duration-150"
+            >
               View all <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -128,14 +163,14 @@ export default function DashboardPage() {
                 <Link key={agent.id} href={`/agents/${agent.id}`}>
                   <Card hover className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${branch.bgColor} border`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${branch.bgColor} border border-gray-100`}>
                         {branch.icon}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-white truncate">{agent.short_name}</h3>
-                        <p className="text-[10px] text-midnight-500 truncate">{agent.tagline}</p>
+                        <h3 className="text-sm font-semibold text-gray-900 truncate">{agent.short_name}</h3>
+                        <p className="text-[11px] text-gray-500 truncate mt-0.5">{agent.tagline}</p>
                       </div>
-                      <Badge variant="warning">Pro</Badge>
+                      <Badge variant="warning" size="sm">Pro</Badge>
                     </div>
                   </Card>
                 </Link>
@@ -144,25 +179,31 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Account settings */}
+        {/* Account section */}
         <Card className="p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Account</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 mb-5">Account</h2>
+          <div className="divide-y divide-gray-100">
+
+            <div className="flex items-center justify-between py-3 first:pt-0">
               <div className="flex items-center gap-3">
-                <CreditCard className="w-4 h-4 text-midnight-400" />
+                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-gray-500" />
+                </div>
                 <div>
-                  <div className="text-sm text-white">Email</div>
-                  <div className="text-xs text-midnight-500">{user?.email}</div>
+                  <div className="text-sm font-medium text-gray-900">Email</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{user?.email}</div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between">
+
+            <div className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4 text-midnight-400" />
+                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-gray-500" />
+                </div>
                 <div>
-                  <div className="text-sm text-white">Plan</div>
-                  <div className="text-xs text-midnight-500">{planLabel}</div>
+                  <div className="text-sm font-medium text-gray-900">Plan</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{planLabel}</div>
                 </div>
               </div>
               {plan === 'starter' && (
@@ -171,8 +212,10 @@ export default function DashboardPage() {
                 </Link>
               )}
             </div>
+
           </div>
         </Card>
+
       </div>
     </div>
   )
