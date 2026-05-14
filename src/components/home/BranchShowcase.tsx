@@ -88,8 +88,8 @@ const categories: {
   },
   {
     key: 'BUSINESS',
-    agents: 10,
-    suites: ['Licensing', 'Market Intel', 'HR', 'Grants', 'Tax'],
+    agents: 20,
+    suites: ['Licensing', 'Market Intel', 'HR', 'Grants', 'Tax', 'Real Estate', 'Franchises'],
     featuredAgent: 'SA Business License Pro',
   },
   {
