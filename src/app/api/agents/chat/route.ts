@@ -1,13 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { backendFetch, isBackendAvailable } from '@/lib/backend'
+import { createServerSupabase } from '@/lib/supabase/server'
 import { SA_AGENTS } from '@/lib/agents-data'
 import type { AgentStatus } from '@/lib/types'
+
+// Per-session chat rate limit (simple, per-IP, 10 msgs/min for unauthed)
+const chatLimitMap = new Map<string, { count: number; resetAt: number }>()
+function isChatRateLimited(key: string, maxPerMin: number): boolean {
+  const now = Date.now()
+  const entry = chatLimitMap.get(key)
+  if (!entry || now > entry.resetAt) {
+    chatLimitMap.set(key, { count: 1, resetAt: now + 60_000 })
+    return false
+  }
+  entry.count++
+  return entry.count > maxPerMin
+}
 
 export async function POST(request: NextRequest) {
   try {
     const { agentId, message } = await request.json()
     if (!agentId || !message) {
       return NextResponse.json({ error: 'agentId and message are required' }, { status: 400 })
+    }
+
+    // Auth check — allow demo for unauthed users but with stricter limits
+    const supabase = createServerSupabase()
+    const { data: { user } } = await supabase.auth.getUser()
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const rateLimitKey = user ? `user:${user.id}` : `ip:${ip}`
+    const maxPerMin = user ? 30 : 5
+
+    if (isChatRateLimited(rateLimitKey, maxPerMin)) {
+      return NextResponse.json(
+        { error: user ? 'Rate limit exceeded. Please slow down.' : 'Demo rate limit reached. Sign in for more access.' },
+        { status: 429 }
+      )
     }
 
     // Block chat for agents that aren't live or beta

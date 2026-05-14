@@ -4,6 +4,24 @@ import { createServiceRoleClient } from '@/lib/supabase/server'
 import { recordStripePayment } from '@/lib/quickbooks'
 import Stripe from 'stripe'
 
+// ── Resolve plan from Stripe price ID (supports new + legacy env var names) ──
+function resolvePlanFromPriceId(priceId: string | undefined): string {
+  if (!priceId) return 'starter'
+  const growthIds = [
+    process.env.STRIPE_GROWTH_MONTHLY_PRICE_ID,
+    process.env.STRIPE_GROWTH_ANNUAL_PRICE_ID,
+  ].filter(Boolean)
+  const partnerIds = [
+    process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID,
+    process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID,
+    process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
+    process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID,
+  ].filter(Boolean)
+  if (growthIds.includes(priceId)) return 'growth'
+  if (partnerIds.includes(priceId)) return 'partner'
+  return 'starter'
+}
+
 // ── Idempotency: track processed event IDs in-memory + Supabase ─────────
 // In-memory set for fast dedup within a single serverless instance.
 // Supabase stripe_events table is the durable store across instances.
@@ -60,13 +78,8 @@ export async function POST(request: NextRequest) {
         const subscription = await getStripe().subscriptions.retrieve(session.subscription as string)
         const priceId = subscription.items.data[0]?.price.id
 
-        // Determine plan from price
-        let plan = 'starter'
-        if (priceId === process.env.STRIPE_GROWTH_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_GROWTH_ANNUAL_PRICE_ID) {
-          plan = 'growth'
-        } else if (priceId === process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID) {
-          plan = 'partner'
-        }
+        // Determine plan from price (check new + legacy env var names)
+        const plan = resolvePlanFromPriceId(priceId)
 
         await supabase.from('profiles').update({ plan }).eq('id', userId)
       }
@@ -114,12 +127,7 @@ export async function POST(request: NextRequest) {
       const priceId = subscription.items.data[0]?.price.id
 
       // Sync plan changes (upgrades/downgrades)
-      let plan = 'starter'
-      if (priceId === process.env.STRIPE_GROWTH_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_GROWTH_ANNUAL_PRICE_ID) {
-        plan = 'growth'
-      } else if (priceId === process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID) {
-        plan = 'partner'
-      }
+      const plan = resolvePlanFromPriceId(priceId)
 
       const customerId = subscription.customer as string
       const { data: profile } = await supabase

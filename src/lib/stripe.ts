@@ -17,8 +17,8 @@ export const PLANS = {
     name: 'Starter',
     monthlyPrice: 4900,
     annualPrice: 47000,
-    stripeMonthlyPriceId: process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
-    stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,
+    stripeMonthlyPriceId: process.env.STRIPE_STARTER_MONTHLY_PRICE_ID || process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
   },
   growth: {
     name: 'Growth',
@@ -31,7 +31,7 @@ export const PLANS = {
     name: 'Partner',
     monthlyPrice: 49900,
     annualPrice: 479000,
-    stripeMonthlyPriceId: process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID,
-    stripeAnnualPriceId: process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID,
+    stripeMonthlyPriceId: process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID || process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
+    stripeAnnualPriceId: process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID || process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID,
   },
 } as const

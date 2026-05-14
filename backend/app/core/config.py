@@ -59,3 +59,6 @@ if settings.is_production:
     if not settings.BACKEND_API_KEY:
         print("FATAL: BACKEND_API_KEY must be set in production.", file=sys.stderr)
         sys.exit(1)
+    if "sqlite" in settings.DATABASE_URL.lower():
+        print("FATAL: SQLite is not supported in production. Set DATABASE_URL to a Postgres connection string.", file=sys.stderr)
+        sys.exit(1)
