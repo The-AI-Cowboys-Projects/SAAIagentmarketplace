@@ -152,7 +152,7 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 70 
 |---|---|
 | **LangGraph Supervisor Router** | Multi-agent orchestration with intent classification and state management |
 | **LangChain @tool Decorators** | 70 tool definitions across 6 categories with exhaustive docstrings for deterministic routing |
-| **Keyword-Based Intent Classifier** | Domain routing — Civic, Business, Military, Healthcare, Tourism |
+| **Keyword-Based Intent Classifier** | Domain routing — Civic, Business, Military, Healthcare, Tourism, Connect-360 |
 | **ChromaDB Vector Store** | Semantic agent discovery via RAG — cosine similarity search |
 | **OpenAI GPT-4o** | Primary LLM for agent reasoning (with MockLLM demo fallback) |
 | **Agent Status Lifecycle** | `live`, `beta`, `demo`, `coming_soon` — UI badges and deploy gating |
@@ -228,7 +228,7 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 70 
  │  ┌──────────────────────────┴─────────────────────────────┐  │
  │  │                  70 LangChain @tools                     │  │
  │  │                                                          │  │
- │  │  Civic (10)  |  Business (10)  |  Military (10)          │  │
+ │  │  Civic (10) | Business (20) | Military (10)              │  │
  │  │  Healthcare (10) | Tourism (10) | Connect-360 (10)      │  │
  │  │                                                          │  │
  │  │  Each tool: @tool decorator + exhaustive docstring       │  │
@@ -305,7 +305,7 @@ The interface shifts from reactive chat boxes to proactive, trusted autonomy:
 | 9 | **City Budget Transparency** | Natural language queries against the City of San Antonio annual budget and expenditure data. |
 | 10 | **SA Housing Navigator** | Affordable housing program matching, application assistance, and waitlist tracking. |
 
-### Category 2: Small Business & Economic Development (10 agents)
+### Category 2: Small Business & Economic Development (20 agents)
 
 | # | Agent | Description |
 |---|---|---|
@@ -319,66 +319,76 @@ The interface shifts from reactive chat boxes to proactive, trusted autonomy:
 | 18 | **TX Business Legal Assist** | Contract review, NDA drafting, and Texas commercial law guidance. |
 | 19 | **TX Sales Tax Agent** | Texas sales & use tax calculation, filing preparation, and audit defense documentation. |
 | 20 | **SA Real Estate Intelligence** | Commercial and residential property analysis, valuation, and investment underwriting for Bexar County. |
+| 21 | **Food Truck Compliance** | Mobile food vendor permitting, health inspections, and zoning compliance for SA food trucks. |
+| 22 | **SBEDA Matchmaker** | Matches small businesses with City of San Antonio SBEDA contracting and certification programs. |
+| 23 | **Franchise Advisor** | Franchise opportunity analysis, FDD review, and market feasibility for SA metro franchise buyers. |
+| 24 | **Contractor Verifier** | General contractor license verification, bond validation, and compliance checks for Bexar County. |
+| 25 | **Export Compliance** | International trade compliance, export licensing, and customs documentation for SA exporters. |
+| 26 | **Startup Funding** | Venture capital, angel investor, and accelerator matching for San Antonio startups. |
+| 27 | **Commercial Lease Analyzer** | Commercial lease term analysis, market rate comparison, and negotiation guidance for SA tenants. |
+| 28 | **Workforce Recruiter** | Local talent sourcing, job posting optimization, and candidate screening for SA employers. |
+| 29 | **Business Insurance Advisor** | Commercial insurance comparison, coverage analysis, and claims guidance for SA businesses. |
+| 30 | **Marketing Campaign Builder** | Local marketing campaign creation, audience targeting, and ROI analysis for SA businesses. |
 
 ### Category 3: Military Transition & JBSA (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 21 | **JBSA Benefits Navigator** | DoD benefits counseling, BAH/BAS calculations, and TRICARE enrollment for JBSA personnel. |
-| 22 | **SA Veteran Transition Coach** | Career transition coaching, resume translation, and civilian job matching for SA veterans. |
-| 23 | **JBSA Housing Agent** | On-post and off-post housing search, BAH-optimized filtering, and PCS move coordination. |
-| 24 | **GI Bill Education Advisor** | GI Bill benefit optimization, school comparison, and enrollment guidance for SA-area veterans. |
-| 25 | **JBSA Appointment Scheduler** | Medical, dental, and admin appointment scheduling across JBSA facilities. |
-| 26 | **SA Veteran Mental Health Navigator** | Connects veterans with SA-area mental health resources, crisis lines, and peer support. |
-| 27 | **Veteran Business Loans Agent** | SBA veteran loan programs, SBIR/STTR guidance, and small business formation for SA-area vets. |
-| 28 | **Clearance Status Tracker** | SF-86 preparation assistance, investigation status tracking, and adjudication guidance. |
-| 29 | **Military Spouse Career Agent** | Remote-first job matching, license portability guidance, and entrepreneur resources. |
-| 30 | **VA Claims Accelerator** | VA disability claim preparation, nexus letter guidance, and DBQ coordination for SA veterans. |
+| 31 | **JBSA Benefits Navigator** | DoD benefits counseling, BAH/BAS calculations, and TRICARE enrollment for JBSA personnel. |
+| 32 | **SA Veteran Transition Coach** | Career transition coaching, resume translation, and civilian job matching for SA veterans. |
+| 33 | **JBSA Housing Agent** | On-post and off-post housing search, BAH-optimized filtering, and PCS move coordination. |
+| 34 | **GI Bill Education Advisor** | GI Bill benefit optimization, school comparison, and enrollment guidance for SA-area veterans. |
+| 35 | **JBSA Appointment Scheduler** | Medical, dental, and admin appointment scheduling across JBSA facilities. |
+| 36 | **SA Veteran Mental Health Navigator** | Connects veterans with SA-area mental health resources, crisis lines, and peer support. |
+| 37 | **Veteran Business Loans Agent** | SBA veteran loan programs, SBIR/STTR guidance, and small business formation for SA-area vets. |
+| 38 | **Clearance Status Tracker** | SF-86 preparation assistance, investigation status tracking, and adjudication guidance. |
+| 39 | **Military Spouse Career Agent** | Remote-first job matching, license portability guidance, and entrepreneur resources. |
+| 40 | **VA Claims Accelerator** | VA disability claim preparation, nexus letter guidance, and DBQ coordination for SA veterans. |
 
 ### Category 4: Healthcare Administration (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 31 | **SA Care Navigator** | Insurance-aware provider search, appointment booking, and care coordination for SA patients. |
-| 32 | **SA Rx Optimizer** | Prescription cost comparison, GoodRx integration, and patient assistance program matching. |
-| 33 | **SA Mental Health Connector** | Therapist and psychiatrist matching with sliding-scale and Medicaid-accepting providers. |
-| 34 | **Chronic Care Manager** | Diabetes, hypertension, and heart disease management with specialist coordination. |
-| 35 | **Health Insurance Navigator** | ACA marketplace, CHIP, and Medicaid enrollment guidance for uninsured Bexar County residents. |
-| 36 | **SA Senior Care Advisor** | Medicare counseling, assisted living search, and caregiver resource coordination. |
-| 37 | **SA Dental Access Agent** | Medicaid and low-cost dental care finder with emergency dental triage. |
-| 38 | **SA Maternal Health Guide** | Prenatal care coordination, WIC enrollment, and postpartum support navigation. |
-| 39 | **SA Clinical Trial Matcher** | Matches SA patients to active clinical trials at UT Health SA and Methodist Research. |
-| 40 | **Medical Bill Negotiator** | Audits hospital bills for errors, identifies charity care eligibility, and negotiates balances. |
+| 41 | **SA Care Navigator** | Insurance-aware provider search, appointment booking, and care coordination for SA patients. |
+| 42 | **SA Rx Optimizer** | Prescription cost comparison, GoodRx integration, and patient assistance program matching. |
+| 43 | **SA Mental Health Connector** | Therapist and psychiatrist matching with sliding-scale and Medicaid-accepting providers. |
+| 44 | **Chronic Care Manager** | Diabetes, hypertension, and heart disease management with specialist coordination. |
+| 45 | **Health Insurance Navigator** | ACA marketplace, CHIP, and Medicaid enrollment guidance for uninsured Bexar County residents. |
+| 46 | **SA Senior Care Advisor** | Medicare counseling, assisted living search, and caregiver resource coordination. |
+| 47 | **SA Dental Access Agent** | Medicaid and low-cost dental care finder with emergency dental triage. |
+| 48 | **SA Maternal Health Guide** | Prenatal care coordination, WIC enrollment, and postpartum support navigation. |
+| 49 | **SA Clinical Trial Matcher** | Matches SA patients to active clinical trials at UT Health SA and Methodist Research. |
+| 50 | **Medical Bill Negotiator** | Audits hospital bills for errors, identifies charity care eligibility, and negotiates balances. |
 
 ### Category 5: Tourism & Hospitality (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 41 | **Riverwalk Concierge** | Personalized restaurant, entertainment, and attraction recommendations along the River Walk. |
-| 42 | **Alamo & Missions Guide** | Interactive AI guide to the Alamo and all five World Heritage missions. |
-| 43 | **SA Hotel Price Optimizer** | Real-time hotel price tracking and booking optimization across SA properties. |
-| 44 | **Fiesta & Events Planner** | Complete planning guide for Fiesta San Antonio, rodeo, and year-round cultural events. |
-| 45 | **SA Foodie Intelligence** | Curated food tour planning with Tex-Mex, BBQ, and James Beard restaurant discovery. |
-| 46 | **SA Sports & Entertainment** | Spurs, San Antonio FC, Missions baseball — tickets, parking, and game-day planning. |
-| 47 | **SA Arts & Culture Explorer** | McNay Art Museum, Witte Museum, and SA cultural district discovery with exhibit scheduling. |
-| 48 | **TX Hill Country Day Trips** | Curated day trip itineraries to Fredericksburg, Wimberley, New Braunfels, and Bandera. |
-| 49 | **Convention Center Planner** | Henry B. Gonzalez Convention Center event planning, vendor coordination, and logistics. |
-| 50 | **SA Family Adventure Planner** | SeaWorld, Six Flags, Natural Bridge Caverns — family itinerary planning with crowd forecasting. |
+| 51 | **Riverwalk Concierge** | Personalized restaurant, entertainment, and attraction recommendations along the River Walk. |
+| 52 | **Alamo & Missions Guide** | Interactive AI guide to the Alamo and all five World Heritage missions. |
+| 53 | **SA Hotel Price Optimizer** | Real-time hotel price tracking and booking optimization across SA properties. |
+| 54 | **Fiesta & Events Planner** | Complete planning guide for Fiesta San Antonio, rodeo, and year-round cultural events. |
+| 55 | **SA Foodie Intelligence** | Curated food tour planning with Tex-Mex, BBQ, and James Beard restaurant discovery. |
+| 56 | **SA Sports & Entertainment** | Spurs, San Antonio FC, Missions baseball — tickets, parking, and game-day planning. |
+| 57 | **SA Arts & Culture Explorer** | McNay Art Museum, Witte Museum, and SA cultural district discovery with exhibit scheduling. |
+| 58 | **TX Hill Country Day Trips** | Curated day trip itineraries to Fredericksburg, Wimberley, New Braunfels, and Bandera. |
+| 59 | **Convention Center Planner** | Henry B. Gonzalez Convention Center event planning, vendor coordination, and logistics. |
+| 60 | **SA Family Adventure Planner** | SeaWorld, Six Flags, Natural Bridge Caverns — family itinerary planning with crowd forecasting. |
 
 ### Category 6: Connect-360 SmartSA (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 51 | **Newcomer Onboarding** | One-stop relocation concierge for newcomers moving to San Antonio — utilities, schools, neighborhoods. |
-| 52 | **SAWS Water Advisor** | SAWS water usage analysis, drought stage alerts, conservation rebates, and billing assistance. |
-| 53 | **Unified Utility Coordinator** | Coordinate CPS Energy + SAWS + internet setup for new residents — one agent, all utilities. |
-| 54 | **SA K-12 School Finder** | Compare SA ISD, Northside ISD, North East ISD, and charter schools by address and ratings. |
-| 55 | **SA Neighborhood Scout** | Neighborhood comparison — housing costs, walkability, crime stats, school ratings, commute times. |
-| 56 | **Opportunity Home Navigator** | Section 8, affordable housing waitlists, and Opportunity Home SA program navigation. |
-| 57 | **Edwards Aquifer Monitor** | Real-time Edwards Aquifer level tracking, drought stage alerts, and water conservation rebates. |
-| 58 | **SA River Authority Agent** | San Antonio River Authority flood alerts, creek monitoring, and floodplain lookup. |
-| 59 | **Bexar Property Tax Advisor** | Bexar County property tax estimation, homestead exemption filing, and BCAD protest assistance. |
-| 60 | **SA Voter Registration Agent** | Voter registration status check, polling location finder, sample ballot preview, and reminders. |
+| 61 | **Newcomer Onboarding** | One-stop relocation concierge for newcomers moving to San Antonio — utilities, schools, neighborhoods. |
+| 62 | **SAWS Water Advisor** | SAWS water usage analysis, drought stage alerts, conservation rebates, and billing assistance. |
+| 63 | **Unified Utility Coordinator** | Coordinate CPS Energy + SAWS + internet setup for new residents — one agent, all utilities. |
+| 64 | **SA K-12 School Finder** | Compare SA ISD, Northside ISD, North East ISD, and charter schools by address and ratings. |
+| 65 | **SA Neighborhood Scout** | Neighborhood comparison — housing costs, walkability, crime stats, school ratings, commute times. |
+| 66 | **Opportunity Home Navigator** | Section 8, affordable housing waitlists, and Opportunity Home SA program navigation. |
+| 67 | **Edwards Aquifer Monitor** | Real-time Edwards Aquifer level tracking, drought stage alerts, and water conservation rebates. |
+| 68 | **SA River Authority Agent** | San Antonio River Authority flood alerts, creek monitoring, and floodplain lookup. |
+| 69 | **Bexar Property Tax Advisor** | Bexar County property tax estimation, homestead exemption filing, and BCAD protest assistance. |
+| 70 | **SA Voter Registration Agent** | Voter registration status check, polling location finder, sample ballot preview, and reminders. |
 
 ---
 
