@@ -78,7 +78,7 @@ export function Footer() {
 
             <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
               AI agents built for San Antonio — civic services, business, military,
-              healthcare, and tourism. 70 specialized agents across 5 categories.
+              healthcare, tourism, and Connect-360. 70 specialized agents across 6 categories.
             </p>
 
             {/* Social links */}
@@ -131,6 +131,7 @@ export function Footer() {
                 { href: '/agents?branch=Military',   label: 'Military'   },
                 { href: '/agents?branch=Healthcare', label: 'Healthcare' },
                 { href: '/agents?branch=Tourism',    label: 'Tourism'    },
+                { href: '/agents?branch=Connect360', label: 'Connect-360' },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="text-sm text-gray-500 hover:text-navy-950 transition-colors duration-150">

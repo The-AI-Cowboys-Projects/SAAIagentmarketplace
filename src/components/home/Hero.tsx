@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/Button'
 
 const STATS = [
   { value: '70',       label: 'AI Agents',    icon: Bot    },
-  { value: '5',        label: 'Categories',   icon: Shield },
+  { value: '6',        label: 'Categories',   icon: Shield },
   { value: '24/7',     label: 'Availability', icon: Zap    },
   { value: 'SA-Built', label: 'Local Data',   icon: Users  },
 ]
@@ -46,7 +46,7 @@ export function Hero() {
             style={{ animationDelay: '0ms' }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" aria-hidden="true" />
-            Now Live — 70 Agents Across 5 Categories
+            Now Live — 70 Agents Across 6 Categories
           </div>
 
           {/* Main headline */}

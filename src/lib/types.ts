@@ -1,6 +1,6 @@
-export type AgentCategory = 'Civic' | 'Business' | 'Military' | 'Healthcare' | 'Tourism'
+export type AgentCategory = 'Civic' | 'Business' | 'Military' | 'Healthcare' | 'Tourism' | 'Connect360'
 export type AgentStatus = 'live' | 'beta' | 'demo' | 'coming_soon'
-export type PriceTier = 'FREE' | 'PRO' | 'ENTERPRISE'
+export type PriceTier = 'PRO' | 'ENTERPRISE'
 
 export interface Agent {
   id: string
@@ -78,13 +78,13 @@ export const CATEGORY_CONFIG: Record<AgentCategory, { label: string; color: stri
   Military:   { label: 'Military',   color: 'text-green-700',  bgColor: 'bg-green-50 border-green-200', icon: 'MI' },
   Healthcare: { label: 'Healthcare', color: 'text-rose-600',   bgColor: 'bg-rose-50 border-rose-200',   icon: 'HC' },
   Tourism:    { label: 'Tourism',    color: 'text-violet-600', bgColor: 'bg-violet-50 border-violet-200',icon: 'TO' },
+  Connect360: { label: 'Connect-360', color: 'text-navy-700', bgColor: 'bg-navy-50 border-navy-200', icon: 'C3' },
 }
 
 // Keep BRANCH_CONFIG as alias for backward compatibility
 export const BRANCH_CONFIG = CATEGORY_CONFIG
 
 export const TIER_CONFIG: Record<PriceTier, { label: string; color: string; bgColor: string }> = {
-  FREE:       { label: 'Free',       color: 'text-green-700',  bgColor: 'bg-green-50 border-green-200'   },
   PRO:        { label: 'Pro',        color: 'text-navy-700',   bgColor: 'bg-navy-50 border-navy-200'     },
   ENTERPRISE: { label: 'Enterprise', color: 'text-violet-700', bgColor: 'bg-violet-50 border-violet-200' },
 }

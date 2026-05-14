@@ -165,7 +165,7 @@ export default function AgentDetailPage() {
                   <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <h1 className="text-2xl font-bold text-gray-900">{agent.name}</h1>
                     <Badge
-                      variant={agent.tier === 'FREE' ? 'success' : agent.tier === 'PRO' ? 'warning' : 'purple'}
+                      variant={agent.tier === 'PRO' ? 'warning' : 'purple'}
                       size="md"
                     >
                       {tier.label}
@@ -254,8 +254,8 @@ export default function AgentDetailPage() {
                             <h3 className="text-sm font-medium text-gray-900 truncate">{ra.short_name}</h3>
                             <p className="text-[10px] text-gray-400 truncate">{ra.tagline}</p>
                           </div>
-                          <Badge variant={ra.tier === 'FREE' ? 'success' : 'warning'} size="sm">
-                            {ra.tier}
+                          <Badge variant={ra.tier === 'PRO' ? 'warning' : 'purple'} size="sm">
+                            {TIER_CONFIG[ra.tier].label}
                           </Badge>
                         </div>
                       </Card>
@@ -311,7 +311,7 @@ export default function AgentDetailPage() {
               <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                   <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  Zero-retention privacy
+                  Privacy-first design
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                   <Clock className="w-3.5 h-3.5 text-sky-500 shrink-0" />

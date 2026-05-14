@@ -15,19 +15,19 @@ import { clsx } from 'clsx'
 const faqs = [
   {
     q: 'What is the SA AI Agent Marketplace?',
-    a: "The SA AI Agent Marketplace is San Antonio's first local AI platform. We offer 70 specialized AI agents across 5 categories — Civic, Business, Military/JBSA, Healthcare, and Tourism — each connected to real SA data sources to help you get things done faster.",
+    a: "The SA AI Agent Marketplace is San Antonio's first local AI platform. We offer 70 specialized AI agents across 6 categories — Civic, Business, Military/JBSA, Healthcare, Tourism, and Connect-360 SmartSA — each connected to real SA data sources to help you get things done faster.",
   },
   {
     q: 'How do the agents work?',
     a: 'Each agent is a specialized AI assistant built for a specific task. Select an agent, provide your inputs, and get results in seconds. Agents are connected to local data sources like CoSA open data, Bexar County records, CPS Energy, SAWS, VIA Transit, and more.',
   },
   {
-    q: 'What are the 5 categories?',
-    a: 'Civic (permits, 311, transit, parks, housing), Business (licensing, market intel, HR, grants, tax), Military/JBSA (benefits, VA claims, transition, GI Bill, housing), Healthcare (care navigation, prescriptions, mental health, insurance, senior care), and Tourism (Riverwalk, Alamo, hotels, food, events).',
+    q: 'What are the 6 categories?',
+    a: 'Civic (permits, 311, transit, parks, housing), Business (licensing, market intel, HR, grants, tax), Military/JBSA (benefits, VA claims, transition, GI Bill, housing), Healthcare (care navigation, prescriptions, mental health, insurance, senior care), Tourism (Riverwalk, Alamo, hotels, food, events), and Connect-360 SmartSA (cross-domain interoperability, relocation, utilities, schools, neighborhoods).',
   },
   {
     q: 'Is my data safe?',
-    a: 'Yes. We use zero-retention processing — your data is never stored, logged, or used for model training. All data is encrypted in transit with TLS 1.3. Healthcare agents are HIPAA-aware and designed with patient privacy in mind.',
+    a: 'Yes. We use privacy-first design — agent conversations are not used for model training. All data is encrypted in transit with TLS 1.3 and we practice minimal data retention. Healthcare agents are HIPAA-aware and designed with patient privacy in mind.',
   },
   {
     q: 'How much does it cost?',

@@ -4,7 +4,7 @@
 
 **Live:** [sanantonioaiagents.com](https://sanantonioaiagents.com) | **Parent:** [theaicowboys.com](https://www.theaicowboys.com)
 
-A production-grade AI Agent Marketplace serving the City of San Antonio with 70 specialized autonomous agents across five strategic domains: Civic Services, Small Business & Economic Development, Military Transition (JBSA), Healthcare Administration, and Tourism & Hospitality. Powered by LangChain/LangGraph multi-agent orchestration, Stripe subscription billing with idempotent webhooks and async QuickBooks revenue sync, Supabase authentication with Row-Level Security, server-side entitlement enforcement, rate limiting, CI/CD pipeline, and a 3-click deployment paradigm.
+A production-grade AI Agent Marketplace serving the City of San Antonio with 70 specialized autonomous agents across six strategic domains: Civic Services, Small Business & Economic Development, Military Transition (JBSA), Healthcare Administration, Tourism & Hospitality, and Connect-360 SmartSA interoperability. Powered by LangChain/LangGraph multi-agent orchestration, Stripe subscription billing with idempotent webhooks and async QuickBooks revenue sync, Supabase authentication with Row-Level Security, server-side entitlement enforcement, rate limiting, CI/CD pipeline, and a 3-click deployment paradigm.
 
 ---
 
@@ -151,7 +151,7 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 70 
 | Technology | Purpose |
 |---|---|
 | **LangGraph Supervisor Router** | Multi-agent orchestration with intent classification and state management |
-| **LangChain @tool Decorators** | 70 tool definitions with exhaustive docstrings for deterministic routing |
+| **LangChain @tool Decorators** | 70 tool definitions across 6 categories with exhaustive docstrings for deterministic routing |
 | **Keyword-Based Intent Classifier** | Domain routing — Civic, Business, Military, Healthcare, Tourism |
 | **ChromaDB Vector Store** | Semantic agent discovery via RAG — cosine similarity search |
 | **OpenAI GPT-4o** | Primary LLM for agent reasoning (with MockLLM demo fallback) |
@@ -219,7 +219,7 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 70 
  │  │              Agent Execution Engine                      │  │
  │  │                                                          │  │
  │  │  User Query → Intent Classifier (keyword scoring)        │  │
- │  │           → Category Assignment (5 domains)              │  │
+ │  │           → Category Assignment (6 domains)              │  │
  │  │           → Best Agent Selection                         │  │
  │  │           → LangGraph Supervisor Router                  │  │
  │  │           → Tool Invocation + Result Aggregation         │  │
@@ -228,8 +228,8 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 70 
  │  ┌──────────────────────────┴─────────────────────────────┐  │
  │  │                  70 LangChain @tools                     │  │
  │  │                                                          │  │
- │  │  Civic (20)  |  Business (20)  |  Military (10)          │  │
- │  │  Healthcare (10)  |  Tourism (10)                        │  │
+ │  │  Civic (10)  |  Business (10)  |  Military (10)          │  │
+ │  │  Healthcare (10) | Tourism (10) | Connect-360 (10)      │  │
  │  │                                                          │  │
  │  │  Each tool: @tool decorator + exhaustive docstring       │  │
  │  │  with "USE WHEN" guidance for deterministic routing      │  │
@@ -290,100 +290,95 @@ The interface shifts from reactive chat boxes to proactive, trusted autonomy:
 
 ## The 70 San Antonio Agents
 
-### Category 1: Civic Services (20 agents)
+### Category 1: Civic Services (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 1 | **311 Infrastructure Abatement Agent** | Connects to CoSA GIS dataset. Vision-language models extract geolocation, categorize pothole severity, and format 311 service tickets. |
-| 2 | **CPS Energy Rate Optimizer** | Cross-references CPS Energy variable rate plans with historical consumption data for autonomous smart-thermostat scheduling. |
-| 3 | **Property Maintenance Code Checker** | RAG-powered agent using the SA Property Maintenance Code. Predicts potential violations before Code Enforcement issues citations. |
-| 4 | **Dangerous Animal Triage Agent** | Integrates with ACS dangerous dog registry and bite map data for incident documentation and affidavit drafting. |
-| 5 | **TNR (Trap-Neuter-Return) Coordinator** | Maps ACS stray data, locates vaccination events, and schedules spay/neuter appointments for feral cat caretakers. |
-| 6 | **Municipal Court Citation Resolver** | Interfaces with SA Municipal Court docket. Evaluates tickets for Defensive Driving or Deferred Disposition eligibility. |
-| 7 | **Pre-K 4 SA Enrollment Guide** | Cross-references residential zoning and income limits to complete Pre-K 4 SA application paperwork. |
-| 8 | **VIA Transit Route Optimizer** | Multi-modal transit routing incorporating VIA bus schedules, scooter availability, and real-time traffic density. |
-| 9 | **Solid Waste & Brush Schedule Tracker** | Proactive SMS alerts for bulky item pickup days and Free Landfill events. |
-| 10 | **SASpeakUp Policy Synthesizer** | Summarizes City Council agendas and SASpeakUp surveys into actionable three-bullet briefs. |
-| 11 | **SAWS Water Conservation Advisor** | Monitors SAWS drought stage restrictions and optimizes residential irrigation schedules. |
-| 12 | **Neighborhood Association Liaison** | Connects residents with their registered neighborhood association and tracks community initiatives. |
-| 13 | **Bexar County Property Tax Advisor** | Analyzes property tax assessments, identifies protest opportunities, and guides filing with BCAD. |
-| 14 | **SA Library Resource Navigator** | Searches SA Public Library catalog, programs, and digital resources with personalized recommendations. |
-| 15 | **Parks & Recreation Booking Agent** | Reserves pavilions, sports fields, and community center rooms across SA Parks system. |
-| 16 | **Storm Water & Flood Alert Agent** | Real-time monitoring of SA River Authority flood gauges with evacuation route guidance. |
-| 17 | **Code Compliance Fast-Track Agent** | Expedites code compliance resolution with automated documentation and scheduling. |
-| 18 | **Senior Services Navigator** | Connects seniors with Meals on Wheels, transportation assistance, and community programs. |
-| 19 | **SA Metro Health Inspector** | Queries Metro Health restaurant inspection scores and food safety compliance records. |
-| 20 | **Voter Registration & Election Guide** | Bexar County voter registration status, polling locations, and sample ballot preview. |
+| 1 | **SA Permit Navigator** | Automates City of San Antonio permit applications, status tracking, and compliance checks. |
+| 2 | **SA 311 Dispatcher** | Triages and routes 311 service requests to the correct city department with auto-ticket generation. |
+| 3 | **Bexar Voter Guide** | Nonpartisan election assistant providing ballot info, polling locations, and candidate summaries. |
+| 4 | **SA Utilities Concierge** | CPS Energy & SAWS billing analysis, outage alerts, and conservation program enrollment. |
+| 5 | **VIA Transit Planner** | Real-time VIA Metropolitan Transit route planning with accessibility-aware scheduling. |
+| 6 | **SA Parks & Events** | Discover and book San Antonio parks, pavilions, and city-sponsored events. |
+| 7 | **Code Compliance Advisor** | Automated code violation detection and remediation guidance for property owners. |
+| 8 | **SA Library Research AI** | San Antonio Public Library catalog search, holds management, and research assistance. |
+| 9 | **City Budget Transparency** | Natural language queries against the City of San Antonio annual budget and expenditure data. |
+| 10 | **SA Housing Navigator** | Affordable housing program matching, application assistance, and waitlist tracking. |
 
-### Category 2: Small Business & Economic Development (20 agents)
+### Category 2: Small Business & Economic Development (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 21 | **SBEDA Procurement Matchmaker** | Matches minority/women-owned businesses with municipal RFPs and drafts bid templates. |
-| 22 | **RevitalizeSA Grant Writer** | Conducts interviews and drafts grant narratives for Corridor Leadership and construction mitigation programs. |
-| 23 | **BuildSA Permit Navigator** | Analyzes blueprints and zoning maps to determine exact DSD commercial permit requirements. |
-| 24 | **Historic Preservation Rehab Assistant** | Cross-references OHP database for materials compliance and calculates tax incentives. |
-| 25 | **VITA Tax Prep Assistant** | Formats profit/loss data for the Volunteer Income Tax Assistance program. |
-| 26 | **Commercial Real Estate Analyzer** | Pinpoints optimal retail locations via Bexar Appraisal District records and foot traffic analysis. |
-| 27 | **Local B2B Lead Generation Swarm** | Multi-agent router scraping SA business directories with firmographic enrichment. |
-| 28 | **Food Truck Compliance Agent** | Guides through Metro Health regulations, FireSafeSA inspections, and parking zone requirements. |
-| 29 | **Disaster Recovery Locator** | Monitors GOBSA for emergency funding and low-interest CDFI loans post-severe weather. |
-| 30 | **Social Commerce Catalog Generator** | Connects inventory to Instagram/TikTok storefronts with localized SEO descriptions. |
-| 31 | **Business License Pro** | End-to-end guidance for SA business license applications, renewals, and compliance requirements. |
-| 32 | **Startup Funding Navigator** | Matches early-stage SA startups with angel investors, accelerators, and grant programs. |
-| 33 | **Commercial Lease Analyzer** | Reviews commercial lease terms, identifies unfavorable clauses, and benchmarks against SA market rates. |
-| 34 | **SA Workforce Recruiter** | Connects businesses with qualified local candidates through Workforce Solutions Alamo pipeline. |
-| 35 | **Marketing Campaign Builder** | Creates localized digital marketing campaigns targeting SA demographics and neighborhoods. |
-| 36 | **Supply Chain Optimizer** | Identifies local suppliers and optimizes procurement routes for SA-area businesses. |
-| 37 | **Franchise Feasibility Analyzer** | Evaluates franchise opportunities against SA market data, demographics, and competition. |
-| 38 | **Contractor License Verifier** | Validates contractor licenses, insurance, and bond status for SA commercial projects. |
-| 39 | **Business Insurance Advisor** | Compares commercial insurance options and identifies coverage gaps for SA businesses. |
-| 40 | **Export Compliance Navigator** | Guides SA manufacturers through export regulations, tariffs, and trade compliance. |
+| 11 | **SA Business License Pro** | End-to-end business licensing, state registration, and ongoing compliance monitoring. |
+| 12 | **SA Market Intelligence** | Competitive intelligence and market analysis for San Antonio metro area businesses. |
+| 13 | **TX HR Compliance Guard** | Texas labor law compliance monitoring, employee handbook generation, and HR policy automation. |
+| 14 | **SA Grant & Incentive Finder** | Matches SA businesses with federal, state, and city grants, tax incentives, and SAEDF programs. |
+| 15 | **Smart Inventory AI** | Demand forecasting and inventory optimization for San Antonio retail and wholesale businesses. |
+| 16 | **SA Social Media Manager** | AI content generation, scheduling, and analytics tuned to San Antonio culture and audiences. |
+| 17 | **Customer Intelligence Suite** | CRM enrichment, churn prediction, and NPS analysis for San Antonio service businesses. |
+| 18 | **TX Business Legal Assist** | Contract review, NDA drafting, and Texas commercial law guidance. |
+| 19 | **TX Sales Tax Agent** | Texas sales & use tax calculation, filing preparation, and audit defense documentation. |
+| 20 | **SA Real Estate Intelligence** | Commercial and residential property analysis, valuation, and investment underwriting for Bexar County. |
 
 ### Category 3: Military Transition & JBSA (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 41 | **Resume Translator** | Maps NCOER/FITREP military jargon to civilian competencies using semantic dictionaries. |
-| 42 | **VA Claim Nexus Crafter** | Drafts medically sound Nexus letters from military medical records and service histories. |
-| 43 | **Workforce Solutions Alamo Matcher** | Identifies upskilling programs from the "$49.5M SA: Ready to Work" database. |
-| 44 | **Military Spouse Federal Resume Builder** | Tuned to USAJOBS format for GS-scale competitive federal resumes. |
-| 45 | **TRICARE to Civilian Healthcare Navigator** | Compares TRICARE Prime/Select against civilian plans with out-of-pocket projections. |
-| 46 | **Security Clearance Job Matcher** | Matches TS-SCI/Secret cleared candidates to defense contractor vacancies (Boeing, Lockheed). |
-| 47 | **MIC3 Dependent Waiver Automator** | Generates Interstate Compact waivers for military dependent school transfers. |
-| 48 | **SkillBridge Application Writer** | Drafts command approval memos and identifies local SA SkillBridge corporate sponsors. |
-| 49 | **GI Bill Optimizer** | Calculates optimal stacking of Hazelwood Act + Post-9/11 GI Bill for UTSA and Alamo Colleges. |
-| 50 | **Supply Chain Simulator** | Helps logistics officers apply military predictive maintenance to civilian distribution. |
+| 21 | **JBSA Benefits Navigator** | DoD benefits counseling, BAH/BAS calculations, and TRICARE enrollment for JBSA personnel. |
+| 22 | **SA Veteran Transition Coach** | Career transition coaching, resume translation, and civilian job matching for SA veterans. |
+| 23 | **JBSA Housing Agent** | On-post and off-post housing search, BAH-optimized filtering, and PCS move coordination. |
+| 24 | **GI Bill Education Advisor** | GI Bill benefit optimization, school comparison, and enrollment guidance for SA-area veterans. |
+| 25 | **JBSA Appointment Scheduler** | Medical, dental, and admin appointment scheduling across JBSA facilities. |
+| 26 | **SA Veteran Mental Health Navigator** | Connects veterans with SA-area mental health resources, crisis lines, and peer support. |
+| 27 | **Veteran Business Loans Agent** | SBA veteran loan programs, SBIR/STTR guidance, and small business formation for SA-area vets. |
+| 28 | **Clearance Status Tracker** | SF-86 preparation assistance, investigation status tracking, and adjudication guidance. |
+| 29 | **Military Spouse Career Agent** | Remote-first job matching, license portability guidance, and entrepreneur resources. |
+| 30 | **VA Claims Accelerator** | VA disability claim preparation, nexus letter guidance, and DBQ coordination for SA veterans. |
 
 ### Category 4: Healthcare Administration (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 51 | **Ambient Clinical Note Formatter** | Formats audio transcripts into structured SOAP notes for EHR systems. |
-| 52 | **Insurance Referral Processor** | Verifies payer eligibility and updates scheduling software from faxed/digital referrals. |
-| 53 | **Medical Coding Validator** | Suggests highest-specificity ICD-10 and CPT codes to reduce claim denials. |
-| 54 | **Patient Triage Chatbot** | Pre-appointment SMS gathering medical histories and flagging urgent symptoms. |
-| 55 | **Clinical Trial Matchmaker** | Cross-references UT Health research with anonymized patient populations. |
-| 56 | **HIPAA Data Synthesizer** | Anonymizes and scrubs PHI for secondary AI training datasets. |
-| 57 | **Hospital Bed Predictor** | Forecasts ICU/acute bed availability using admission rates and seasonal data. |
-| 58 | **Diabetes Management Tracker** | Identifies high-risk Medicare beneficiaries using SA CHNA metrics. |
-| 59 | **Telehealth Router (WHIM)** | Redirects non-emergent rural inquiries to telehealth services. |
-| 60 | **Nursing Staff Scheduler** | Generates optimized shift schedules based on predicted patient census. |
+| 31 | **SA Care Navigator** | Insurance-aware provider search, appointment booking, and care coordination for SA patients. |
+| 32 | **SA Rx Optimizer** | Prescription cost comparison, GoodRx integration, and patient assistance program matching. |
+| 33 | **SA Mental Health Connector** | Therapist and psychiatrist matching with sliding-scale and Medicaid-accepting providers. |
+| 34 | **Chronic Care Manager** | Diabetes, hypertension, and heart disease management with specialist coordination. |
+| 35 | **Health Insurance Navigator** | ACA marketplace, CHIP, and Medicaid enrollment guidance for uninsured Bexar County residents. |
+| 36 | **SA Senior Care Advisor** | Medicare counseling, assisted living search, and caregiver resource coordination. |
+| 37 | **SA Dental Access Agent** | Medicaid and low-cost dental care finder with emergency dental triage. |
+| 38 | **SA Maternal Health Guide** | Prenatal care coordination, WIC enrollment, and postpartum support navigation. |
+| 39 | **SA Clinical Trial Matcher** | Matches SA patients to active clinical trials at UT Health SA and Methodist Research. |
+| 40 | **Medical Bill Negotiator** | Audits hospital bills for errors, identifies charity care eligibility, and negotiates balances. |
 
 ### Category 5: Tourism & Hospitality (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 61 | **Virtual Hotel Concierge** | Omnichannel agent handling routine guest inquiries (checkout, pool hours, dining). |
-| 62 | **Dynamic Pricing Optimizer** | Adjusts hotel rates in real-time based on events, competition, and weather. |
-| 63 | **Convention Center Orchestrator** | Floor plans, AV scheduling, and vendor logistics for the Henry B. Gonzalez Center. |
-| 64 | **Flight Delay Automator** | Monitors SA International Airport for delays and auto-rebooks travel. |
-| 65 | **Multilingual Gastronomy Guide** | UNESCO Creative City dining itineraries for international tourists. |
-| 66 | **Predictive Maintenance** | IoT sensor analysis for preemptive hotel room maintenance dispatch. |
-| 67 | **Fiesta Event Navigator** | Downtown street closure routing, parking, and parade routes during Fiesta. |
-| 68 | **Mission Audio Tour Generator** | GPS-triggered RAG tours of the Alamo and SA Missions. |
-| 69 | **VIP Upsell Engine** | Personalized pre-arrival emails with room upgrades and spa packages. |
-| 70 | **Restaurant Health Inspector** | Metropolitan Health District database queries for cleanliness scores. |
+| 41 | **Riverwalk Concierge** | Personalized restaurant, entertainment, and attraction recommendations along the River Walk. |
+| 42 | **Alamo & Missions Guide** | Interactive AI guide to the Alamo and all five World Heritage missions. |
+| 43 | **SA Hotel Price Optimizer** | Real-time hotel price tracking and booking optimization across SA properties. |
+| 44 | **Fiesta & Events Planner** | Complete planning guide for Fiesta San Antonio, rodeo, and year-round cultural events. |
+| 45 | **SA Foodie Intelligence** | Curated food tour planning with Tex-Mex, BBQ, and James Beard restaurant discovery. |
+| 46 | **SA Sports & Entertainment** | Spurs, San Antonio FC, Missions baseball — tickets, parking, and game-day planning. |
+| 47 | **SA Arts & Culture Explorer** | McNay Art Museum, Witte Museum, and SA cultural district discovery with exhibit scheduling. |
+| 48 | **TX Hill Country Day Trips** | Curated day trip itineraries to Fredericksburg, Wimberley, New Braunfels, and Bandera. |
+| 49 | **Convention Center Planner** | Henry B. Gonzalez Convention Center event planning, vendor coordination, and logistics. |
+| 50 | **SA Family Adventure Planner** | SeaWorld, Six Flags, Natural Bridge Caverns — family itinerary planning with crowd forecasting. |
+
+### Category 6: Connect-360 SmartSA (10 agents)
+
+| # | Agent | Description |
+|---|---|---|
+| 51 | **Newcomer Onboarding** | One-stop relocation concierge for newcomers moving to San Antonio — utilities, schools, neighborhoods. |
+| 52 | **SAWS Water Advisor** | SAWS water usage analysis, drought stage alerts, conservation rebates, and billing assistance. |
+| 53 | **Unified Utility Coordinator** | Coordinate CPS Energy + SAWS + internet setup for new residents — one agent, all utilities. |
+| 54 | **SA K-12 School Finder** | Compare SA ISD, Northside ISD, North East ISD, and charter schools by address and ratings. |
+| 55 | **SA Neighborhood Scout** | Neighborhood comparison — housing costs, walkability, crime stats, school ratings, commute times. |
+| 56 | **Opportunity Home Navigator** | Section 8, affordable housing waitlists, and Opportunity Home SA program navigation. |
+| 57 | **Edwards Aquifer Monitor** | Real-time Edwards Aquifer level tracking, drought stage alerts, and water conservation rebates. |
+| 58 | **SA River Authority Agent** | San Antonio River Authority flood alerts, creek monitoring, and floodplain lookup. |
+| 59 | **Bexar Property Tax Advisor** | Bexar County property tax estimation, homestead exemption filing, and BCAD protest assistance. |
+| 60 | **SA Voter Registration Agent** | Voter registration status check, polling location finder, sample ballot preview, and reminders. |
 
 ---
 
@@ -517,7 +512,7 @@ SAAIagentmarketplace/
 │   ├── app/
 │   │   ├── agents/
 │   │   │   ├── engine.py          # Agent execution engine + intent classifier
-│   │   │   ├── tools.py           # 70 LangChain @tool definitions (5 categories)
+│   │   │   ├── tools.py           # 70 LangChain @tool definitions (6 categories)
 │   │   │   └── seed.py            # Database seeder (70 agent catalog)
 │   │   ├── routers/
 │   │   │   ├── agents.py          # GET /agents, GET /agents/{slug}
@@ -763,6 +758,7 @@ FastAPI runs on Uvicorn. For production, deploy behind a reverse proxy with HTTP
 | Military | Amber | Defense, transition |
 | Healthcare | Rose | Medical, wellness |
 | Tourism | Violet | Hospitality, culture |
+| Connect-360 | Navy | Integration, interop |
 
 ### Agent Status Badges
 

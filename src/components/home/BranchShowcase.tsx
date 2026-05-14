@@ -11,7 +11,7 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
-type CategoryKey = 'CIVIC' | 'BUSINESS' | 'MILITARY' | 'HEALTHCARE' | 'TOURISM'
+type CategoryKey = 'CIVIC' | 'BUSINESS' | 'MILITARY' | 'HEALTHCARE' | 'TOURISM' | 'CONNECT360'
 
 const CATEGORY_CONFIG: Record<
   CategoryKey,
@@ -64,6 +64,14 @@ const CATEGORY_CONFIG: Record<
     bgColor: 'bg-violet-50',
     href: '/agents?branch=Tourism',
   },
+  CONNECT360: {
+    label: 'Connect-360',
+    borderColor: 'border-l-navy-700',
+    dotColor: 'bg-navy-700',
+    textColor: 'text-navy-700',
+    bgColor: 'bg-navy-50',
+    href: '/agents?branch=Connect360',
+  },
 }
 
 const categories: {
@@ -74,8 +82,8 @@ const categories: {
 }[] = [
   {
     key: 'CIVIC',
-    agents: 20,
-    suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing', 'Schools', 'Utilities'],
+    agents: 10,
+    suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing'],
     featuredAgent: 'SA Permit Navigator',
   },
   {
@@ -102,6 +110,12 @@ const categories: {
     suites: ['Riverwalk', 'Alamo', 'Hotels', 'Food', 'Events'],
     featuredAgent: 'Riverwalk Concierge',
   },
+  {
+    key: 'CONNECT360',
+    agents: 10,
+    suites: ['Relocation', 'Utilities', 'Schools', 'Neighborhoods', 'Water'],
+    featuredAgent: 'Newcomer Onboarding',
+  },
 ]
 
 export function BranchShowcase() {
@@ -115,16 +129,16 @@ export function BranchShowcase() {
             70 Agents Total
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            5 Categories. 70 Agents. One City.
+            6 Categories. 70 Agents. One City.
           </h2>
           <p className="text-gray-500 text-lg leading-relaxed">
-            Specialized agents organized into 5 service areas — each connected to
+            Specialized agents organized into 6 service areas — each connected to
             San Antonio local data, APIs, and resources.
           </p>
         </div>
 
         {/* Category cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.map((category) => {
             const config = CATEGORY_CONFIG[category.key]
 
@@ -198,7 +212,7 @@ export function BranchShowcase() {
         {/* Aggregate stat strip */}
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center border-t border-gray-100 pt-10">
           {[
-            { label: 'Categories',          value: '5'   },
+            { label: 'Categories',          value: '6'   },
             { label: 'Specialized Agents',  value: '70'  },
             { label: 'Service Suites',       value: '25'  },
             { label: 'Local Data Sources',   value: '40+' },

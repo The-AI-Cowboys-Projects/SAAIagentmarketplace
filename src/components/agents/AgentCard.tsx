@@ -28,6 +28,7 @@ const CATEGORY_BORDER: Record<string, string> = {
   Military:   'border-l-green-600',
   Healthcare: 'border-l-rose-500',
   Tourism:    'border-l-violet-500',
+  Connect360: 'border-l-navy-700',
 }
 
 // Category icon background colors
@@ -37,6 +38,7 @@ const CATEGORY_ICON_BG: Record<string, string> = {
   Military:   'bg-green-100',
   Healthcare: 'bg-rose-100',
   Tourism:    'bg-violet-100',
+  Connect360: 'bg-navy-100',
 }
 
 const TRENDING_THRESHOLD = 5000
@@ -103,7 +105,7 @@ export function AgentCard({ agent }: { agent: Agent }) {
           </div>
         </div>
         <div className="flex-shrink-0 ml-2">
-          <Badge variant={agent.tier === 'FREE' ? 'success' : agent.tier === 'PRO' ? 'warning' : 'purple'}>
+          <Badge variant={agent.tier === 'PRO' ? 'warning' : 'purple'}>
             {tier.label}
           </Badge>
         </div>

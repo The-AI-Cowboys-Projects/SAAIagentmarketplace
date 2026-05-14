@@ -11,7 +11,7 @@
  *   setBranch, setTier, setSearch, setSortBy, toggleBilling
  */
 
-import { Search, X, RotateCcw, TrendingUp, Star, DollarSign, SortAsc, Zap, Shield, Building2 } from 'lucide-react'
+import { Search, X, RotateCcw, TrendingUp, Star, DollarSign, SortAsc, Shield, Building2 } from 'lucide-react'
 import { useMarketplace } from '@/lib/store'
 import { BRANCH_CONFIG, TIER_CONFIG, type MilitaryBranch, type PriceTier } from '@/lib/types'
 import { clsx } from 'clsx'
@@ -24,7 +24,6 @@ const SORT_OPTIONS: { value: 'rating' | 'usage' | 'name' | 'price'; label: strin
 ]
 
 const TIER_ICONS: Record<string, React.ReactNode> = {
-  FREE:       <Zap      className="w-3 h-3" aria-hidden="true" />,
   PRO:        <Shield   className="w-3 h-3" aria-hidden="true" />,
   ENTERPRISE: <Building2 className="w-3 h-3" aria-hidden="true" />,
 }
@@ -36,6 +35,7 @@ const CATEGORY_DOT: Record<string, string> = {
   Military:   'bg-green-600',
   Healthcare: 'bg-rose-500',
   Tourism:    'bg-violet-500',
+  Connect360: 'bg-navy-700',
 }
 
 export function AgentFilters() {
