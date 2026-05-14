@@ -85,5 +85,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/callback', '/api/:path*'],
+  matcher: [
+    /*
+     * Match all request paths except static files and images.
+     * This ensures security headers (CSP, HSTS) apply to all pages.
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

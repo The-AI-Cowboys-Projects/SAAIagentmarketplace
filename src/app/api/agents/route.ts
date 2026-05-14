@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { backendFetch, isBackendAvailable } from '@/lib/backend'
-import { SA_AGENTS } from '@/lib/agents-data'
+import { SA_AGENTS, SA_CATEGORIES } from '@/lib/agents-data'
+
+const CATEGORIES = SA_CATEGORIES.map((c) => c.id)
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest) {
           agents,
           total: agents.length,
           source: 'backend',
-          categories: ['Civic', 'Business', 'Military', 'Healthcare', 'Tourism'],
+          categories: CATEGORIES,
         })
       }
     } catch {
@@ -37,6 +39,6 @@ export async function GET(request: NextRequest) {
     agents,
     total: agents.length,
     source: 'static',
-    categories: ['Civic', 'Business', 'Military', 'Healthcare', 'Tourism'],
+    categories: CATEGORIES,
   })
 }

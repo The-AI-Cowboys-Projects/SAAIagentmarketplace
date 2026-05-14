@@ -15,6 +15,9 @@ interface QBOTokens {
 }
 
 let cachedToken: { token: string; expiresAt: number } | null = null
+// Track rotated refresh tokens within this process lifetime.
+// NOTE: For durable persistence, store rotated tokens in Supabase or a secrets manager.
+let currentRefreshToken: string | null = null
 
 async function getAccessToken(): Promise<string> {
   if (cachedToken && Date.now() < cachedToken.expiresAt - 60_000) {
@@ -23,7 +26,7 @@ async function getAccessToken(): Promise<string> {
 
   const clientId = process.env.QBO_CLIENT_ID!
   const clientSecret = process.env.QBO_CLIENT_SECRET!
-  const refreshToken = process.env.QBO_REFRESH_TOKEN!
+  const refreshToken = currentRefreshToken || process.env.QBO_REFRESH_TOKEN!
 
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
@@ -48,6 +51,12 @@ async function getAccessToken(): Promise<string> {
     expiresAt: Date.now() + data.expires_in * 1000,
   }
 
+  // Persist rotated refresh token if Intuit returned a new one
+  if (data.refresh_token && data.refresh_token !== refreshToken) {
+    currentRefreshToken = data.refresh_token
+    console.log('[QBO] Refresh token rotated — update QBO_REFRESH_TOKEN in env/secrets store')
+  }
+
   return data.access_token
 }
 
@@ -68,9 +77,13 @@ export async function recordStripePayment(params: {
   try {
     const token = await getAccessToken()
 
-    // Create a Sales Receipt in QBO
+    // QBO entity refs — configure via env vars or defaults
+    const qboCustomerId = process.env.QBO_CUSTOMER_REF_ID || '58'
+    const qboItemId = process.env.QBO_ITEM_REF_ID || '1'
+    const qboItemName = process.env.QBO_ITEM_REF_NAME || 'Services'
+
     const salesReceipt = {
-      CustomerRef: { value: '58' }, // AI Cowboys LLC customer ID
+      CustomerRef: { value: qboCustomerId },
       TxnDate: new Date().toISOString().split('T')[0],
       PrivateNote: `Stripe Invoice: ${params.stripeInvoiceId} | Sub: ${params.stripeSubscriptionId}`,
       Line: [
@@ -79,7 +92,7 @@ export async function recordStripePayment(params: {
           DetailType: 'SalesItemLineDetail',
           Description: `SA AI Agent Marketplace — ${params.planName} (${params.customerEmail})`,
           SalesItemLineDetail: {
-            ItemRef: { value: '1', name: 'Services' },
+            ItemRef: { value: qboItemId, name: qboItemName },
             UnitPrice: params.amount / 100,
             Qty: 1,
           },
