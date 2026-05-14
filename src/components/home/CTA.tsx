@@ -163,7 +163,7 @@ export function CTA() {
                     {/* Glow ring on hover */}
                     <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-brand-500 to-amber-500 opacity-0 group-hover:opacity-40 blur-lg transition-opacity duration-300" />
                     <Button variant="primary" size="xl" className="relative shadow-xl shadow-brand-500/25 hover:shadow-brand-500/50 transition-shadow duration-300">
-                      Start Free Today
+                      Get Started
                       <ArrowRight className="w-5 h-5" />
                     </Button>
                   </motion.div>
@@ -180,18 +180,6 @@ export function CTA() {
                   </motion.div>
                 </Link>
               </motion.div>
-
-              {/* Free tier note */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="text-sm text-midnight-500 mb-10"
-              >
-                <Zap className="inline w-3.5 h-3.5 text-brand-500 mr-1 -mt-0.5" />
-                Free tier available — 9 core agents, no credit card required
-              </motion.p>
 
               {/* Divider */}
               <div className="border-t border-white/[0.06] mb-8" />

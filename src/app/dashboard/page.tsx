@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [recentAgents, setRecentAgents] = useState<Agent[]>([])
-  const [stats, setStats] = useState({ totalAgents: 60, freeAgents: 9, proAgents: 51, entAgents: 0 })
+  const [stats, setStats] = useState({ totalAgents: 60, freeAgents: 0, proAgents: 60, entAgents: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,8 +33,8 @@ export default function DashboardPage() {
       const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (profileData) setProfile(profileData as Profile)
 
-      const freeAgents = SA_AGENTS.filter(a => a.tier === 'FREE').sort((a, b) => b.rating - a.rating).slice(0, 6)
-      setRecentAgents(freeAgents)
+      const topAgents = SA_AGENTS.sort((a, b) => b.rating - a.rating).slice(0, 6)
+      setRecentAgents(topAgents)
 
       setLoading(false)
     }
@@ -47,7 +47,7 @@ export default function DashboardPage() {
     </div>
   )
 
-  const plan = profile?.plan || 'free'
+  const plan = profile?.plan || 'starter'
   const planLabel = plan === 'all-access' ? 'Pro' : plan === 'team' ? 'Enterprise' : 'Basic'
 
   return (
@@ -62,7 +62,7 @@ export default function DashboardPage() {
             <p className="text-midnight-400">Your agent command center</p>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant={plan === 'free' ? 'success' : 'warning'} size="md">
+            <Badge variant={plan === 'starter' ? 'success' : 'warning'} size="md">
               <Crown className="w-3 h-3 mr-1" />
               {planLabel} Plan
             </Badge>
@@ -72,8 +72,8 @@ export default function DashboardPage() {
         {/* Stats cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Available Agents', value: plan === 'free' ? '9' : plan === 'all-access' ? '60' : '60', icon: Bot, color: 'text-brand-400' },
-            { label: 'Token Balance', value: plan === 'free' ? '3/day' : plan === 'all-access' ? 'Unlimited' : 'Unlimited', icon: Zap, color: 'text-emerald-400' },
+            { label: 'Available Agents', value: plan === 'starter' ? '10' : plan === 'all-access' ? '60' : '60', icon: Bot, color: 'text-brand-400' },
+            { label: 'Token Balance', value: plan === 'starter' ? '50/day' : plan === 'all-access' ? 'Unlimited' : 'Unlimited', icon: Zap, color: 'text-emerald-400' },
             { label: 'Agents Used', value: '0', icon: Activity, color: 'text-sky-400' },
             { label: 'Tokens Used', value: '0', icon: BarChart3, color: 'text-violet-400' },
           ].map((stat, i) => (
@@ -94,14 +94,14 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Upgrade banner (for free users) */}
-        {plan === 'free' && (
+        {/* Upgrade banner (for starter users) */}
+        {plan === 'starter' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card className="p-6 mb-8 bg-gradient-to-r from-brand-500/5 to-amber-500/5 border-brand-500/20">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Unlock 51 more agents</h3>
-                  <p className="text-sm text-midnight-400">Upgrade to Texas Pro for $29/mo and access all 60 agents across every category.</p>
+                  <h3 className="text-lg font-semibold text-white mb-1">Unlock all 60 agents</h3>
+                  <p className="text-sm text-midnight-400">Upgrade to Texas Pro for $29/mo and access all 60 agents with unlimited usage.</p>
                 </div>
                 <Link href="/pricing">
                   <Button variant="primary" size="md">
@@ -116,7 +116,7 @@ export default function DashboardPage() {
         {/* Quick access agents */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Top Free Agents</h2>
+            <h2 className="text-lg font-semibold text-white">Top Agents</h2>
             <Link href="/agents" className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1">
               View all <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
                         <h3 className="text-sm font-medium text-white truncate">{agent.short_name}</h3>
                         <p className="text-[10px] text-midnight-500 truncate">{agent.tagline}</p>
                       </div>
-                      <Badge variant="success">Free</Badge>
+                      <Badge variant="warning">Pro</Badge>
                     </div>
                   </Card>
                 </Link>
@@ -165,7 +165,7 @@ export default function DashboardPage() {
                   <div className="text-xs text-midnight-500">{planLabel}</div>
                 </div>
               </div>
-              {plan === 'free' && (
+              {plan === 'starter' && (
                 <Link href="/pricing">
                   <Button variant="outline" size="sm">Upgrade</Button>
                 </Link>

@@ -52,7 +52,7 @@ export function AgentCard({ agent }: { agent: Agent }) {
   const isAnnual = useMarketplace((s) => s.isAnnual)
   const branch = BRANCH_CONFIG[agent.branch]
   const tier = TIER_CONFIG[agent.tier]
-  const price = agent.tier === 'FREE' ? 0 : isAnnual ? agent.annual_price : agent.monthly_price
+  const price = isAnnual ? agent.annual_price : agent.monthly_price
   const isTrending = agent.usage_count > TRENDING_THRESHOLD
   const ringColor = CATEGORY_RING_COLOR[agent.category] ?? '#f59e0b'
   const glowClass = CATEGORY_GLOW[agent.category] ?? ''
@@ -208,22 +208,13 @@ export function AgentCard({ agent }: { agent: Agent }) {
           <div className="flex items-center justify-between pt-3 border-t border-white/[0.07]">
             {/* Price block */}
             <div className="flex items-baseline gap-1">
-              {agent.tier === 'FREE' ? (
-                <div className="flex items-center gap-1.5">
-                  <Zap className="w-3 h-3 text-emerald-400" />
-                  <span className="text-sm font-bold text-emerald-400 tracking-tight">Free</span>
-                </div>
-              ) : (
-                <>
-                  <span className="text-[10px] font-medium text-midnight-500">$</span>
-                  <span className="text-base font-bold text-white tracking-tight tabular-nums">
-                    {(price / 100).toFixed(2)}
-                  </span>
-                  <span className="text-[10px] text-midnight-500 ml-0.5">
-                    /{isAnnual ? 'yr' : 'mo'}
-                  </span>
-                </>
-              )}
+              <span className="text-[10px] font-medium text-midnight-500">$</span>
+              <span className="text-base font-bold text-white tracking-tight tabular-nums">
+                {(price / 100).toFixed(2)}
+              </span>
+              <span className="text-[10px] text-midnight-500 ml-0.5">
+                /{isAnnual ? 'yr' : 'mo'}
+              </span>
             </div>
 
             {/* View details CTA */}

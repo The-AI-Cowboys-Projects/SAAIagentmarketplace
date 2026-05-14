@@ -38,7 +38,7 @@ export default function PricingPage() {
             transition={{ delay: 0.1 }}
             className="text-lg text-midnight-400 max-w-xl mx-auto mb-8"
           >
-            Start free with 9 core San Antonio agents. Upgrade for the full platform.
+            Deploy AI agents built for San Antonio. Choose the plan that fits your needs.
           </motion.p>
 
           {/* Billing toggle */}
@@ -129,7 +129,7 @@ export default function PricingPage() {
                       size="lg"
                       className="w-full mb-6"
                     >
-                      {plan.id === 'basic' ? 'Get Started Free' : plan.id === 'enterprise' ? 'Contact Sales' : `Subscribe to ${plan.name}`}
+                      {plan.id === 'basic' ? 'Start for $9/mo' : plan.id === 'enterprise' ? 'Contact Sales' : `Subscribe to ${plan.name}`}
                     </Button>
                   </Link>
 

@@ -23,11 +23,11 @@ const faqs = [
   },
   {
     q: 'How much does it cost?',
-    a: 'We offer a free tier with 9 core agents — no credit card required. Pro and Enterprise plans unlock all 60 agents with higher usage limits, priority support, and team features. See our pricing page for details.',
+    a: 'Plans start at $9/month for 10 agents. Pro and Enterprise plans unlock all 60 agents with higher usage limits, priority support, and team features. See our pricing page for details.',
   },
   {
-    q: 'Can I use military/veteran agents for free?',
-    a: 'Yes. Key veteran agents like the JBSA Benefits Navigator and VA Claims Assistant are included in the free tier. We believe veterans who served our country deserve access to these tools at no cost.',
+    q: 'Are military/veteran agents discounted?',
+    a: 'Military and veteran agents are included in all plans starting at $9/month. We offer special military discounts — contact us for details.',
   },
   {
     q: 'What data sources are the agents connected to?',
@@ -35,7 +35,7 @@ const faqs = [
   },
   {
     q: 'How do I get started?',
-    a: 'Create a free account, browse the 60 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Works on desktop, tablet, and mobile from any browser.',
+    a: 'Create an account, browse the 60 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Plans start at $9/month.',
   },
 ]
 

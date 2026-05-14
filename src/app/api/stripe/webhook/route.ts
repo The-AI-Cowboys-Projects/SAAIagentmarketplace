@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         const priceId = subscription.items.data[0]?.price.id
 
         // Determine plan from price
-        let plan = 'free'
+        let plan = 'starter'
         if (priceId === process.env.STRIPE_PRO_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_PRO_ANNUAL_PRICE_ID) {
           plan = 'all-access'
         } else if (priceId === process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID) {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (profile) {
-        await supabase.from('profiles').update({ plan: 'free' }).eq('id', profile.id)
+        await supabase.from('profiles').update({ plan: 'starter' }).eq('id', profile.id)
       }
       break
     }

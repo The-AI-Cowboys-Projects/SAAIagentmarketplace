@@ -227,7 +227,7 @@ export function Header() {
                   ) : (
                     <Link href="/auth/login" onClick={() => setMobileOpen(false)}>
                       <Button variant="primary" size="lg" className="w-full">
-                        Get Started Free
+                        Get Started
                       </Button>
                     </Link>
                   )}

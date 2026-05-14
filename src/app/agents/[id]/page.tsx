@@ -244,44 +244,28 @@ export default function AgentDetailPage() {
           <div className="space-y-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="p-6 sticky top-28">
-                {agent.tier === 'FREE' ? (
-                  <>
-                    <div className="text-center mb-6">
-                      <div className="text-3xl font-bold text-emerald-400 mb-1">Free</div>
-                      <p className="text-xs text-midnight-500">No credit card required</p>
-                    </div>
-                    <Link href="/auth/login">
-                      <Button variant="primary" size="lg" className="w-full mb-3">
-                        <Zap className="w-4 h-4" /> Start Using Free
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-center mb-6">
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-3xl font-bold text-white">${(agent.monthly_price / 100).toFixed(2)}</span>
-                        <span className="text-sm text-midnight-500">/mo</span>
-                      </div>
-                      <p className="text-xs text-midnight-500 mt-1">
-                        or ${(agent.annual_price / 100).toFixed(2)}/yr (save {Math.round((1 - agent.annual_price / (agent.monthly_price * 12)) * 100)}%)
-                      </p>
-                      <p className="text-xs text-midnight-500 mt-1">
-                        One-time: ${(agent.one_time_price / 100).toFixed(2)}
-                      </p>
-                    </div>
-                    <Link href={`/auth/login?agent=${agent.id}`}>
-                      <Button variant="primary" size="lg" className="w-full mb-3">
-                        <Lock className="w-4 h-4" /> Subscribe to Agent
-                      </Button>
-                    </Link>
-                    <Link href="/pricing">
-                      <Button variant="outline" size="md" className="w-full">
-                        Or get the {agent.tier === 'PRO' ? 'Texas Pro' : 'Enterprise'} plan for all {agent.tier.toLowerCase()} agents
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                <div className="text-center mb-6">
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-3xl font-bold text-white">${(agent.monthly_price / 100).toFixed(2)}</span>
+                    <span className="text-sm text-midnight-500">/mo</span>
+                  </div>
+                  <p className="text-xs text-midnight-500 mt-1">
+                    or ${(agent.annual_price / 100).toFixed(2)}/yr (save {Math.round((1 - agent.annual_price / (agent.monthly_price * 12)) * 100)}%)
+                  </p>
+                  <p className="text-xs text-midnight-500 mt-1">
+                    One-time: ${(agent.one_time_price / 100).toFixed(2)}
+                  </p>
+                </div>
+                <Link href={`/auth/login?agent=${agent.id}`}>
+                  <Button variant="primary" size="lg" className="w-full mb-3">
+                    <Lock className="w-4 h-4" /> Subscribe to Agent
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button variant="outline" size="md" className="w-full">
+                    Or get the {agent.tier === 'PRO' ? 'Texas Pro' : 'Enterprise'} plan for all {agent.tier.toLowerCase()} agents
+                  </Button>
+                </Link>
 
                 <div className="mt-6 pt-6 border-t border-white/[0.06] space-y-3">
                   <div className="flex items-center gap-2 text-xs text-midnight-400">

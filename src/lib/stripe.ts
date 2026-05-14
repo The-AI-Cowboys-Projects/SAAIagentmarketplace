@@ -13,11 +13,11 @@ export function getStripe() {
 }
 
 export const PLANS = {
-  free: {
-    name: 'Recon',
-    monthlyPrice: 0,
-    annualPrice: 0,
-    stripePriceId: null,
+  starter: {
+    name: 'Starter',
+    monthlyPrice: 900,
+    annualPrice: 8900,
+    stripePriceId: process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
   },
   pro: {
     name: 'Operator',

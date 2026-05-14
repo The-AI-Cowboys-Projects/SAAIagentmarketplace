@@ -500,7 +500,7 @@ export function Hero() {
 
           {/* Trust line */}
           <motion.p variants={item} className="text-xs text-midnight-600 mb-14">
-            Free tier available &mdash; 9 core agents, no credit card required
+            Starting at $9/mo &mdash; deploy your first agent in 60 seconds
           </motion.p>
 
           {/* Stats grid */}
