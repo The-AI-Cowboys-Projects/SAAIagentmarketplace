@@ -6,11 +6,17 @@ import type { NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+
+  // Supabase OAuth strips custom query params from redirectTo, so plan/agent
+  // intent is stored in localStorage by the login page. The /auth/redirect
+  // client page reads localStorage and routes the user to the right place.
+  // We still check query params as a fallback (e.g. magic link emails).
   const plan = searchParams.get('plan')
   const agent = searchParams.get('agent')
-  // After login: redirect to pricing with plan intent (auto-triggers checkout),
-  // or agent detail page, or dashboard
-  const next = plan ? `/pricing?plan=${plan}` : agent ? `/agents/${agent}` : '/dashboard'
+  const hasIntent = plan || agent
+  const next = hasIntent
+    ? (plan ? `/pricing?plan=${plan}` : `/agents/${agent}`)
+    : '/auth/complete'
 
   if (code) {
     const cookieStore = cookies()
