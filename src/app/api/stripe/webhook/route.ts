@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         amount: amountPaid,
         planName,
         stripeInvoiceId: invoice.id,
-        stripeSubscriptionId: (invoice.subscription as string) || '',
+        stripeSubscriptionId: String((invoice as any).subscription || ''),
       })
       break
     }
