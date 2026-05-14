@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { recordStripePayment } from '@/lib/quickbooks'
 import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
@@ -36,6 +37,27 @@ export async function POST(request: NextRequest) {
 
         await supabase.from('profiles').update({ plan }).eq('id', userId)
       }
+      break
+    }
+
+    case 'invoice.paid': {
+      const invoice = event.data.object as Stripe.Invoice
+      const amountPaid = invoice.amount_paid
+      if (amountPaid <= 0) break
+
+      // Determine plan name from line items
+      const lineItem = invoice.lines?.data?.[0]
+      const planName = lineItem?.description || 'SA AI Agent Marketplace Subscription'
+
+      // Sync to QuickBooks Live
+      await recordStripePayment({
+        customerEmail: invoice.customer_email || 'unknown',
+        customerName: invoice.customer_name || invoice.customer_email || 'Unknown',
+        amount: amountPaid,
+        planName,
+        stripeInvoiceId: invoice.id,
+        stripeSubscriptionId: (invoice.subscription as string) || '',
+      })
       break
     }
 
