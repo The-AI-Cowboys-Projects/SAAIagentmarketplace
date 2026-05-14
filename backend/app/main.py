@@ -22,16 +22,21 @@ from app.etl.pipeline import run_all_pipelines
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Create tables and seed the agent catalogue on startup."""
-    # Create all tables (no-op if they already exist)
-    Base.metadata.create_all(bind=engine)
+    """Create tables (dev only) and optionally seed the agent catalogue."""
+    # In development, auto-create tables for convenience.
+    # In production, use Alembic migrations instead.
+    if not settings.is_production:
+        Base.metadata.create_all(bind=engine)
 
-    # Seed agents
-    db = SessionLocal()
-    try:
-        seed_agents(db)
-    finally:
-        db.close()
+    # Seed agents — idempotent upsert by slug.
+    # Controlled by SEED_AGENTS_ON_STARTUP (default True).
+    # Set to False in production if catalog is managed via migrations/admin.
+    if settings.SEED_AGENTS_ON_STARTUP:
+        db = SessionLocal()
+        try:
+            seed_agents(db)
+        finally:
+            db.close()
 
     # Load ETL pipelines (mock data for agent tools)
     try:
@@ -49,6 +54,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_app() -> FastAPI:
+    # Disable interactive API docs in production
+    docs_url = None if settings.is_production else "/docs"
+    redoc_url = None if settings.is_production else "/redoc"
+
     app = FastAPI(
         title="SA AI Agent Marketplace API",
         description=(
@@ -56,8 +65,8 @@ def create_app() -> FastAPI:
             "browse, deploy, and manage AI agents for your business."
         ),
         version="1.0.0",
-        docs_url="/docs",
-        redoc_url="/redoc",
+        docs_url=docs_url,
+        redoc_url=redoc_url,
         lifespan=lifespan,
     )
 

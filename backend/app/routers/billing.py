@@ -40,8 +40,7 @@ class PlanOut(BaseModel):
 
 class CheckoutRequest(BaseModel):
     tier: str
-    success_url: str = f"{settings.FRONTEND_ORIGIN}/dashboard?checkout=success"
-    cancel_url: str = f"{settings.FRONTEND_ORIGIN}/pricing?checkout=cancelled"
+    billing: str = "monthly"  # "monthly" or "annual"
 
 
 class CheckoutResponse(BaseModel):
@@ -97,8 +96,7 @@ def checkout(
         session = create_checkout_session(
             user=current_user,
             tier=body.tier,
-            success_url=body.success_url,
-            cancel_url=body.cancel_url,
+            billing=body.billing,
             db=db,
         )
     except ValueError as exc:

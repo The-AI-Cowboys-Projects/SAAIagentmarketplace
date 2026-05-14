@@ -27,74 +27,66 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 # ---------------------------------------------------------------------------
 
 PLAN_CATALOG: dict[str, dict[str, Any]] = {
-    "free": {
-        "name": "Free",
-        "description": "Up to 2 agent deployments, 10 AI generations/day",
-        "price_cents": 0,
-        "stripe_price_id": None,
-        "features": [
-            "2 active deployments",
-            "10 AI generations / day",
-            "Community support",
-        ],
-        "limits": {
-            "max_deployments": 2,
-            "daily_generations": 10,
-        },
-    },
-    "pro": {
-        "name": "Pro",
-        "description": "Unlimited deployments, unlimited AI generations",
+    "starter": {
+        "name": "Starter",
+        "description": "All 70 SA agents, 1,000 requests/mo, real-time data",
         "price_cents": 4900,  # $49/month
-        "stripe_price_id": settings.STRIPE_PRICE_PRO_MONTHLY,
+        "stripe_monthly_price_id": settings.STRIPE_PRICE_STARTER_MONTHLY,
+        "stripe_annual_price_id": settings.STRIPE_PRICE_STARTER_ANNUAL,
         "features": [
-            "Unlimited deployments",
-            "Unlimited AI generations",
+            "All 70 SA agents",
+            "1,000 requests per month",
+            "Real-time SA data connections",
+            "Browser-based access",
+            "Email support",
+        ],
+        "limits": {
+            "max_requests_per_month": 1000,
+            "max_team_seats": 1,
+        },
+    },
+    "growth": {
+        "name": "Growth",
+        "description": "All 70 agents, 10,000 requests/mo, team seats, analytics",
+        "price_cents": 14900,  # $149/month
+        "stripe_monthly_price_id": settings.STRIPE_PRICE_GROWTH_MONTHLY,
+        "stripe_annual_price_id": settings.STRIPE_PRICE_GROWTH_ANNUAL,
+        "features": [
+            "All 70 agents unlocked",
+            "10,000 requests per month",
+            "Team seats (up to 5 users)",
             "Priority support",
-            "Advanced analytics",
+            "Usage analytics dashboard",
         ],
         "limits": {
-            "max_deployments": None,
-            "daily_generations": None,
+            "max_requests_per_month": 10000,
+            "max_team_seats": 5,
         },
     },
-    "bundle": {
-        "name": "Bundle + Admin",
-        "description": "Pro features plus admin dashboard and white-labelling",
-        "price_cents": 9900,  # $99/month
-        "stripe_price_id": settings.STRIPE_PRICE_BUNDLE_ADMIN,
+    "partner": {
+        "name": "Partner",
+        "description": "Unlimited seats and requests, SSO, SLA, dedicated support",
+        "price_cents": 49900,  # $499/month
+        "stripe_monthly_price_id": settings.STRIPE_PRICE_PARTNER_MONTHLY,
+        "stripe_annual_price_id": settings.STRIPE_PRICE_PARTNER_ANNUAL,
         "features": [
-            "Everything in Pro",
-            "Admin dashboard",
-            "White-label branding",
-            "Lead management",
-            "SLA support",
+            "All 70 agents, unlimited seats",
+            "Unlimited requests",
+            "Dedicated account manager",
+            "SSO / SAML authentication",
+            "Custom data integrations",
+            "SLA-backed uptime guarantee",
         ],
         "limits": {
-            "max_deployments": None,
-            "daily_generations": None,
-        },
-    },
-    "enterprise": {
-        "name": "Enterprise",
-        "description": "Custom pricing — contact sales",
-        "price_cents": None,
-        "stripe_price_id": None,
-        "features": [
-            "Everything in Bundle",
-            "Custom integrations",
-            "Dedicated success manager",
-            "On-premise option",
-        ],
-        "limits": {
-            "max_deployments": None,
-            "daily_generations": None,
+            "max_requests_per_month": None,
+            "max_team_seats": None,
         },
     },
 }
 
 # Tiers that are treated as unlimited for deployment / generation purposes.
-TIER_UNLIMITED: set[str] = {"pro", "bundle", "enterprise"}
+# Any subscribed user is unlimited; only unsubscribed users have limits.
+TIER_UNLIMITED: set[str] = {"starter", "growth", "partner"}
 
 
 # ---------------------------------------------------------------------------
@@ -131,29 +123,37 @@ def create_checkout_session(
     *,
     user: User,
     tier: str,
-    success_url: str,
-    cancel_url: str,
+    billing: str = "monthly",
     db: Session,
 ) -> stripe.checkout.Session:
     """Create a Stripe Checkout session for the requested *tier*.
 
-    Raises ``ValueError`` if the tier is not purchasable (free or enterprise)
-    or if no price ID has been configured for it.
+    Success/cancel URLs are derived server-side from FRONTEND_ORIGIN.
+    The *billing* parameter selects monthly vs annual pricing.
+
+    Raises ``ValueError`` if the tier is unknown or unconfigured.
     """
     plan = PLAN_CATALOG.get(tier)
     if plan is None:
         raise ValueError(f"Unknown plan tier: {tier!r}")
-    if tier in ("free", "enterprise"):
-        raise ValueError(f"Tier {tier!r} is not available via Checkout.")
 
-    price_id: Optional[str] = plan.get("stripe_price_id")
+    if billing not in ("monthly", "annual"):
+        raise ValueError(f"Invalid billing interval: {billing!r}")
+
+    price_key = f"stripe_{billing}_price_id"
+    price_id: Optional[str] = plan.get(price_key)
     if not price_id:
         raise ValueError(
-            f"No Stripe price ID configured for tier {tier!r}. "
-            "Set STRIPE_PRICE_PRO_MONTHLY / STRIPE_PRICE_BUNDLE_ADMIN in .env."
+            f"No Stripe price ID configured for {tier}/{billing}. "
+            f"Set the corresponding STRIPE_PRICE_* env var."
         )
 
     customer_id = get_or_create_stripe_customer(user, db)
+
+    # URLs are always server-side — never accept from client
+    frontend = settings.FRONTEND_ORIGIN.rstrip("/")
+    success_url = f"{frontend}/dashboard?checkout=success"
+    cancel_url = f"{frontend}/pricing?checkout=cancelled"
 
     session = stripe.checkout.Session.create(
         customer=customer_id,
@@ -162,10 +162,11 @@ def create_checkout_session(
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
         cancel_url=cancel_url,
-        metadata={"user_id": str(user.id), "tier": tier},
+        metadata={"user_id": str(user.id), "tier": tier, "billing": billing},
         subscription_data={
             "metadata": {"user_id": str(user.id), "tier": tier},
         },
+        allow_promotion_codes=True,
     )
     return session
 
@@ -254,7 +255,7 @@ def handle_subscription_deleted(
 
     user = db.get(User, sub.user_id)
     if user:
-        user.subscription_tier = "free"
+        user.subscription_tier = "unsubscribed"
 
     db.commit()
 

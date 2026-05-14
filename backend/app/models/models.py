@@ -38,7 +38,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     subscription_tier: Mapped[str] = mapped_column(
-        String(50), nullable=False, default="free"
+        String(50), nullable=False, default="unsubscribed"
     )
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(
         String(255), unique=True, nullable=True

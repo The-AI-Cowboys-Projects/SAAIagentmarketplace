@@ -97,9 +97,13 @@ def verify_api_key(
     x_api_key: Optional[str] = Header(None, alias="x-api-key"),
 ) -> None:
     """Verify an API key for service-to-service calls from the Next.js frontend.
-    Raises HTTP 401 if the key is missing or invalid."""
+
+    In development (no BACKEND_API_KEY set), all requests are allowed.
+    In production, BACKEND_API_KEY is required (enforced at startup in config.py).
+    """
     if not settings.BACKEND_API_KEY:
-        return  # No key configured — allow all (dev mode)
+        # Dev mode — no key configured. Production startup blocks this case.
+        return
     if x_api_key != settings.BACKEND_API_KEY:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

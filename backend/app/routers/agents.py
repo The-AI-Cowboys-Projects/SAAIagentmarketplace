@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, verify_api_key
 from app.core.database import get_db
 from app.models.models import ActiveDeployment, AgentCatalog, User
 from app.agents.engine import engine as agent_engine
@@ -18,7 +18,10 @@ from app.services.stripe_service import TIER_UNLIMITED
 
 router = APIRouter(prefix="/api/agents", tags=["agents"])
 
-FREE_TIER_MAX_DEPLOYMENTS = 2
+# Unauthenticated users on the starter plan get limited deployments.
+# "free" no longer exists as a product tier — this is the internal
+# fallback for users who have not yet subscribed.
+UNSUBSCRIBED_MAX_DEPLOYMENTS = 2
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +92,7 @@ class DeployRequest(BaseModel):
 
 
 def _check_deployment_limit(user: User, db: Session) -> None:
-    """Raise 403 if the user is on the free tier and already at the limit."""
+    """Raise 403 if the unsubscribed user is already at the deployment limit."""
     if user.subscription_tier in TIER_UNLIMITED:
         return
     count = (
@@ -100,12 +103,12 @@ def _check_deployment_limit(user: User, db: Session) -> None:
         )
         .count()
     )
-    if count >= FREE_TIER_MAX_DEPLOYMENTS:
+    if count >= UNSUBSCRIBED_MAX_DEPLOYMENTS:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=(
-                f"Free tier is limited to {FREE_TIER_MAX_DEPLOYMENTS} active "
-                "deployments. Upgrade to Pro for unlimited deployments."
+                f"Unsubscribed accounts are limited to {UNSUBSCRIBED_MAX_DEPLOYMENTS} active "
+                "deployments. Subscribe to a plan for unlimited deployments."
             ),
         )
 
@@ -123,6 +126,7 @@ def _check_deployment_limit(user: User, db: Session) -> None:
 def list_agents(
     category: Optional[str] = Query(None, description="Filter by category slug"),
     db: Session = Depends(get_db),
+    _api_key: None = Depends(verify_api_key),
 ) -> list[AgentOut]:
     q = db.query(AgentCatalog).filter(AgentCatalog.is_active == True)
     if category:
@@ -136,7 +140,10 @@ def list_agents(
     response_model=ChatResponse,
     summary="Chat with an agent or auto-route to best agent",
 )
-def chat_with_agent(body: ChatRequest) -> ChatResponse:
+def chat_with_agent(
+    body: ChatRequest,
+    _api_key: None = Depends(verify_api_key),
+) -> ChatResponse:
     """Send a message to a specific agent (by slug via agent_id) or let the
     intent classifier route to the best matching agent.
 

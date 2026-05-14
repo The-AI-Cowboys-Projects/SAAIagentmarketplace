@@ -78,7 +78,7 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)) -> TokenRespo
         name=body.name,
         email=body.email,
         hashed_password=hash_password(body.password),
-        subscription_tier="free",
+        subscription_tier="unsubscribed",
     )
     db.add(user)
     db.commit()
