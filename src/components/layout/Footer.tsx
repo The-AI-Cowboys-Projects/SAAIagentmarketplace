@@ -32,9 +32,19 @@ export function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email.trim()) {
+    if (!email.trim()) return
+    try {
+      await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      setSubscribed(true)
+      setEmail('')
+    } catch {
+      // Silently fail — still show success to avoid blocking UX
       setSubscribed(true)
       setEmail('')
     }
@@ -67,7 +77,7 @@ export function Footer() {
 
             <p className="text-sm text-midnight-400 leading-relaxed max-w-xs">
               AI agents built for San Antonio — civic services, business, military, healthcare, and tourism.
-              50 specialized agents across 5 categories.
+              60 specialized agents across 5 categories.
             </p>
 
             {/* Social links */}
@@ -205,7 +215,7 @@ export function Footer() {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50 animate-ping" />
                 <span className="relative inline-block w-2 h-2 rounded-full bg-emerald-400" />
               </span>
-              <span className="text-xs font-semibold text-emerald-300 tracking-wide">50 agents online</span>
+              <span className="text-xs font-semibold text-emerald-300 tracking-wide">60 agents online</span>
             </div>
           </div>
         </div>

@@ -175,7 +175,7 @@ export function CTA() {
                     whileTap={{ scale: 0.97 }}
                   >
                     <Button variant="outline" size="xl" className="hover:border-brand-400/60 hover:text-white transition-all duration-300">
-                      Browse 50 Agents
+                      Browse 60 Agents
                     </Button>
                   </motion.div>
                 </Link>

@@ -65,7 +65,7 @@ export function AgentFilters() {
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-midnight-500 pointer-events-none transition-colors group-focus-within/search:text-brand-400" />
         <input
           type="text"
-          placeholder="Search 50 agents..."
+          placeholder="Search 60 agents..."
           value={searchQuery}
           onChange={(e) => setSearch(e.target.value)}
           className={clsx(

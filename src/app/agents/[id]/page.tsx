@@ -9,10 +9,86 @@ import { CATEGORY_CONFIG, TIER_CONFIG, type Agent } from '@/lib/types'
 import { SA_AGENTS } from '@/lib/agents-data'
 import {
   ArrowLeft, Bot, Shield, Users, Zap, Clock, CheckCircle2,
-  Star, MessageSquare, TrendingUp, Lock
+  Star, MessageSquare, TrendingUp, Lock, Send
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+
+function AgentChat({ agentId, agentName }: { agentId: string; agentName: string }) {
+  const [message, setMessage] = useState('')
+  const [conversation, setConversation] = useState<{ role: 'user' | 'agent'; text: string }[]>([])
+  const [sending, setSending] = useState(false)
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!message.trim() || sending) return
+    const userMsg = message.trim()
+    setMessage('')
+    setConversation(prev => [...prev, { role: 'user', text: userMsg }])
+    setSending(true)
+    try {
+      const res = await fetch('/api/agents/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentId, message: userMsg }),
+      })
+      const data = await res.json()
+      setConversation(prev => [...prev, { role: 'agent', text: data.response || 'No response received.' }])
+    } catch {
+      setConversation(prev => [...prev, { role: 'agent', text: 'Unable to reach agent. Please try again.' }])
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div>
+      <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+        {conversation.length === 0 && (
+          <p className="text-sm text-midnight-500 italic">Ask {agentName} anything...</p>
+        )}
+        {conversation.map((msg, i) => (
+          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm ${
+              msg.role === 'user'
+                ? 'bg-brand-500/20 text-brand-200 border border-brand-500/30'
+                : 'bg-white/[0.04] text-midnight-300 border border-white/[0.08]'
+            }`}>
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        {sending && (
+          <div className="flex justify-start">
+            <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5">
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-midnight-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-midnight-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-midnight-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <form onSubmit={handleSend} className="flex gap-2">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder={`Ask ${agentName}...`}
+          className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-midnight-600 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all"
+        />
+        <button
+          type="submit"
+          disabled={sending || !message.trim()}
+          className="px-4 py-2.5 rounded-xl bg-brand-500 text-midnight-950 text-sm font-semibold hover:bg-brand-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  )
+}
 
 export default function AgentDetailPage() {
   const { id } = useParams()
@@ -127,6 +203,14 @@ export default function AgentDetailPage() {
                     </div>
                   ))}
                 </div>
+              </Card>
+            </motion.div>
+
+            {/* Try it out */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+              <Card className="p-8">
+                <h2 className="text-lg font-semibold text-white mb-4">Try this agent</h2>
+                <AgentChat agentId={agent.id} agentName={agent.short_name} />
               </Card>
             </motion.div>
 

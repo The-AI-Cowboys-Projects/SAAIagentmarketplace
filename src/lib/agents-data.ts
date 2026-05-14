@@ -28,7 +28,7 @@ function mkAgent(
   }
 }
 
-// ── 50 San Antonio Agents ────────────────────────────────────
+// ── 60 San Antonio Agents ────────────────────────────────────
 export const SA_AGENTS: Agent[] = [
   // ═══ CIVIC (10) ═══
   mkAgent('civic-001', 'sa-permit-navigator', 'SA Permit Navigator', 'Civic', 'free', 'FileText',
@@ -295,6 +295,59 @@ export const SA_AGENTS: Agent[] = [
     ['Attraction booking', 'Crowd forecasting', 'Dining planning', 'Budget optimization'],
     4.7, 1123,
   ),
+
+  // ═══ CONNECT-360 / SmartSA (10) ═══
+  mkAgent('civic-011', 'connect-360-newcomer-onboarding', 'Connect-360 Newcomer Onboarding', 'Civic', 'free', 'UserPlus',
+    'One-stop relocation concierge for newcomers moving to San Antonio — utilities, schools, neighborhoods, voter registration.',
+    ['Relocation checklist', 'Utility signup', 'School finder', 'Neighborhood guide'],
+    4.7, 234,
+    'Guides new residents through the entire relocation process — setting up SAWS water, CPS Energy, finding schools, understanding neighborhoods, registering to vote, and discovering local services.',
+  ),
+  mkAgent('civic-012', 'saws-water-advisor', 'SAWS Water Advisor', 'Civic', 'free', 'Droplets',
+    'SAWS water usage analysis, drought stage alerts, conservation rebates, and billing assistance.',
+    ['Usage analysis', 'Drought alerts', 'Conservation rebates', 'Billing help'],
+    4.5, 189,
+  ),
+  mkAgent('civic-013', 'unified-utility-coordinator', 'Unified Utility Coordinator', 'Civic', 'free', 'Plug',
+    'Coordinate CPS Energy + SAWS + internet setup for new residents — one agent, all utilities.',
+    ['Multi-utility signup', 'Cost estimation', 'Bundle deals', 'Move-in scheduling'],
+    4.6, 156,
+  ),
+  mkAgent('civic-014', 'sa-k12-school-finder', 'SA K-12 School Finder', 'Civic', 'free', 'School',
+    'Compare San Antonio ISD, Northside ISD, North East ISD, and charter schools by address, ratings, and programs.',
+    ['School comparison', 'Enrollment guidance', 'Program search', 'District mapping'],
+    4.8, 312,
+  ),
+  mkAgent('civic-015', 'sa-neighborhood-scout', 'SA Neighborhood Scout', 'Civic', 'free', 'Map',
+    'Neighborhood comparison tool — housing costs, walkability, crime stats, school ratings, and commute times.',
+    ['Cost analysis', 'Safety scores', 'Commute calculator', 'Amenity mapping'],
+    4.7, 267,
+  ),
+  mkAgent('civic-016', 'opportunity-home-navigator', 'Opportunity Home Navigator', 'Civic', 'free', 'Home',
+    'Section 8, affordable housing waitlists, and Opportunity Home SA program navigation and application assistance.',
+    ['Eligibility check', 'Waitlist status', 'Application help', 'Housing search'],
+    4.6, 198,
+  ),
+  mkAgent('civic-017', 'edwards-aquifer-monitor', 'Edwards Aquifer Monitor', 'Civic', 'free', 'Waves',
+    'Real-time Edwards Aquifer level tracking, drought stage alerts, and water conservation rebate finder.',
+    ['Aquifer levels', 'Drought stages', 'Rebate finder', 'Conservation tips'],
+    4.4, 143,
+  ),
+  mkAgent('civic-018', 'sa-river-authority-agent', 'SA River Authority Agent', 'Civic', 'free', 'Anchor',
+    'San Antonio River Authority flood alerts, creek monitoring, and floodplain lookup for property owners.',
+    ['Flood alerts', 'Creek monitoring', 'Floodplain lookup', 'Permit guidance'],
+    4.3, 112,
+  ),
+  mkAgent('civic-019', 'bexar-property-tax-advisor', 'Bexar Property Tax Advisor', 'Business', 'free', 'Calculator',
+    'Bexar County property tax estimation, homestead exemption filing, and BCAD protest assistance.',
+    ['Tax estimation', 'Exemption filing', 'Protest guidance', 'Rate comparison'],
+    4.7, 345,
+  ),
+  mkAgent('civic-020', 'sa-voter-registration-agent', 'SA Voter Registration Agent', 'Civic', 'free', 'CheckSquare',
+    'Voter registration status check, polling location finder, sample ballot preview, and election date reminders.',
+    ['Registration check', 'Polling locator', 'Ballot preview', 'Election reminders'],
+    4.8, 289,
+  ),
 ]
 
 // ── Pricing Plans ────────────────────────────────────────────
@@ -326,11 +379,11 @@ export const SA_PLANS: Plan[] = [
     price: '$29',
     priceNote: '/month',
     tagline: 'Full platform power for professionals',
-    agentCount: 50,
+    agentCount: 60,
     highlight: true,
     badge: 'Most Popular',
     features: [
-      'All 50 agents unlocked',
+      'All 60 agents unlocked',
       'Unlimited API calls',
       'Priority routing',
       'Custom data source binding',
@@ -341,7 +394,7 @@ export const SA_PLANS: Plan[] = [
     monthly_price: 2900,
     annual_price: 27900,
     agent_tier: 'PRO',
-    max_agents: 50,
+    max_agents: 60,
     tokens_per_month: 1000000,
     highlighted: true,
   },
@@ -394,8 +447,8 @@ export const SA_PLANS: Plan[] = [
 
 // ── Category Metadata ────────────────────────────────────────
 export const SA_CATEGORIES: { id: AgentCategory; label: string; description: string; icon: string; color: string; count: number }[] = [
-  { id: 'Civic', label: 'Civic', description: 'City services, permits, elections, transit', icon: 'Building2', color: '#1e90ff', count: 10 },
-  { id: 'Business', label: 'Business', description: 'Licensing, market intel, HR, tax', icon: 'Briefcase', color: '#00e5a0', count: 10 },
+  { id: 'Civic', label: 'Civic', description: 'City services, permits, elections, transit', icon: 'Building2', color: '#1e90ff', count: 19 },
+  { id: 'Business', label: 'Business', description: 'Licensing, market intel, HR, tax', icon: 'Briefcase', color: '#00e5a0', count: 11 },
   { id: 'Military', label: 'Military', description: 'JBSA benefits, VA claims, veteran services', icon: 'Shield', color: '#ffb830', count: 10 },
   { id: 'Healthcare', label: 'Healthcare', description: 'Care navigation, insurance, prescriptions', icon: 'Heart', color: '#ff6b8a', count: 10 },
   { id: 'Tourism', label: 'Tourism', description: 'Riverwalk, Alamo, events, Hill Country', icon: 'MapPin', color: '#a78bfa', count: 10 },

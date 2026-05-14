@@ -28,7 +28,7 @@ function AgentsContent() {
             Agent <span className="gradient-text">Marketplace</span>
           </h1>
           <p className="text-midnight-400">
-            50 specialized AI agents built for San Antonio
+            60 specialized AI agents built for San Antonio
           </p>
         </div>
 

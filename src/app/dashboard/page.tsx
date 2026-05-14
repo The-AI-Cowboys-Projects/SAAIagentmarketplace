@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { CATEGORY_CONFIG, TIER_CONFIG, type Agent, type Profile } from '@/lib/types'
+import { SA_AGENTS } from '@/lib/agents-data'
 import {
   Bot, Zap, BarChart3, Settings, ArrowRight, Shield, Star,
   LogOut, Crown, CreditCard, Activity
@@ -20,7 +21,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [recentAgents, setRecentAgents] = useState<Agent[]>([])
-  const [stats, setStats] = useState({ totalAgents: 50, freeAgents: 9, proAgents: 41, entAgents: 0 })
+  const [stats, setStats] = useState({ totalAgents: 60, freeAgents: 9, proAgents: 51, entAgents: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -32,13 +33,8 @@ export default function DashboardPage() {
       const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (profileData) setProfile(profileData as Profile)
 
-      const { data: agentData } = await supabase
-        .from('agents')
-        .select('*')
-        .eq('tier', 'FREE')
-        .order('rating', { ascending: false })
-        .limit(6)
-      if (agentData) setRecentAgents(agentData as Agent[])
+      const freeAgents = SA_AGENTS.filter(a => a.tier === 'FREE').sort((a, b) => b.rating - a.rating).slice(0, 6)
+      setRecentAgents(freeAgents)
 
       setLoading(false)
     }
@@ -76,7 +72,7 @@ export default function DashboardPage() {
         {/* Stats cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Available Agents', value: plan === 'free' ? '9' : plan === 'all-access' ? '50' : '50', icon: Bot, color: 'text-brand-400' },
+            { label: 'Available Agents', value: plan === 'free' ? '9' : plan === 'all-access' ? '60' : '60', icon: Bot, color: 'text-brand-400' },
             { label: 'Token Balance', value: plan === 'free' ? '3/day' : plan === 'all-access' ? 'Unlimited' : 'Unlimited', icon: Zap, color: 'text-emerald-400' },
             { label: 'Agents Used', value: '0', icon: Activity, color: 'text-sky-400' },
             { label: 'Tokens Used', value: '0', icon: BarChart3, color: 'text-violet-400' },
@@ -104,8 +100,8 @@ export default function DashboardPage() {
             <Card className="p-6 mb-8 bg-gradient-to-r from-brand-500/5 to-amber-500/5 border-brand-500/20">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Unlock 41 more agents</h3>
-                  <p className="text-sm text-midnight-400">Upgrade to Texas Pro for $29/mo and access all 50 agents across every category.</p>
+                  <h3 className="text-lg font-semibold text-white mb-1">Unlock 51 more agents</h3>
+                  <p className="text-sm text-midnight-400">Upgrade to Texas Pro for $29/mo and access all 60 agents across every category.</p>
                 </div>
                 <Link href="/pricing">
                   <Button variant="primary" size="md">

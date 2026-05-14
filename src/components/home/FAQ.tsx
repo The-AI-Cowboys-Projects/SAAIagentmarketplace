@@ -7,10 +7,10 @@ import { clsx } from 'clsx'
 const faqs = [
   {
     q: 'What is the SA AI Agent Marketplace?',
-    a: 'The SA AI Agent Marketplace is San Antonio\'s first local AI platform. We offer 50 specialized AI agents across 5 categories — Civic, Business, Military/JBSA, Healthcare, and Tourism — each connected to real SA data sources to help you get things done faster.',
+    a: 'The SA AI Agent Marketplace is San Antonio\'s first local AI platform. We offer 60 specialized AI agents across 5 categories — Civic, Business, Military/JBSA, Healthcare, and Tourism — each connected to real SA data sources to help you get things done faster.',
   },
   {
-    q: 'How do the 50 agents work?',
+    q: 'How do the 60 agents work?',
     a: 'Each agent is a specialized AI assistant trained for a specific task. Select an agent, provide your inputs, and get results in seconds. Agents are connected to local data sources like CoSA open data, Bexar County records, CPS Energy, SAWS, VIA Transit, and more.',
   },
   {
@@ -23,7 +23,7 @@ const faqs = [
   },
   {
     q: 'How much does it cost?',
-    a: 'We offer a free tier with 9 core agents — no credit card required. Pro and Enterprise plans unlock all 50 agents with higher usage limits, priority support, and team features. See our pricing page for details.',
+    a: 'We offer a free tier with 9 core agents — no credit card required. Pro and Enterprise plans unlock all 60 agents with higher usage limits, priority support, and team features. See our pricing page for details.',
   },
   {
     q: 'Can I use military/veteran agents for free?',
@@ -35,7 +35,7 @@ const faqs = [
   },
   {
     q: 'How do I get started?',
-    a: 'Create a free account, browse the 50 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Works on desktop, tablet, and mobile from any browser.',
+    a: 'Create a free account, browse the 60 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Works on desktop, tablet, and mobile from any browser.',
   },
 ]
 

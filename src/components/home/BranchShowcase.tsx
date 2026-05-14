@@ -7,6 +7,14 @@ import { ArrowRight } from 'lucide-react'
 // Category style config — replaces military branch styles
 type CategoryKey = 'CIVIC' | 'BUSINESS' | 'MILITARY' | 'HEALTHCARE' | 'TOURISM'
 
+const CATEGORY_TO_BRANCH: Record<CategoryKey, string> = {
+  CIVIC: 'Civic',
+  BUSINESS: 'Business',
+  MILITARY: 'Military',
+  HEALTHCARE: 'Healthcare',
+  TOURISM: 'Tourism',
+}
+
 const CATEGORY_STYLE: Record<
   CategoryKey,
   { gradient: string; glow: string; border: string; borderHover: string; pillBorder: string; pillBg: string; color: string; icon: string; label: string }
@@ -76,13 +84,13 @@ const categories: {
 }[] = [
   {
     key: 'CIVIC',
-    agents: 10,
-    suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing'],
+    agents: 19,
+    suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing', 'Connect-360', 'Water/Aquifer', 'Schools'],
     featuredAgent: 'SA Permit Navigator',
   },
   {
     key: 'BUSINESS',
-    agents: 10,
+    agents: 11,
     suites: ['Licensing', 'Market Intel', 'HR', 'Grants', 'Tax'],
     featuredAgent: 'SA Business License Pro',
   },
@@ -156,7 +164,7 @@ export function BranchShowcase() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium uppercase tracking-widest mb-4"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse" />
-            50 Agents Total
+            60 Agents Total
           </motion.div>
 
           <motion.h2
@@ -167,7 +175,7 @@ export function BranchShowcase() {
             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 tracking-tight"
           >
             5 Categories.{' '}
-            <span className="gradient-text">50 Agents. One City.</span>
+            <span className="gradient-text">60 Agents. One City.</span>
           </motion.h2>
 
           <motion.p
@@ -197,7 +205,7 @@ export function BranchShowcase() {
                 whileHover={{ y: -4 }}
                 className="group"
               >
-                <Link href={`/agents?category=${category.key}`} className="block h-full">
+                <Link href={`/agents?branch=${CATEGORY_TO_BRANCH[category.key]}`} className="block h-full">
                   {/* Animated border gradient wrapper */}
                   <div className="relative h-full rounded-2xl p-px overflow-hidden transition-all duration-300">
                     {/* Border glow on hover — rendered as a pseudo-layer */}
@@ -313,7 +321,7 @@ export function BranchShowcase() {
         >
           {[
             { label: 'Categories', value: '5' },
-            { label: 'Specialized Agents', value: '50' },
+            { label: 'Specialized Agents', value: '60' },
             { label: 'Service Suites', value: '25' },
             { label: 'Data Sources', value: '40+' },
           ].map((stat) => (

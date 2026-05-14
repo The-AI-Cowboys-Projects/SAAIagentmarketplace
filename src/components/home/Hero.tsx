@@ -49,7 +49,7 @@ const TYPEWRITER_WORDS = [
 ]
 
 const STATS = [
-  { end: 50,  suffix: '',   label: 'AI Agents',   icon: Bot,    color: 'text-brand-400' },
+  { end: 60,  suffix: '',   label: 'AI Agents',   icon: Bot,    color: 'text-brand-400' },
   { end: 5,   suffix: '',   label: 'Categories',   icon: Shield, color: 'text-tactical-400' },
   { end: 10,  suffix: 'K+', label: 'Users',        icon: Users,  color: 'text-amber-400' },
   { end: 99,  suffix: '.9%', label: 'Uptime',      icon: Zap,    color: 'text-blue-400' },
@@ -433,7 +433,7 @@ export function Hero() {
                 <span className="relative w-2 h-2 rounded-full bg-brand-400" />
               </div>
               <span className="text-sm text-brand-300 font-medium">
-                Now Live &mdash; 50 Agents Across 5 Categories
+                Now Live &mdash; 60 Agents Across 5 Categories
               </span>
               <span className="hidden sm:flex items-center gap-1 text-xs text-midnight-500 border-l border-white/[0.08] pl-2.5 ml-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-tactical-400 inline-block" />
@@ -460,7 +460,7 @@ export function Hero() {
             variants={item}
             className="text-lg sm:text-xl text-midnight-300 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            50 specialized AI agents for SA residents, businesses, veterans, healthcare, and tourism.
+            60 specialized AI agents for SA residents, businesses, veterans, healthcare, and tourism.
             <span className="text-midnight-200"> Texas-Trusted AI, built by The AI Cowboys.</span>
           </motion.p>
 
