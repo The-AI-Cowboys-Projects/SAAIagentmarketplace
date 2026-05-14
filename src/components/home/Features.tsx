@@ -34,9 +34,9 @@ const features: Feature[] = [
   {
     icon: ShieldCheck,
     iconBgColor: 'bg-emerald-700',
-    title: 'Zero Data Retention',
+    title: 'Privacy-First Design',
     description:
-      'Your data is never stored, logged, or used for training. Privacy-first architecture with full encryption in transit.',
+      'Agent conversations are not used for model training. Privacy-first architecture with encryption in transit and minimal data retention.',
   },
   {
     icon: Zap,

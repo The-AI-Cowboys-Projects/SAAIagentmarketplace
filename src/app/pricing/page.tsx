@@ -3,13 +3,19 @@
 /**
  * Pricing page — 3-tier clean layout
  * Starter ($49/mo) | Growth ($149/mo, highlighted) | Partner ($499/mo)
+ *
+ * Authenticated users: clicking a plan creates a Stripe Checkout session server-side.
+ * Unauthenticated users: redirected to login with plan intent preserved.
  */
 
-import { useState } from 'react'
-import { Check, Shield, Zap, Building2, ChevronDown } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Check, Shield, Zap, Building2, ChevronDown, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { clsx } from 'clsx'
+import type { User } from '@supabase/supabase-js'
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PLAN DATA
@@ -23,7 +29,6 @@ type Plan = {
   description:  string
   features:     string[]
   cta:          string
-  href:         string
   highlighted:  boolean
   badge?:       string
 }
@@ -41,10 +46,9 @@ const PLANS: Plan[] = [
       'Real-time SA data connections',
       'Browser-based access',
       'Email support',
-      'Zero data retention',
+      'Privacy-first design',
     ],
-    cta:         'Start for $49/mo',
-    href:        '/auth/login',
+    cta:         'Get Started',
     highlighted: false,
   },
   {
@@ -59,12 +63,11 @@ const PLANS: Plan[] = [
       'Priority data refresh cadence',
       'Team seats (up to 5 users)',
       'Priority email and chat support',
-      'Zero data retention',
+      'Privacy-first design',
       'Usage analytics dashboard',
       'Custom agent configuration',
     ],
-    cta:         'Start for $149/mo',
-    href:        '/auth/login?plan=growth',
+    cta:         'Get Started',
     highlighted: true,
     badge:       'Recommended',
   },
@@ -85,7 +88,6 @@ const PLANS: Plan[] = [
       'Compliance reporting',
     ],
     cta:         'Contact Sales',
-    href:        'mailto:enterprise@aicowboys.com',
     highlighted: false,
   },
 ]
@@ -150,6 +152,54 @@ const PLAN_ICONS = { starter: Shield, growth: Zap, partner: Building2 }
 
 export default function PricingPage() {
   const [annual, setAnnual] = useState(false)
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [checkoutError, setCheckoutError] = useState('')
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+  }, [])
+
+  // Auto-trigger checkout if returning from login with plan intent
+  useEffect(() => {
+    const plan = searchParams.get('plan') as string | null
+    const checkout = searchParams.get('checkout')
+    if (user && plan && !checkout && ['starter', 'growth'].includes(plan)) {
+      handleCheckout(plan)
+    }
+  }, [user, searchParams])
+
+  async function handleCheckout(planId: string) {
+    if (planId === 'partner') {
+      window.location.href = 'mailto:enterprise@aicowboys.com'
+      return
+    }
+
+    if (!user) {
+      // Redirect to login with plan intent — callback will return here
+      window.location.href = `/auth/login?plan=${planId}`
+      return
+    }
+
+    setLoadingPlan(planId)
+    setCheckoutError('')
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: planId, billing: annual ? 'annual' : 'monthly' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Checkout failed')
+      if (data.url) window.location.href = data.url
+    } catch (err: any) {
+      setCheckoutError(err.message)
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white pt-24 lg:pt-32 pb-20">
@@ -164,6 +214,23 @@ export default function PricingPage() {
           <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
             Deploy AI agents built for San Antonio. Start at $49/mo, no hidden fees.
           </p>
+
+          {/* Checkout feedback */}
+          {searchParams.get('checkout') === 'success' && (
+            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700">
+              <Check className="w-4 h-4" /> Subscription activated! Head to your <Link href="/dashboard" className="font-semibold underline">dashboard</Link>.
+            </div>
+          )}
+          {searchParams.get('checkout') === 'cancelled' && (
+            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-700">
+              Checkout cancelled. Choose a plan below to try again.
+            </div>
+          )}
+          {checkoutError && (
+            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+              {checkoutError}
+            </div>
+          )}
 
           {/* Billing toggle */}
           <div className="inline-flex items-center p-1 rounded-lg bg-gray-100 border border-gray-200">
@@ -205,6 +272,7 @@ export default function PricingPage() {
             const annualSavings = plan.monthlyPrice && plan.annualPrice
               ? (plan.monthlyPrice - plan.annualPrice) * 12
               : null
+            const isLoading = loadingPlan === plan.id
 
             return (
               <div
@@ -270,18 +338,20 @@ export default function PricingPage() {
                   )}
                 </div>
 
-                {/* CTA */}
-                <Link
-                  href={plan.href}
+                {/* CTA — creates Stripe checkout for authenticated users */}
+                <button
+                  onClick={() => handleCheckout(plan.id)}
+                  disabled={isLoading}
                   className={clsx(
-                    'block w-full text-center py-3 px-5 rounded-xl text-sm font-semibold transition-colors duration-150 mb-7',
+                    'w-full flex items-center justify-center gap-2 py-3 px-5 rounded-xl text-sm font-semibold transition-colors duration-150 mb-7 disabled:opacity-60',
                     plan.highlighted
                       ? 'bg-white text-navy-950 hover:bg-gray-100'
                       : 'bg-navy-950 text-white hover:bg-navy-800'
                   )}
                 >
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {plan.cta}
-                </Link>
+                </button>
 
                 {/* Features */}
                 <ul className="space-y-3 flex-1">

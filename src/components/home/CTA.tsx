@@ -11,9 +11,9 @@ import { ArrowRight, Shield, CheckCircle2, Users } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
 const TRUST_BADGES = [
-  { icon: Shield,       label: 'Zero Data Retention' },
+  { icon: Shield,       label: 'Privacy-First Design' },
   { icon: CheckCircle2, label: 'SA Built'             },
-  { icon: Users,        label: '10,000+ Users'        },
+  { icon: Users,        label: 'Growing Community'    },
   { icon: CheckCircle2, label: 'Texas Trusted'        },
 ]
 
@@ -34,8 +34,7 @@ export function CTA() {
 
         {/* Subhead */}
         <p className="text-lg text-navy-300 max-w-xl mx-auto mb-10 leading-relaxed">
-          Save hours on permits, claims, bookings, and more. Join 10,000+ San Antonians
-          who already use these agents every day.
+          Save hours on permits, claims, bookings, and more. Join San Antonians who are already using AI agents to get things done faster.
         </p>
 
         {/* CTA buttons */}

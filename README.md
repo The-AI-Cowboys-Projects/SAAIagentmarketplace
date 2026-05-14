@@ -4,7 +4,7 @@
 
 **Live:** [sanantonioaiagents.com](https://sanantonioaiagents.com) | **Parent:** [theaicowboys.com](https://www.theaicowboys.com)
 
-A production-grade AI Agent Marketplace serving the City of San Antonio with 60 specialized autonomous agents across six strategic domains: Civic Governance, Small Business & Economic Development, Military Transition (JBSA), Healthcare Administration (STMC), Tourism & Hospitality, and Connect-360 SmartSA interoperability. Powered by LangChain/LangGraph multi-agent orchestration, Stripe subscription billing with QuickBooks Live revenue sync, Supabase authentication, and a 3-click deployment paradigm.
+A production-grade AI Agent Marketplace serving the City of San Antonio with 70 specialized autonomous agents across five strategic domains: Civic Services, Small Business & Economic Development, Military Transition (JBSA), Healthcare Administration, and Tourism & Hospitality. Powered by LangChain/LangGraph multi-agent orchestration, Stripe subscription billing with idempotent webhooks and async QuickBooks revenue sync, Supabase authentication with Row-Level Security, server-side entitlement enforcement, rate limiting, CI/CD pipeline, and a 3-click deployment paradigm.
 
 ---
 
@@ -16,13 +16,15 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 60 
   - [Backend Stack](#backend-stack)
   - [Authentication & Identity](#authentication--identity)
   - [Payments & Revenue Pipeline](#payments--revenue-pipeline)
+  - [Security & Compliance](#security--compliance)
   - [Infrastructure & DevOps](#infrastructure--devops)
+  - [CI/CD Pipeline](#cicd-pipeline)
   - [AI/ML & Agent Orchestration](#aiml--agent-orchestration)
   - [Data Layer](#data-layer)
 - [System Architecture](#system-architecture)
 - [Multi-Agent Design Patterns](#multi-agent-design-patterns)
 - [UX Paradigm: 3-Click Installation](#ux-paradigm-3-click-installation)
-- [The 60 San Antonio Agents](#the-60-san-antonio-agents)
+- [The 70 San Antonio Agents](#the-70-san-antonio-agents)
 - [Subscription Tiers](#subscription-tiers)
 - [Stripe to QuickBooks Revenue Pipeline](#stripe-to-quickbooks-revenue-pipeline)
 - [B2B Lead Generation Engine](#b2b-lead-generation-engine)
@@ -51,6 +53,7 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 60 
 | **Supabase** | Project `yqjkceahfbnmazpyxgwq` | Active |
 | **Vercel** | Region `iad1` (US East) | Deployed |
 | **Intuit Developer** | App `193ec3a5-9ce0-4c4b-b115-f6664b9de206` | Approved |
+| **CI/CD** | GitHub Actions (`production-gate.yml`) | Active |
 
 ---
 
@@ -94,22 +97,35 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 60 
 |---|---|
 | **Supabase Auth (SSR)** | OAuth2 authentication (Google, GitHub, Magic Link) |
 | **JWT (HS256)** | Token-based session management via HTTP-only secure cookies |
-| **Supabase Row-Level Security** | Database-level access control per authenticated user |
-| **Passlib + Bcrypt** | Password hashing for email/password fallback (cost factor 10) |
-| **python-jose** | JWT token creation, verification, and expiry management |
-| **Next.js Middleware** | Route protection for `/dashboard`, auth callback handling |
+| **Supabase Row-Level Security** | Database-level access control per authenticated user (8 tables) |
+| **Next.js Middleware** | Route protection for `/dashboard`, auth callback with plan/agent intent preservation |
 
 ### Payments & Revenue Pipeline
 
 | Technology | Purpose |
 |---|---|
 | **Stripe** (Live Mode) | Subscription billing — Checkout Sessions, Webhooks, Customer Portal |
-| **Stripe API** | `2026-04-22.dahlia` — latest API version |
-| **Stripe Webhooks** | `checkout.session.completed`, `invoice.paid`, `customer.subscription.deleted`, `customer.subscription.updated` |
-| **QuickBooks Online** (Live) | Automated Sales Receipt creation for every paid invoice |
+| **Server-Side Plan Validation** | Checkout rejects client-supplied priceIds; resolves plan from server config |
+| **Idempotent Webhooks** | Dual-layer dedup: in-memory Set + Supabase `stripe_events` table |
+| **Stripe Customer Portal** | Self-service billing management via `/api/stripe/portal` |
+| **QuickBooks Online** (Live) | Async fire-and-forget Sales Receipt creation (non-blocking) |
 | **QBO OAuth2** | Production credentials — Client ID + Client Secret + Refresh Token |
-| **QBO REST API** | `v3/company/{realmId}/salesreceipt` — minor version 73 |
-| **Revenue Sync** | Stripe `invoice.paid` -> `recordStripePayment()` -> QBO Sales Receipt |
+| **Entitlement Enforcement** | Server-side plan limits: requests/mo, seats, features per tier |
+
+### Security & Compliance
+
+| Layer | Implementation |
+|---|---|
+| **Transport** | HTTPS enforced via Vercel edge, HSTS headers |
+| **Authentication** | Supabase OAuth2 + JWT (HS256) in HTTP-only cookies |
+| **Authorization** | Row-Level Security (RLS) on all 8 Supabase Postgres tables |
+| **Rate Limiting** | 60 req/min per IP on all `/api/` routes via middleware |
+| **Content Security Policy** | CSP header restricting script/style/img sources |
+| **Security Headers** | X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, Permissions-Policy |
+| **Payment Security** | Stripe webhook signature verification + server-side plan resolution |
+| **Secrets** | Environment variables only — never hardcoded, never committed |
+| **Privacy** | Privacy-first design — agent conversations not used for model training |
+| **Legal Pages** | Terms of Service, Privacy Policy, Refund Policy, AI Disclaimer |
 
 ### Infrastructure & DevOps
 
@@ -117,28 +133,38 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 60 
 |---|---|
 | **Vercel** | Frontend hosting — Region `iad1` (US East), automatic HTTPS, edge caching |
 | **GitHub** | Source control — `iaintheardofu/SAAIagentmarketplace` |
-| **Vercel Environment Variables** | 15 production secrets (Stripe, Supabase, QBO, app config) |
-| **Security Headers** | X-Frame-Options: DENY, X-Content-Type-Options: nosniff, strict Referrer-Policy, restricted Permissions-Policy |
+| **Vercel Environment Variables** | 15+ production secrets (Stripe, Supabase, QBO, app config) |
 | **CORS** | Strict origin allowlist — production domain only |
+
+### CI/CD Pipeline
+
+| Component | Purpose |
+|---|---|
+| **GitHub Actions** | `production-gate.yml` — runs on push to main and PRs |
+| **TypeScript Check** | `tsc --noEmit` — catches type errors before deploy |
+| **Production Build** | `next build` — validates all routes compile cleanly (24 routes) |
+| **Playwright E2E** | 16 smoke tests covering all routes, APIs, and claims verification |
+| **Production Gate** | All three checks must pass before deploy |
 
 ### AI/ML & Agent Orchestration
 
 | Technology | Purpose |
 |---|---|
 | **LangGraph Supervisor Router** | Multi-agent orchestration with intent classification and state management |
-| **LangChain @tool Decorators** | 60 tool definitions with exhaustive docstrings for deterministic routing |
-| **Keyword-Based Intent Classifier** | Domain routing — Civic (23 keywords), Business (21), Military (21), Healthcare (18), Tourism (16), Connect-360 |
+| **LangChain @tool Decorators** | 70 tool definitions with exhaustive docstrings for deterministic routing |
+| **Keyword-Based Intent Classifier** | Domain routing — Civic, Business, Military, Healthcare, Tourism |
 | **ChromaDB Vector Store** | Semantic agent discovery via RAG — cosine similarity search |
 | **OpenAI GPT-4o** | Primary LLM for agent reasoning (with MockLLM demo fallback) |
-| **Docstring Engineering** | Every `@tool` has explicit "USE WHEN" / "DO NOT USE WHEN" guidance |
+| **Agent Status Lifecycle** | `live`, `beta`, `demo`, `coming_soon` — UI badges and deploy gating |
 
 ### Data Layer
 
 | Technology | Purpose |
 |---|---|
-| **SQLite** | Local development database |
 | **PostgreSQL + pgvector** | Production database with vector similarity search |
 | **Supabase** | Managed Postgres with real-time subscriptions and RLS |
+| **8 Production Tables** | profiles, stripe_events, subscriptions, agent_catalog, deployments, agent_runs, qbo_sync_jobs, waitlist |
+| **Supabase Migration** | `001_production_schema.sql` — full schema with RLS policies, indexes, triggers |
 | **ChromaDB** | Vector embeddings for semantic agent discovery |
 | **ETL Pipelines** | Municipal open data, ACS registries, workforce databases, healthcare systems |
 
@@ -156,17 +182,28 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 60 
  │                     Next.js 14 App Router                    │
  │                                                              │
  │   /                    Home — hero, agent showcase, CTA      │
- │   /agents              Marketplace — 60 agent cards, filter  │
+ │   /agents              Marketplace — 70 agent cards, filter  │
+ │   /agents/[id]         Agent detail + deploy                 │
  │   /pricing             3-tier Stripe Checkout ($49/$149/$499)│
  │   /dashboard           Protected workspace — deploy/monitor  │
  │   /auth/login          Supabase OAuth2 flow                  │
+ │   /terms               Terms of Service                      │
+ │   /privacy             Privacy Policy                        │
+ │   /refund-policy       Refund Policy                         │
+ │   /ai-disclaimer       AI Disclaimer                         │
+ │   /contact             Contact form                          │
+ │   /status              System status page                    │
  │                                                              │
- │   /api/stripe/checkout   Stripe Checkout Session creation    │
- │   /api/stripe/webhook    Stripe event handler + QBO sync     │
- │   /api/agents            Agent listing and retrieval         │
+ │   /api/stripe/checkout   Server-side plan validation         │
+ │   /api/stripe/webhook    Idempotent handler + async QBO sync │
+ │   /api/stripe/portal     Stripe Customer Portal session      │
+ │   /api/agents/chat       Agent conversation endpoint         │
+ │   /api/contact           Contact form handler                │
  │   /api/newsletter        Email capture                       │
  │   /api/waitlist          Waitlist signup                     │
+ │   /api/health            Health check                        │
  │                                                              │
+ │   Middleware: Auth guard + Rate limit (60/min) + CSP headers │
  │   Zustand State  |  Tailwind Design Tokens  |  TypeScript    │
  └────────────────────────────┬───────────────────────────────┘
                               │ CORS + JWT Auth
@@ -182,17 +219,17 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 60 
  │  │              Agent Execution Engine                      │  │
  │  │                                                          │  │
  │  │  User Query → Intent Classifier (keyword scoring)        │  │
- │  │           → Category Assignment (6 domains)              │  │
+ │  │           → Category Assignment (5 domains)              │  │
  │  │           → Best Agent Selection                         │  │
  │  │           → LangGraph Supervisor Router                  │  │
  │  │           → Tool Invocation + Result Aggregation         │  │
  │  └─────────────────────────┬──────────────────────────────┘  │
  │                             │                                 │
  │  ┌──────────────────────────┴─────────────────────────────┐  │
- │  │                  60 LangChain @tools                     │  │
+ │  │                  70 LangChain @tools                     │  │
  │  │                                                          │  │
- │  │  Civic (10)  |  Business (10)  |  Military (10)          │  │
- │  │  Healthcare (10)  |  Tourism (10)  |  Connect-360 (10)   │  │
+ │  │  Civic (20)  |  Business (20)  |  Military (10)          │  │
+ │  │  Healthcare (10)  |  Tourism (10)                        │  │
  │  │                                                          │  │
  │  │  Each tool: @tool decorator + exhaustive docstring       │  │
  │  │  with "USE WHEN" guidance for deterministic routing      │  │
@@ -204,8 +241,9 @@ A production-grade AI Agent Marketplace serving the City of San Antonio with 60 
      ┌────┴──────┐     ┌─────┴──────┐     ┌──────┴──────┐
      │ Supabase  │     │   Stripe   │     │ QuickBooks  │
      │ Postgres  │     │   Live     │     │  Online     │
-     │ + ChromaDB│     │ (Webhooks) │     │  (Live)     │
-     │ + Auth    │     │            │     │             │
+     │ + ChromaDB│     │ (Webhooks) │     │  (Async)    │
+     │ + Auth    │     │ + Portal   │     │             │
+     │ + RLS     │     │            │     │             │
      └───────────┘     └────────────┘     └─────────────┘
 ```
 
@@ -231,7 +269,6 @@ The engine uses keyword-based scoring (not ML models) to route queries:
 - **Military** (21 keywords): "military", "veteran", "va", "jbsa", "tricare", "gi bill", "skillbridge", "clearance", "resume", "mos", etc.
 - **Healthcare** (18 keywords): "clinical", "medical", "insurance", "referral", "icd", "cpt", "hipaa", "telehealth", "triage", etc.
 - **Tourism** (16 keywords): "hotel", "river walk", "fiesta", "convention", "restaurant", "alamo", "concierge", "pricing", etc.
-- **Connect-360**: Cross-domain interoperability queries spanning multiple categories
 
 ### Docstring Engineering
 
@@ -245,15 +282,15 @@ The interface shifts from reactive chat boxes to proactive, trusted autonomy:
 
 | Click | Action | What Happens |
 |---|---|---|
-| **1. Selection** | User browses the agent card grid, filters by category | Agent selected from the 60-card marketplace |
+| **1. Selection** | User browses the agent card grid, filters by category | Agent selected from the 70-card marketplace |
 | **2. Authentication** | User connects via Supabase OAuth (Google/GitHub) | Secure session established with JWT tokens |
 | **3. Activation** | User clicks "Deploy Workspace" | Backend provisions an isolated LangGraph runtime with injected system prompts, API keys, and taskboard |
 
 ---
 
-## The 60 San Antonio Agents
+## The 70 San Antonio Agents
 
-### Category 1: Unified Resident Experience (Civic Engagement)
+### Category 1: Civic Services (20 agents)
 
 | # | Agent | Description |
 |---|---|---|
@@ -267,81 +304,86 @@ The interface shifts from reactive chat boxes to proactive, trusted autonomy:
 | 8 | **VIA Transit Route Optimizer** | Multi-modal transit routing incorporating VIA bus schedules, scooter availability, and real-time traffic density. |
 | 9 | **Solid Waste & Brush Schedule Tracker** | Proactive SMS alerts for bulky item pickup days and Free Landfill events. |
 | 10 | **SASpeakUp Policy Synthesizer** | Summarizes City Council agendas and SASpeakUp surveys into actionable three-bullet briefs. |
+| 11 | **SAWS Water Conservation Advisor** | Monitors SAWS drought stage restrictions and optimizes residential irrigation schedules. |
+| 12 | **Neighborhood Association Liaison** | Connects residents with their registered neighborhood association and tracks community initiatives. |
+| 13 | **Bexar County Property Tax Advisor** | Analyzes property tax assessments, identifies protest opportunities, and guides filing with BCAD. |
+| 14 | **SA Library Resource Navigator** | Searches SA Public Library catalog, programs, and digital resources with personalized recommendations. |
+| 15 | **Parks & Recreation Booking Agent** | Reserves pavilions, sports fields, and community center rooms across SA Parks system. |
+| 16 | **Storm Water & Flood Alert Agent** | Real-time monitoring of SA River Authority flood gauges with evacuation route guidance. |
+| 17 | **Code Compliance Fast-Track Agent** | Expedites code compliance resolution with automated documentation and scheduling. |
+| 18 | **Senior Services Navigator** | Connects seniors with Meals on Wheels, transportation assistance, and community programs. |
+| 19 | **SA Metro Health Inspector** | Queries Metro Health restaurant inspection scores and food safety compliance records. |
+| 20 | **Voter Registration & Election Guide** | Bexar County voter registration status, polling locations, and sample ballot preview. |
 
-### Category 2: Small Business & Economic Development
-
-| # | Agent | Description |
-|---|---|---|
-| 11 | **SBEDA Procurement Matchmaker** | Matches minority/women-owned businesses with municipal RFPs and drafts bid templates. |
-| 12 | **RevitalizeSA Grant Writer** | Conducts interviews and drafts grant narratives for Corridor Leadership and construction mitigation programs. |
-| 13 | **BuildSA Permit Navigator** | Analyzes blueprints and zoning maps to determine exact DSD commercial permit requirements. |
-| 14 | **Historic Preservation Rehab Assistant** | Cross-references OHP database for materials compliance and calculates tax incentives. |
-| 15 | **VITA Tax Prep Assistant** | Formats profit/loss data for the Volunteer Income Tax Assistance program. |
-| 16 | **Commercial Real Estate Analyzer** | Pinpoints optimal retail locations via Bexar Appraisal District records and foot traffic analysis. |
-| 17 | **Local B2B Lead Generation Swarm** | Multi-agent router scraping SA business directories with firmographic enrichment. |
-| 18 | **Food Truck Compliance Agent** | Guides through Metro Health regulations, FireSafeSA inspections, and parking zone requirements. |
-| 19 | **Disaster Recovery Locator** | Monitors GOBSA for emergency funding and low-interest CDFI loans post-severe weather. |
-| 20 | **Social Commerce Catalog Generator** | Connects inventory to Instagram/TikTok storefronts with localized SEO descriptions. |
-
-### Category 3: Military Transition & JBSA
+### Category 2: Small Business & Economic Development (20 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 21 | **Resume Translator** | Maps NCOER/FITREP military jargon to civilian competencies using semantic dictionaries. |
-| 22 | **VA Claim Nexus Crafter** | Drafts medically sound Nexus letters from military medical records and service histories. |
-| 23 | **Workforce Solutions Alamo Matcher** | Identifies upskilling programs from the "$49.5M SA: Ready to Work" database. |
-| 24 | **Military Spouse Federal Resume Builder** | Tuned to USAJOBS format for GS-scale competitive federal resumes. |
-| 25 | **TRICARE to Civilian Healthcare Navigator** | Compares TRICARE Prime/Select against civilian plans with out-of-pocket projections. |
-| 26 | **Security Clearance Job Matcher** | Matches TS-SCI/Secret cleared candidates to defense contractor vacancies (Boeing, Lockheed). |
-| 27 | **MIC3 Dependent Waiver Automator** | Generates Interstate Compact waivers for military dependent school transfers. |
-| 28 | **SkillBridge Application Writer** | Drafts command approval memos and identifies local SA SkillBridge corporate sponsors. |
-| 29 | **GI Bill Optimizer** | Calculates optimal stacking of Hazelwood Act + Post-9/11 GI Bill for UTSA and Alamo Colleges. |
-| 30 | **Supply Chain Simulator** | Helps logistics officers apply military predictive maintenance to civilian distribution. |
+| 21 | **SBEDA Procurement Matchmaker** | Matches minority/women-owned businesses with municipal RFPs and drafts bid templates. |
+| 22 | **RevitalizeSA Grant Writer** | Conducts interviews and drafts grant narratives for Corridor Leadership and construction mitigation programs. |
+| 23 | **BuildSA Permit Navigator** | Analyzes blueprints and zoning maps to determine exact DSD commercial permit requirements. |
+| 24 | **Historic Preservation Rehab Assistant** | Cross-references OHP database for materials compliance and calculates tax incentives. |
+| 25 | **VITA Tax Prep Assistant** | Formats profit/loss data for the Volunteer Income Tax Assistance program. |
+| 26 | **Commercial Real Estate Analyzer** | Pinpoints optimal retail locations via Bexar Appraisal District records and foot traffic analysis. |
+| 27 | **Local B2B Lead Generation Swarm** | Multi-agent router scraping SA business directories with firmographic enrichment. |
+| 28 | **Food Truck Compliance Agent** | Guides through Metro Health regulations, FireSafeSA inspections, and parking zone requirements. |
+| 29 | **Disaster Recovery Locator** | Monitors GOBSA for emergency funding and low-interest CDFI loans post-severe weather. |
+| 30 | **Social Commerce Catalog Generator** | Connects inventory to Instagram/TikTok storefronts with localized SEO descriptions. |
+| 31 | **Business License Pro** | End-to-end guidance for SA business license applications, renewals, and compliance requirements. |
+| 32 | **Startup Funding Navigator** | Matches early-stage SA startups with angel investors, accelerators, and grant programs. |
+| 33 | **Commercial Lease Analyzer** | Reviews commercial lease terms, identifies unfavorable clauses, and benchmarks against SA market rates. |
+| 34 | **SA Workforce Recruiter** | Connects businesses with qualified local candidates through Workforce Solutions Alamo pipeline. |
+| 35 | **Marketing Campaign Builder** | Creates localized digital marketing campaigns targeting SA demographics and neighborhoods. |
+| 36 | **Supply Chain Optimizer** | Identifies local suppliers and optimizes procurement routes for SA-area businesses. |
+| 37 | **Franchise Feasibility Analyzer** | Evaluates franchise opportunities against SA market data, demographics, and competition. |
+| 38 | **Contractor License Verifier** | Validates contractor licenses, insurance, and bond status for SA commercial projects. |
+| 39 | **Business Insurance Advisor** | Compares commercial insurance options and identifies coverage gaps for SA businesses. |
+| 40 | **Export Compliance Navigator** | Guides SA manufacturers through export regulations, tariffs, and trade compliance. |
 
-### Category 4: Healthcare Administration & STMC
-
-| # | Agent | Description |
-|---|---|---|
-| 31 | **Ambient Clinical Note Formatter** | Formats audio transcripts into structured SOAP notes for EHR systems. |
-| 32 | **Insurance Referral Processor** | Verifies payer eligibility and updates scheduling software from faxed/digital referrals. |
-| 33 | **Medical Coding Validator** | Suggests highest-specificity ICD-10 and CPT codes to reduce claim denials. |
-| 34 | **Patient Triage Chatbot** | Pre-appointment SMS gathering medical histories and flagging urgent symptoms. |
-| 35 | **Clinical Trial Matchmaker** | Cross-references UT Health research with anonymized patient populations. |
-| 36 | **HIPAA Data Synthesizer** | Anonymizes and scrubs PHI for secondary AI training datasets. |
-| 37 | **Hospital Bed Predictor** | Forecasts ICU/acute bed availability using admission rates and seasonal data. |
-| 38 | **Diabetes Management Tracker** | Identifies high-risk Medicare beneficiaries using SA CHNA metrics. |
-| 39 | **Telehealth Router (WHIM)** | Redirects non-emergent rural inquiries to telehealth services. |
-| 40 | **Nursing Staff Scheduler** | Generates optimized shift schedules based on predicted patient census. |
-
-### Category 5: Tourism, Hospitality & Event Management
+### Category 3: Military Transition & JBSA (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 41 | **Virtual Hotel Concierge** | Omnichannel agent handling routine guest inquiries (checkout, pool hours, dining). |
-| 42 | **Dynamic Pricing Optimizer** | Adjusts hotel rates in real-time based on events, competition, and weather. |
-| 43 | **Convention Center Orchestrator** | Floor plans, AV scheduling, and vendor logistics for the Henry B. Gonzalez Center. |
-| 44 | **Flight Delay Automator** | Monitors SA International Airport for delays and auto-rebooks travel. |
-| 45 | **Multilingual Gastronomy Guide** | UNESCO Creative City dining itineraries for international tourists. |
-| 46 | **Predictive Maintenance** | IoT sensor analysis for preemptive hotel room maintenance dispatch. |
-| 47 | **Fiesta Event Navigator** | Downtown street closure routing, parking, and parade routes during Fiesta. |
-| 48 | **Mission Audio Tour Generator** | GPS-triggered RAG tours of the Alamo and SA Missions. |
-| 49 | **VIP Upsell Engine** | Personalized pre-arrival emails with room upgrades and spa packages. |
-| 50 | **Restaurant Health Inspector** | Metropolitan Health District database queries for cleanliness scores. |
+| 41 | **Resume Translator** | Maps NCOER/FITREP military jargon to civilian competencies using semantic dictionaries. |
+| 42 | **VA Claim Nexus Crafter** | Drafts medically sound Nexus letters from military medical records and service histories. |
+| 43 | **Workforce Solutions Alamo Matcher** | Identifies upskilling programs from the "$49.5M SA: Ready to Work" database. |
+| 44 | **Military Spouse Federal Resume Builder** | Tuned to USAJOBS format for GS-scale competitive federal resumes. |
+| 45 | **TRICARE to Civilian Healthcare Navigator** | Compares TRICARE Prime/Select against civilian plans with out-of-pocket projections. |
+| 46 | **Security Clearance Job Matcher** | Matches TS-SCI/Secret cleared candidates to defense contractor vacancies (Boeing, Lockheed). |
+| 47 | **MIC3 Dependent Waiver Automator** | Generates Interstate Compact waivers for military dependent school transfers. |
+| 48 | **SkillBridge Application Writer** | Drafts command approval memos and identifies local SA SkillBridge corporate sponsors. |
+| 49 | **GI Bill Optimizer** | Calculates optimal stacking of Hazelwood Act + Post-9/11 GI Bill for UTSA and Alamo Colleges. |
+| 50 | **Supply Chain Simulator** | Helps logistics officers apply military predictive maintenance to civilian distribution. |
 
-### Category 6: Connect-360 SmartSA (Interoperability)
+### Category 4: Healthcare Administration (10 agents)
 
 | # | Agent | Description |
 |---|---|---|
-| 51 | **City-Military Liaison** | Cross-domain queries spanning City of SA and JBSA workforce systems. |
-| 52 | **Healthcare-Civic Bridge** | Connects STMC patient navigation with municipal social services. |
-| 53 | **Business-Tourism Optimizer** | Links hospitality demand signals to small business supply readiness. |
-| 54 | **Veteran Healthcare Navigator** | Bridges VA healthcare systems with civilian provider networks. |
-| 55 | **Education-Workforce Connector** | Links Pre-K through higher ed pathways to employment pipelines. |
-| 56 | **Infrastructure-Business Impact** | Correlates infrastructure projects with small business disruption mitigation. |
-| 57 | **Public Safety-Healthcare Coordinator** | Emergency services coordination between SAPD, SAFD, and STMC. |
-| 58 | **Housing-Economic Mobility** | Connects affordable housing programs with workforce development. |
-| 59 | **Cultural Heritage-Tourism** | UNESCO/Historic Preservation data integration for tourism marketing. |
-| 60 | **Data Integration Hub** | Master data management across all 5 primary domains. |
+| 51 | **Ambient Clinical Note Formatter** | Formats audio transcripts into structured SOAP notes for EHR systems. |
+| 52 | **Insurance Referral Processor** | Verifies payer eligibility and updates scheduling software from faxed/digital referrals. |
+| 53 | **Medical Coding Validator** | Suggests highest-specificity ICD-10 and CPT codes to reduce claim denials. |
+| 54 | **Patient Triage Chatbot** | Pre-appointment SMS gathering medical histories and flagging urgent symptoms. |
+| 55 | **Clinical Trial Matchmaker** | Cross-references UT Health research with anonymized patient populations. |
+| 56 | **HIPAA Data Synthesizer** | Anonymizes and scrubs PHI for secondary AI training datasets. |
+| 57 | **Hospital Bed Predictor** | Forecasts ICU/acute bed availability using admission rates and seasonal data. |
+| 58 | **Diabetes Management Tracker** | Identifies high-risk Medicare beneficiaries using SA CHNA metrics. |
+| 59 | **Telehealth Router (WHIM)** | Redirects non-emergent rural inquiries to telehealth services. |
+| 60 | **Nursing Staff Scheduler** | Generates optimized shift schedules based on predicted patient census. |
+
+### Category 5: Tourism & Hospitality (10 agents)
+
+| # | Agent | Description |
+|---|---|---|
+| 61 | **Virtual Hotel Concierge** | Omnichannel agent handling routine guest inquiries (checkout, pool hours, dining). |
+| 62 | **Dynamic Pricing Optimizer** | Adjusts hotel rates in real-time based on events, competition, and weather. |
+| 63 | **Convention Center Orchestrator** | Floor plans, AV scheduling, and vendor logistics for the Henry B. Gonzalez Center. |
+| 64 | **Flight Delay Automator** | Monitors SA International Airport for delays and auto-rebooks travel. |
+| 65 | **Multilingual Gastronomy Guide** | UNESCO Creative City dining itineraries for international tourists. |
+| 66 | **Predictive Maintenance** | IoT sensor analysis for preemptive hotel room maintenance dispatch. |
+| 67 | **Fiesta Event Navigator** | Downtown street closure routing, parking, and parade routes during Fiesta. |
+| 68 | **Mission Audio Tour Generator** | GPS-triggered RAG tours of the Alamo and SA Missions. |
+| 69 | **VIP Upsell Engine** | Personalized pre-arrival emails with room upgrades and spa packages. |
+| 70 | **Restaurant Health Inspector** | Metropolitan Health District database queries for cleanliness scores. |
 
 ---
 
@@ -349,11 +391,13 @@ The interface shifts from reactive chat boxes to proactive, trusted autonomy:
 
 | Tier | Monthly | Annual | Features |
 |---|---|---|---|
-| **Starter** | $49/mo | $39/mo (billed annually) | All 60 agents, 1,000 requests/mo, real-time SA data, browser access, email support |
-| **Growth** | $149/mo | $119/mo (billed annually) | All 60 agents, 10,000 requests/mo, team seats (5 users), priority support, analytics dashboard, custom agent config |
+| **Starter** | $49/mo | $39/mo (billed annually) | All 70 agents, 1,000 requests/mo, real-time SA data, browser access, email support |
+| **Growth** | $149/mo | $119/mo (billed annually) | All 70 agents, 10,000 requests/mo, team seats (5 users), priority support, analytics dashboard, custom agent config |
 | **Partner** | $499/mo | $399/mo (billed annually) | Unlimited seats + requests, dedicated account manager, SSO/SAML, custom integrations, SLA, on-prem deployment, compliance reporting |
 
-All plans include end-to-end encryption, 24/7 availability, and zero data retention. Annual billing saves ~20%.
+All plans include end-to-end encryption, 24/7 availability, and privacy-first design. Agent conversations are not used for model training. Annual billing saves ~20%.
+
+**Entitlement Enforcement:** Plan limits are enforced server-side via `src/lib/entitlements.ts`. The checkout flow uses server-side plan validation — client sends plan name, server resolves the Stripe Price ID.
 
 ---
 
@@ -363,11 +407,17 @@ Every paid subscription triggers an automated revenue recognition flow:
 
 ```
 User subscribes → Stripe Checkout Session
-                       │
+                       │ (server-side plan validation)
                   invoice.paid webhook
+                       │ (idempotency check)
+              ┌────────┴─────────┐
+              │ Dual-Layer Dedup │
+              │ Memory + DB      │
+              └────────┬─────────┘
                        │
               ┌────────┴─────────┐
               │ recordStripePayment() │
+              │ (async, non-blocking) │
               └────────┬─────────┘
                        │
               QBO OAuth2 Token Refresh
@@ -381,9 +431,11 @@ User subscribes → Stripe Checkout Session
 
 **Webhook Events Handled:**
 - `checkout.session.completed` — Plan assignment (starter/growth/partner)
-- `invoice.paid` — QBO Sales Receipt creation with customer email, plan name, Stripe invoice ID
+- `invoice.paid` — Async QBO Sales Receipt creation with customer email, plan name, Stripe invoice ID
 - `customer.subscription.deleted` — Downgrade to starter plan
-- `customer.subscription.updated` — Cancellation tracking
+- `customer.subscription.updated` — Plan change sync (maps priceId to plan name)
+
+**Idempotency:** Every webhook event is checked against an in-memory Set and the Supabase `stripe_events` table. Duplicate events are silently dropped.
 
 **QBO Sales Receipt Fields:**
 - CustomerRef: AI Cowboys LLC (ID: 58)
@@ -410,57 +462,80 @@ SAAIagentmarketplace/
 │   │   ├── page.tsx               # Home — hero section, agent showcase, CTAs
 │   │   ├── layout.tsx             # Root layout with Supabase provider
 │   │   ├── globals.css            # Tailwind base + custom styles
-│   │   ├── agents/                # Agent marketplace page (browse/filter 60 agents)
+│   │   ├── agents/                # Agent marketplace (browse/filter 70 agents)
+│   │   │   └── [id]/page.tsx      # Agent detail page with status badges
 │   │   ├── auth/                  # Auth routes (login, signup, OAuth callback)
-│   │   ├── dashboard/             # Protected user dashboard (deploy/monitor)
-│   │   ├── pricing/               # 3-tier pricing with Stripe Checkout
+│   │   ├── dashboard/             # Protected user dashboard (deploy/monitor/billing)
+│   │   ├── pricing/               # 3-tier pricing with server-side checkout flow
+│   │   ├── terms/                 # Terms of Service
+│   │   ├── privacy/               # Privacy Policy
+│   │   ├── refund-policy/         # Refund Policy
+│   │   ├── ai-disclaimer/         # AI Disclaimer (7 sections)
+│   │   ├── contact/               # Contact form with subject dropdown
+│   │   ├── status/                # System status page (checks /api/health)
 │   │   └── api/
-│   │       ├── agents/            #   Agent listing and retrieval
+│   │       ├── agents/chat/       #   Agent conversation endpoint
+│   │       ├── contact/           #   Contact form handler with validation
+│   │       ├── health/            #   Health check endpoint
 │   │       ├── newsletter/        #   Newsletter signup
 │   │       ├── waitlist/          #   Waitlist capture
 │   │       └── stripe/
-│   │           ├── checkout/      #   Stripe Checkout Session creation
-│   │           └── webhook/       #   Stripe event handler + QBO sync
-│   │               └── route.ts   #   checkout.session.completed, invoice.paid,
-│   │                              #   customer.subscription.deleted/updated
+│   │           ├── checkout/      #   Server-side plan validation + Checkout Session
+│   │           ├── webhook/       #   Idempotent handler + async QBO sync
+│   │           └── portal/        #   Stripe Customer Portal session
+│   │
 │   ├── components/
-│   │   ├── agents/                # Agent card grid, filters, detail views
-│   │   ├── home/                  # Hero, feature sections, testimonials
-│   │   ├── layout/                # Navbar, footer, page shells
+│   │   ├── agents/                # Agent card grid (with status badges), filters, detail views
+│   │   ├── home/                  # Hero, features, testimonials, CTA
+│   │   ├── layout/                # Navbar, footer (with legal links), page shells
 │   │   └── ui/                    # Button, Input, Card, Badge primitives
+│   │
 │   ├── lib/
-│   │   ├── agents-data.ts         # 60 agent definitions (456 lines)
+│   │   ├── agents-data.ts         # 70 agent definitions with status lifecycle
 │   │   ├── stripe.ts              # Stripe singleton + plan config ($49/$149/$499)
 │   │   ├── quickbooks.ts          # QBO OAuth2 token management + Sales Receipt creation
+│   │   ├── entitlements.ts        # Server-side plan limits (requests, seats, features)
 │   │   ├── store.ts               # Zustand global state
-│   │   ├── types.ts               # Core TypeScript interfaces and enums
+│   │   ├── types.ts               # Core TypeScript interfaces (Agent, AgentStatus, etc.)
 │   │   └── supabase/              # Supabase client (browser + server)
-│   └── middleware.ts              # Auth protection for /dashboard, /auth/callback
+│   │
+│   └── middleware.ts              # Auth guard + rate limiting (60/min) + CSP headers
+│
+├── supabase/
+│   └── migrations/
+│       └── 001_production_schema.sql  # 8 tables + RLS + indexes + triggers
+│
+├── tests/
+│   └── e2e/
+│       └── smoke.spec.ts          # 16 Playwright smoke tests
+│
+├── .github/
+│   └── workflows/
+│       └── production-gate.yml    # CI: typecheck + build + Playwright
 │
 ├── backend/
 │   ├── app/
 │   │   ├── agents/
 │   │   │   ├── engine.py          # Agent execution engine + intent classifier
-│   │   │   ├── tools.py           # 60 LangChain @tool definitions (6 categories)
-│   │   │   └── seed.py            # Database seeder (60 agent catalog)
+│   │   │   ├── tools.py           # 70 LangChain @tool definitions (5 categories)
+│   │   │   └── seed.py            # Database seeder (70 agent catalog)
 │   │   ├── routers/
 │   │   │   ├── agents.py          # GET /agents, GET /agents/{slug}
 │   │   │   ├── auth.py            # POST /auth/login, POST /auth/logout
 │   │   │   ├── billing.py         # Stripe webhooks + subscription CRUD
 │   │   │   └── leads.py           # POST /leads/score, POST /leads/enrich
 │   │   ├── etl/                   # ETL pipelines for municipal/workforce data
-│   │   ├── models.py              # SQLAlchemy table definitions (6 tables)
+│   │   ├── models.py              # SQLAlchemy table definitions
 │   │   ├── database.py            # Session factory and initialization
 │   │   └── main.py                # FastAPI entry point with CORS
-│   └── requirements.txt           # 18 Python dependencies
+│   └── requirements.txt           # Python dependencies
 │
-├── scripts/                       # Utility scripts
-├── .env.local.example             # Environment variable template
-├── package.json                   # Frontend: 12 dependencies, 4 devDependencies
+├── playwright.config.ts           # Playwright test configuration
+├── next.config.js                 # Security headers + poweredByHeader: false
+├── package.json                   # Scripts: dev, build, typecheck, test:e2e, production-gate
 ├── tailwind.config.ts             # Custom tokens: navy, brand, tactical, surface, midnight
-├── tsconfig.json                  # TypeScript strict mode
+├── tsconfig.json                  # TypeScript strict mode (excludes playwright/tests)
 ├── vercel.json                    # Vercel deployment + security headers
-├── postcss.config.js              # PostCSS with Tailwind + autoprefixer
 └── README.md
 ```
 
@@ -472,9 +547,12 @@ SAAIagentmarketplace/
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/stripe/checkout` | Create Stripe Checkout Session (plan, billing period) |
-| POST | `/api/stripe/webhook` | Handle Stripe events, sync to QBO |
-| GET | `/api/agents` | List all 60 agents with category filters |
+| POST | `/api/stripe/checkout` | Server-side plan validation + Stripe Checkout Session creation |
+| POST | `/api/stripe/webhook` | Idempotent Stripe event handler + async QBO sync |
+| POST | `/api/stripe/portal` | Create Stripe Customer Portal session for billing management |
+| POST | `/api/agents/chat` | Agent conversation endpoint (blocks `coming_soon` agents) |
+| POST | `/api/contact` | Contact form handler with validation |
+| GET | `/api/health` | Health check endpoint |
 | POST | `/api/newsletter` | Newsletter email capture |
 | POST | `/api/waitlist` | Waitlist signup |
 
@@ -497,14 +575,22 @@ SAAIagentmarketplace/
 
 ## Database Schema
 
+### Supabase Postgres (Production)
+
 | Table | Key Fields | Purpose |
 |---|---|---|
-| **profiles** | id (UUID), email, full_name, avatar_url, stripe_customer_id, plan | User accounts + subscription tier |
-| **Subscription** | user_id (FK), plan, stripe_subscription_id, status, period dates | Billing and access control |
-| **AgentCatalog** | slug, name, category, tier, capabilities (JSON), rating, tools_config | 60-agent registry |
-| **Deployment** | user_id (FK), agent_id (FK), name, configuration (JSON), status | Active agent instances |
-| **Review** | user_id (FK), agent_id (FK), rating (1-5), title, body | Agent feedback and ratings |
-| **Lead** | company_name, contact_name, email, industry, lead_score, status | B2B pipeline tracking |
+| **profiles** | id (UUID), email, full_name, avatar_url, stripe_customer_id, plan | User accounts + subscription tier (auto-created on signup) |
+| **stripe_events** | event_id (unique), event_type, processed_at | Webhook idempotency — prevents duplicate event processing |
+| **subscriptions** | user_id (FK), stripe_subscription_id, plan, status, period dates | Billing state and access control |
+| **agent_catalog** | slug (unique), name, category, status, capabilities (JSONB) | 70-agent registry with lifecycle status |
+| **deployments** | user_id (FK), agent_slug (FK), config (JSONB), status | Active agent instances per user |
+| **agent_runs** | deployment_id (FK), input, output, tokens_used, latency_ms | Conversation logs and usage tracking |
+| **qbo_sync_jobs** | stripe_event_id, status, error, synced_at | QuickBooks sync audit trail |
+| **waitlist** | email (unique), source, referral_code | Pre-launch and feature waitlist |
+
+**Row-Level Security:** All 8 tables have RLS policies. Users can only read/write their own data. Service role bypasses for admin operations.
+
+**Auto-Profile Trigger:** `handle_new_user()` function automatically creates a profile row when a new user signs up via Supabase Auth.
 
 ---
 
@@ -512,14 +598,17 @@ SAAIagentmarketplace/
 
 | Layer | Implementation |
 |---|---|
-| **Transport** | HTTPS enforced via Vercel edge, HSTS headers |
-| **Authentication** | Supabase OAuth2 + JWT (HS256) in HTTP-only cookies |
-| **Authorization** | Row-Level Security (RLS) in Supabase Postgres |
-| **API Security** | CORS strict origin, rate limiting, input validation via Pydantic |
-| **Payment Security** | Stripe webhook signature verification (`constructEvent`) |
-| **Headers** | X-Frame-Options: DENY, X-Content-Type-Options: nosniff, restricted Permissions-Policy |
+| **Transport** | HTTPS enforced via Vercel edge, HSTS headers (`max-age=63072000`) |
+| **Authentication** | Supabase OAuth2 (Google, GitHub, Magic Link) + JWT in HTTP-only cookies |
+| **Authorization** | Row-Level Security (RLS) on all 8 Supabase Postgres tables |
+| **Rate Limiting** | 60 req/min per IP on all `/api/` routes, periodic cleanup of expired windows |
+| **CSP** | Content Security Policy restricting script-src, style-src, img-src, connect-src |
+| **Security Headers** | X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: strict-origin-when-cross-origin, Permissions-Policy: camera=(), microphone=(), geolocation=() |
+| **Payment Security** | Stripe webhook signature verification + server-side plan resolution (rejects client-supplied priceIds) |
+| **Entitlements** | Server-side plan limit enforcement — requests/mo, seats, features per tier |
+| **Agent Gating** | `coming_soon` and `demo` agents blocked from deploy and chat at API level |
 | **Secrets** | Environment variables only — never hardcoded, never committed |
-| **Data Retention** | Zero data retention policy across all subscription tiers |
+| **Privacy** | Privacy-first design — agent conversations not used for model training, minimal data retention |
 
 ---
 
@@ -529,7 +618,7 @@ SAAIagentmarketplace/
 
 - Node.js 18+
 - Python 3.11+
-- Supabase project (authentication)
+- Supabase project (authentication + database)
 - Stripe account (billing)
 - OpenAI API key (optional — demo mode uses MockLLM)
 
@@ -554,8 +643,11 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_STARTER_MONTHLY_PRICE_ID=price_...
+STRIPE_STARTER_ANNUAL_PRICE_ID=price_...
 STRIPE_GROWTH_MONTHLY_PRICE_ID=price_...
+STRIPE_GROWTH_ANNUAL_PRICE_ID=price_...
 STRIPE_PARTNER_MONTHLY_PRICE_ID=price_...
+STRIPE_PARTNER_ANNUAL_PRICE_ID=price_...
 
 # QuickBooks Online (Live)
 QBO_CLIENT_ID=your_client_id
@@ -565,6 +657,9 @@ QBO_REALM_ID=your_realm_id
 
 # OpenAI (optional)
 OPENAI_API_KEY=sk-...
+
+# App
+NEXT_PUBLIC_APP_URL=https://sanantonioaiagents.com
 ```
 
 ### Frontend Setup
@@ -585,11 +680,21 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Seed the Database
+### Database Migration
 
 ```bash
-cd backend
-python -m app.agents.seed
+# Apply the production schema to your Supabase project
+# via Supabase Dashboard > SQL Editor, or:
+supabase db push
+```
+
+### Run Tests
+
+```bash
+npm run typecheck        # TypeScript type checking
+npm run build            # Production build (24 routes)
+npm run test:e2e         # Playwright smoke tests (16 tests)
+npm run production-gate  # All three checks in sequence
 ```
 
 ---
@@ -603,13 +708,26 @@ Deployed to Vercel with `vercel.json`:
 - **Region:** `iad1` (US East)
 - **Framework:** Next.js 14
 - **Dev port:** 3200
-- **Security headers** on all routes:
+- **Security headers** on all routes (via next.config.js + middleware):
+  - `Content-Security-Policy`
   - `X-Frame-Options: DENY`
   - `X-Content-Type-Options: nosniff`
+  - `Strict-Transport-Security: max-age=63072000`
   - `Referrer-Policy: strict-origin-when-cross-origin`
   - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- **poweredByHeader:** disabled
 
-Set all 15 environment variables in Vercel project settings before deploying.
+Set all environment variables in Vercel project settings before deploying.
+
+### CI/CD
+
+GitHub Actions (`production-gate.yml`) runs on every push to `main` and on PRs:
+
+1. **TypeScript Check** — `tsc --noEmit`
+2. **Production Build** — `next build` (validates 24 routes)
+3. **E2E Tests** — Playwright smoke tests (16 tests covering routes, APIs, claims)
+
+All three gates must pass before deployment proceeds.
 
 ### Backend
 
@@ -645,7 +763,15 @@ FastAPI runs on Uvicorn. For production, deploy behind a reverse proxy with HTTP
 | Military | Amber | Defense, transition |
 | Healthcare | Rose | Medical, wellness |
 | Tourism | Violet | Hospitality, culture |
-| Connect-360 | Navy | Integration, interop |
+
+### Agent Status Badges
+
+| Status | Badge | Can Deploy |
+|---|---|---|
+| `live` | (none) | Yes |
+| `beta` | Purple "Beta" badge | Yes |
+| `demo` | Amber "Demo" badge | No |
+| `coming_soon` | Gray "Coming Soon" badge | No |
 
 ---
 

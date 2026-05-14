@@ -1,4 +1,5 @@
 export type AgentCategory = 'Civic' | 'Business' | 'Military' | 'Healthcare' | 'Tourism'
+export type AgentStatus = 'live' | 'beta' | 'demo' | 'coming_soon'
 export type PriceTier = 'FREE' | 'PRO' | 'ENTERPRISE'
 
 export interface Agent {
@@ -17,6 +18,7 @@ export interface Agent {
   short_name: string
   tagline: string | null
   active: boolean
+  agentStatus: AgentStatus
   monthly_price: number
   annual_price: number
   one_time_price: number

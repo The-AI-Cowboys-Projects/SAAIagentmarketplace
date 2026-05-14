@@ -4,6 +4,34 @@ import { createServiceRoleClient } from '@/lib/supabase/server'
 import { recordStripePayment } from '@/lib/quickbooks'
 import Stripe from 'stripe'
 
+// ── Idempotency: track processed event IDs in-memory + Supabase ─────────
+// In-memory set for fast dedup within a single serverless instance.
+// Supabase stripe_events table is the durable store across instances.
+const processedEvents = new Set<string>()
+
+async function isEventProcessed(supabase: ReturnType<typeof createServiceRoleClient>, eventId: string): Promise<boolean> {
+  if (processedEvents.has(eventId)) return true
+  const { data } = await supabase
+    .from('stripe_events')
+    .select('id')
+    .eq('event_id', eventId)
+    .maybeSingle()
+  return !!data
+}
+
+async function markEventProcessed(supabase: ReturnType<typeof createServiceRoleClient>, eventId: string, eventType: string): Promise<void> {
+  processedEvents.add(eventId)
+  // Cap in-memory set to prevent unbounded growth
+  if (processedEvents.size > 10000) {
+    const entries = Array.from(processedEvents)
+    for (let i = 0; i < 5000; i++) processedEvents.delete(entries[i])
+  }
+  await supabase.from('stripe_events').upsert(
+    { event_id: eventId, event_type: eventType, processed_at: new Date().toISOString() },
+    { onConflict: 'event_id' }
+  )
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')!
@@ -16,6 +44,11 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createServiceRoleClient()
+
+  // ── Idempotency check ─────────────────────────────────────────────────
+  if (await isEventProcessed(supabase, event.id)) {
+    return NextResponse.json({ received: true, duplicate: true })
+  }
 
   switch (event.type) {
     case 'checkout.session.completed': {
@@ -49,15 +82,15 @@ export async function POST(request: NextRequest) {
       const lineItem = invoice.lines?.data?.[0]
       const planName = lineItem?.description || 'SA AI Agent Marketplace Subscription'
 
-      // Sync to QuickBooks Live
-      await recordStripePayment({
+      // Fire-and-forget QBO sync — don't block webhook response
+      recordStripePayment({
         customerEmail: invoice.customer_email || 'unknown',
         customerName: invoice.customer_name || invoice.customer_email || 'Unknown',
         amount: amountPaid,
         planName,
         stripeInvoiceId: invoice.id,
         stripeSubscriptionId: String((invoice as any).subscription || ''),
-      })
+      }).catch((err) => console.error('[QBO] Background sync error:', err))
       break
     }
 
@@ -78,12 +111,32 @@ export async function POST(request: NextRequest) {
 
     case 'customer.subscription.updated': {
       const subscription = event.data.object as Stripe.Subscription
-      if (subscription.cancel_at_period_end) {
-        // Will be cancelled at end of period - could notify user
+      const priceId = subscription.items.data[0]?.price.id
+
+      // Sync plan changes (upgrades/downgrades)
+      let plan = 'starter'
+      if (priceId === process.env.STRIPE_GROWTH_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_GROWTH_ANNUAL_PRICE_ID) {
+        plan = 'growth'
+      } else if (priceId === process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID) {
+        plan = 'partner'
+      }
+
+      const customerId = subscription.customer as string
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('stripe_customer_id', customerId)
+        .single()
+
+      if (profile) {
+        await supabase.from('profiles').update({ plan }).eq('id', profile.id)
       }
       break
     }
   }
+
+  // ── Mark event as processed ───────────────────────────────────────────
+  await markEventProcessed(supabase, event.id, event.type)
 
   return NextResponse.json({ received: true })
 }

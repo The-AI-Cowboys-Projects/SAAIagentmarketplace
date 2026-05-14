@@ -16,10 +16,10 @@ import { ArrowRight, Bot, Shield, Users, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
 const STATS = [
-  { value: '70',    label: 'AI Agents',  icon: Bot    },
-  { value: '5',     label: 'Categories', icon: Shield },
-  { value: '10K+',  label: 'Users',      icon: Users  },
-  { value: '99.9%', label: 'Uptime',     icon: Zap    },
+  { value: '70',       label: 'AI Agents',    icon: Bot    },
+  { value: '5',        label: 'Categories',   icon: Shield },
+  { value: '24/7',     label: 'Availability', icon: Zap    },
+  { value: 'SA-Built', label: 'Local Data',   icon: Users  },
 ]
 
 export function Hero() {

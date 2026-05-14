@@ -1,4 +1,4 @@
-import type { Agent, AgentCategory, Plan } from './types'
+import type { Agent, AgentCategory, Plan, AgentStatus } from './types'
 
 // ── Helper to build an Agent from compact data ──────────────
 function mkAgent(
@@ -6,6 +6,7 @@ function mkAgent(
   tier: 'pro' | 'enterprise', icon: string, description: string,
   capabilities: string[], rating: number, deployCount: number,
   longDescription?: string,
+  agentStatus: AgentStatus = 'live',
 ): Agent {
   const tierMap = { pro: 'PRO' as const, enterprise: 'ENTERPRISE' as const }
   const priceMap = { PRO: { monthly: 4900, annual: 47000 }, ENTERPRISE: { monthly: 49900, annual: 479000 } }
@@ -15,6 +16,7 @@ function mkAgent(
     short_name: name,
     tagline: description,
     active: true,
+    agentStatus,
     monthly_price: priceMap[mapped].monthly,
     annual_price: priceMap[mapped].annual,
     one_time_price: 0,
@@ -231,16 +233,19 @@ export const SA_AGENTS: Agent[] = [
     'Prenatal care coordination, WIC enrollment, and postpartum support navigation for SA mothers.',
     ['Prenatal scheduling', 'WIC enrollment', 'Doula matching', 'Postpartum resources'],
     4.9, 423,
+    undefined, 'demo',
   ),
   mkAgent('hc-009', 'sa-clinical-trials', 'SA Clinical Trial Matcher', 'Healthcare', 'pro', 'FlaskConical',
     'Matches San Antonio patients to active clinical trials at UT Health SA, UTHSC, and Methodist Research.',
     ['Trial matching', 'Eligibility screening', 'Enrollment support', 'Progress tracking'],
     4.6, 134,
+    undefined, 'demo',
   ),
   mkAgent('hc-010', 'sa-hospital-bills', 'Medical Bill Negotiator', 'Healthcare', 'pro', 'Receipt',
     'Audits hospital bills for errors, identifies charity care eligibility, and negotiates balances for SA patients.',
     ['Bill auditing', 'Error detection', 'Charity care', 'Negotiation scripts'],
     4.7, 198,
+    undefined, 'demo',
   ),
 
   // ═══ TOURISM (10) ═══
@@ -342,11 +347,13 @@ export const SA_AGENTS: Agent[] = [
     'Bexar County property tax estimation, homestead exemption filing, and BCAD protest assistance.',
     ['Tax estimation', 'Exemption filing', 'Protest guidance', 'Rate comparison'],
     4.7, 345,
+    undefined, 'beta',
   ),
   mkAgent('civic-020', 'sa-voter-registration-agent', 'SA Voter Registration Agent', 'Civic', 'pro', 'CheckSquare',
     'Voter registration status check, polling location finder, sample ballot preview, and election date reminders.',
     ['Registration check', 'Polling locator', 'Ballot preview', 'Election reminders'],
     4.8, 289,
+    undefined, 'beta',
   ),
 ]
 
@@ -365,7 +372,7 @@ export const SA_PLANS: Plan[] = [
       'Real-time SA data connections',
       'Browser-based access',
       'Email support',
-      'Zero data retention',
+      'Privacy-first design',
     ],
     description: null,
     monthly_price: 4900,

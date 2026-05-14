@@ -18,10 +18,11 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">2. Zero Data Retention</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">2. Agent Conversation Data</h2>
             <p>
-              Agent conversations are processed in real time and are not stored on our servers after
-              the session ends. We do not retain, train on, or share your agent interaction data.
+              Agent conversations are processed in real time and are not used for model training.
+              We retain minimal session metadata for service quality and debugging purposes.
+              We do not sell or share your agent interaction data with third parties.
             </p>
           </section>
 

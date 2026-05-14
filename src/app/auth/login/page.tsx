@@ -138,11 +138,11 @@ function LoginContent() {
 
         <p className="mt-6 text-xs text-gray-400 text-center">
           By signing in, you agree to our{' '}
-          <Link href="#" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
+          <Link href="/terms" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
             Terms
           </Link>
           {' '}and{' '}
-          <Link href="#" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
+          <Link href="/privacy" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
             Privacy Policy
           </Link>.
         </p>

@@ -117,7 +117,7 @@ export function Testimonials() {
               ))}
             </div>
             <span className="text-gray-900 font-semibold text-sm">4.9 / 5.0</span>
-            <span className="text-gray-400 text-xs">from 10,000+ users</span>
+            <span className="text-gray-400 text-xs">from early adopters</span>
           </div>
         </div>
 
@@ -162,10 +162,10 @@ export function Testimonials() {
         {/* Trust badges */}
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           {[
-            'Zero Data Retention',
+            'Privacy-First Design',
             'SA Built',
             'Texas Trusted',
-            '10,000+ Users',
+            'Growing Community',
           ].map((badge) => (
             <div
               key={badge}

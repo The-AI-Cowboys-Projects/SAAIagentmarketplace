@@ -1,12 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { backendFetch, isBackendAvailable } from '@/lib/backend'
 import { SA_AGENTS } from '@/lib/agents-data'
+import type { AgentStatus } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
   try {
     const { agentId, message } = await request.json()
     if (!agentId || !message) {
       return NextResponse.json({ error: 'agentId and message are required' }, { status: 400 })
+    }
+
+    // Block chat for agents that aren't live or beta
+    const localAgent = SA_AGENTS.find((a) => a.id === agentId)
+    if (localAgent) {
+      const blockedStatuses: AgentStatus[] = ['coming_soon']
+      if (blockedStatuses.includes(localAgent.agentStatus)) {
+        return NextResponse.json(
+          { error: 'This agent is not yet available. Check back soon.' },
+          { status: 403 }
+        )
+      }
     }
 
     // Try backend agent engine first

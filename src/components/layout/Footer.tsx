@@ -150,7 +150,10 @@ export function Footer() {
                   { href: 'https://aicowboys.com', label: 'AI Cowboys',      external: true },
                   { href: '/privacy',              label: 'Privacy Policy',  external: false },
                   { href: '/terms',                label: 'Terms of Service',external: false },
-                  { href: 'mailto:hello@aicowboys.com', label: 'Contact',   external: false },
+                  { href: '/refund-policy',        label: 'Refund Policy',   external: false },
+                  { href: '/ai-disclaimer',        label: 'AI Disclaimer',   external: false },
+                  { href: '/contact',              label: 'Contact',         external: false },
+                  { href: '/status',               label: 'System Status',   external: false },
                 ].map(({ href, label, external }) => (
                   <li key={label}>
                     <a

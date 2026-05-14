@@ -7,7 +7,12 @@
     "dev": "next dev -p 3200",
     "build": "next build",
     "start": "next start -p 3200",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'No unit test runner configured yet — add vitest or jest'",
+    "test:e2e": "npx playwright test",
+    "test:e2e:install": "npx playwright install --with-deps",
+    "production-gate": "npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {
     "@stripe/stripe-js": "^9.5.0",

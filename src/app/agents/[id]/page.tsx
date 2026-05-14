@@ -5,7 +5,14 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { StarRating } from '@/components/ui/StarRating'
 import { Card } from '@/components/ui/Card'
-import { CATEGORY_CONFIG, TIER_CONFIG, type Agent } from '@/lib/types'
+import { CATEGORY_CONFIG, TIER_CONFIG, type Agent, type AgentStatus } from '@/lib/types'
+
+const STATUS_CONFIG: Record<AgentStatus, { label: string; variant: 'success' | 'warning' | 'default' | 'purple'; canDeploy: boolean }> = {
+  live:        { label: 'Live',        variant: 'success', canDeploy: true  },
+  beta:        { label: 'Beta',        variant: 'warning', canDeploy: true  },
+  demo:        { label: 'Demo',        variant: 'default', canDeploy: false },
+  coming_soon: { label: 'Coming Soon', variant: 'purple',  canDeploy: false },
+}
 import { SA_AGENTS } from '@/lib/agents-data'
 import {
   ArrowLeft, Bot, Shield, Users, Zap, Clock, CheckCircle2,
@@ -163,6 +170,11 @@ export default function AgentDetailPage() {
                     >
                       {tier.label}
                     </Badge>
+                    {agent.agentStatus && agent.agentStatus !== 'live' && (
+                      <Badge variant={STATUS_CONFIG[agent.agentStatus].variant} size="md">
+                        {STATUS_CONFIG[agent.agentStatus].label}
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 flex-wrap">
                     <span className={`text-sm ${branch.color}`}>{branch.icon} {branch.label}</span>
@@ -195,8 +207,8 @@ export default function AgentDetailPage() {
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
                   <TrendingUp className="w-4 h-4 text-violet-500 mx-auto mb-1" />
-                  <div className="text-lg font-bold text-gray-900">99.9%</div>
-                  <div className="text-[10px] text-gray-400 uppercase tracking-wide">Uptime</div>
+                  <div className="text-lg font-bold text-gray-900">24/7</div>
+                  <div className="text-[10px] text-gray-400 uppercase tracking-wide">Available</div>
                 </div>
               </div>
             </Card>
@@ -278,11 +290,17 @@ export default function AgentDetailPage() {
               </div>
 
               {/* CTAs */}
-              <Link href={`/auth/login?agent=${agent.id}`}>
-                <Button variant="primary" size="lg" className="w-full mb-3">
-                  <Lock className="w-4 h-4" /> Subscribe to Agent
+              {STATUS_CONFIG[agent.agentStatus ?? 'live'].canDeploy ? (
+                <Link href={`/auth/login?agent=${agent.id}`}>
+                  <Button variant="primary" size="lg" className="w-full mb-3">
+                    <Lock className="w-4 h-4" /> Subscribe to Agent
+                  </Button>
+                </Link>
+              ) : (
+                <Button variant="outline" size="lg" className="w-full mb-3 opacity-60 cursor-not-allowed" disabled>
+                  {agent.agentStatus === 'coming_soon' ? 'Coming Soon' : 'Demo Only'}
                 </Button>
-              </Link>
+              )}
               <Link href="/pricing">
                 <Button variant="outline" size="md" className="w-full">
                   Or get the {agent.tier === 'PRO' ? 'Growth' : 'Partner'} plan for all agents

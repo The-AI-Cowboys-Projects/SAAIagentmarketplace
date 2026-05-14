@@ -7,7 +7,10 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const plan = searchParams.get('plan')
-  const next = plan ? `/pricing?plan=${plan}` : '/dashboard'
+  const agent = searchParams.get('agent')
+  // After login: redirect to pricing with plan intent (auto-triggers checkout),
+  // or agent detail page, or dashboard
+  const next = plan ? `/pricing?plan=${plan}` : agent ? `/agents/${agent}` : '/dashboard'
 
   if (code) {
     const cookieStore = cookies()

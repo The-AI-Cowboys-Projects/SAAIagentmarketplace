@@ -206,11 +206,28 @@ export default function DashboardPage() {
                   <div className="text-xs text-gray-500 mt-0.5">{planLabel}</div>
                 </div>
               </div>
-              {plan === 'starter' && (
-                <Link href="/pricing">
-                  <Button variant="outline" size="sm">Upgrade</Button>
-                </Link>
-              )}
+              <div className="flex items-center gap-2">
+                {plan !== 'starter' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/stripe/portal', { method: 'POST' })
+                        const data = await res.json()
+                        if (data.url) window.location.href = data.url
+                      } catch {}
+                    }}
+                  >
+                    Manage Billing
+                  </Button>
+                )}
+                {plan === 'starter' && (
+                  <Link href="/pricing">
+                    <Button variant="outline" size="sm">Upgrade</Button>
+                  </Link>
+                )}
+              </div>
             </div>
 
           </div>

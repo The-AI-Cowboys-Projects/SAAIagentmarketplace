@@ -11,8 +11,15 @@ import Link from 'next/link'
 import { ArrowRight, Users, TrendingUp } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { StarRating } from '@/components/ui/StarRating'
-import { BRANCH_CONFIG, TIER_CONFIG, type Agent } from '@/lib/types'
+import { BRANCH_CONFIG, TIER_CONFIG, type Agent, type AgentStatus } from '@/lib/types'
 import { useMarketplace } from '@/lib/store'
+
+const STATUS_BADGE: Record<AgentStatus, { label: string; variant: 'success' | 'warning' | 'default' | 'purple' }> = {
+  live:        { label: 'Live',        variant: 'success' },
+  beta:        { label: 'Beta',        variant: 'warning' },
+  demo:        { label: 'Demo',        variant: 'default' },
+  coming_soon: { label: 'Coming Soon', variant: 'purple'  },
+}
 
 // Category-specific left-border accent colors
 const CATEGORY_BORDER: Record<string, string> = {
@@ -56,15 +63,22 @@ export function AgentCard({ agent }: { agent: Agent }) {
       `}
       aria-label={`View ${agent.short_name} agent details`}
     >
-      {/* Trending badge */}
-      {isTrending && (
-        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200 w-fit mb-3">
-          <TrendingUp className="w-2.5 h-2.5 text-amber-700" aria-hidden="true" />
-          <span className="text-[9px] font-semibold tracking-wide text-amber-700 uppercase">
-            Trending
-          </span>
-        </div>
-      )}
+      {/* Status + trending badges */}
+      <div className="flex items-center gap-2 mb-3">
+        {agent.agentStatus && agent.agentStatus !== 'live' && (
+          <Badge variant={STATUS_BADGE[agent.agentStatus].variant} size="sm">
+            {STATUS_BADGE[agent.agentStatus].label}
+          </Badge>
+        )}
+        {isTrending && (
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200 w-fit">
+            <TrendingUp className="w-2.5 h-2.5 text-amber-700" aria-hidden="true" />
+            <span className="text-[9px] font-semibold tracking-wide text-amber-700 uppercase">
+              Trending
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
