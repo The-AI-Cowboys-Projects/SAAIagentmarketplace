@@ -74,13 +74,13 @@ const categories: {
 }[] = [
   {
     key: 'CIVIC',
-    agents: 19,
+    agents: 10,
     suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing'],
     featuredAgent: 'SA Permit Navigator',
   },
   {
     key: 'BUSINESS',
-    agents: 11,
+    agents: 10,
     suites: ['Licensing', 'Market Intel', 'HR', 'Grants', 'Tax'],
     featuredAgent: 'SA Business License Pro',
   },

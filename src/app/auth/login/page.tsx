@@ -73,7 +73,7 @@ function LoginContent() {
           </h1>
           <p className="text-sm text-gray-500">
             {plan
-              ? `Sign up to start your ${plan === 'pro' ? 'Operator' : 'Commander'} plan`
+              ? `Sign up to start your ${plan === 'growth' ? 'Growth' : plan === 'partner' ? 'Partner' : 'Starter'} plan`
               : 'Sign in to your agent marketplace'}
           </p>
         </div>

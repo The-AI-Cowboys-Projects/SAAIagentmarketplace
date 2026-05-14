@@ -31,11 +31,11 @@ const faqs = [
   },
   {
     q: 'How much does it cost?',
-    a: 'Plans start at $9/month for the Starter tier. Professional ($29/mo) and Enterprise (custom) plans unlock all 60 agents with higher usage limits, priority support, and team features. Annual billing saves 20%.',
+    a: 'Plans start at $49/month for the Starter tier. Growth ($149/mo) and Partner ($499/mo) plans unlock all 60 agents with higher usage limits, priority support, and team features. Annual billing saves 20%.',
   },
   {
     q: 'Are military and veteran agents discounted?',
-    a: 'Military and veteran agents are included in all plans starting at $9/month. We offer special pricing for active duty and veteran-owned businesses — contact us for details.',
+    a: 'Military and veteran agents are included in all plans starting at $49/month. We offer special pricing for active duty and veteran-owned businesses — contact us for details.',
   },
   {
     q: 'What data sources are the agents connected to?',
@@ -43,7 +43,7 @@ const faqs = [
   },
   {
     q: 'How do I get started?',
-    a: 'Create an account, browse the 60 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Plans start at $9/month.',
+    a: 'Create an account, browse the 60 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Plans start at $49/month.',
   },
 ]
 

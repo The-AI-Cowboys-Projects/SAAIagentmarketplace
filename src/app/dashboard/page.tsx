@@ -46,19 +46,19 @@ export default function DashboardPage() {
   )
 
   const plan = profile?.plan || 'starter'
-  const planLabel = plan === 'all-access' ? 'Pro' : plan === 'team' ? 'Enterprise' : 'Basic'
+  const planLabel = plan === 'growth' ? 'Growth' : plan === 'partner' ? 'Partner' : 'Starter'
 
   const stats = [
     {
       label: 'Available Agents',
-      value: plan === 'starter' ? '10' : '60',
+      value: '60',
       icon: Bot,
       iconClass: 'text-brand-500',
       bgClass: 'bg-brand-50',
     },
     {
       label: 'Token Balance',
-      value: plan === 'starter' ? '50 / day' : 'Unlimited',
+      value: plan === 'partner' ? 'Unlimited' : plan === 'growth' ? '10K/mo' : '1K/mo',
       icon: Zap,
       iconClass: 'text-emerald-600',
       bgClass: 'bg-emerald-50',
@@ -133,7 +133,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className="text-base font-semibold text-navy-950 mb-1">Unlock all 60 agents</h3>
                 <p className="text-sm text-navy-700">
-                  Upgrade to Texas Pro for $29/mo and access all 60 agents with unlimited usage.
+                  Upgrade to the Growth plan for $149/mo and access all 60 agents with unlimited usage.
                 </p>
               </div>
               <Link href="/pricing" className="shrink-0">

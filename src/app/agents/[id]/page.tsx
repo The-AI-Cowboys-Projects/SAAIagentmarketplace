@@ -283,7 +283,7 @@ export default function AgentDetailPage() {
               </Link>
               <Link href="/pricing">
                 <Button variant="outline" size="md" className="w-full">
-                  Or get the {agent.tier === 'PRO' ? 'Texas Pro' : 'Enterprise'} plan for all {agent.tier.toLowerCase()} agents
+                  Or get the {agent.tier === 'PRO' ? 'Growth' : 'Partner'} plan for all agents
                 </Button>
               </Link>
 

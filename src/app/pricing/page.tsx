@@ -2,7 +2,7 @@
 
 /**
  * Pricing page — 3-tier clean layout
- * Starter ($9/mo) | Professional ($29/mo, highlighted) | Enterprise (custom)
+ * Starter ($49/mo) | Growth ($149/mo, highlighted) | Partner ($499/mo)
  */
 
 import { useState } from 'react'
@@ -16,46 +16,46 @@ import { clsx } from 'clsx'
 ───────────────────────────────────────────────────────────────────────────── */
 
 type Plan = {
-  id:          string
-  name:        string
+  id:           string
+  name:         string
   monthlyPrice: number | null   // null = custom
   annualPrice:  number | null   // per month when billed annually
-  description: string
-  features:    string[]
-  cta:         string
-  href:        string
-  highlighted: boolean
-  badge?:      string
+  description:  string
+  features:     string[]
+  cta:          string
+  href:         string
+  highlighted:  boolean
+  badge?:       string
 }
 
 const PLANS: Plan[] = [
   {
-    id:          'starter',
-    name:        'Starter',
-    monthlyPrice: 9,
-    annualPrice:  7,
-    description: 'Great for individuals and small businesses getting started with AI automation.',
+    id:           'starter',
+    name:         'Starter',
+    monthlyPrice: 49,
+    annualPrice:  39,
+    description:  'For individuals and small teams getting started with AI-powered SA intelligence.',
     features: [
-      '10 AI agents (all categories)',
-      '500 requests per month',
+      'All 60 SA agents',
+      '1,000 requests per month',
       'Real-time SA data connections',
       'Browser-based access',
       'Email support',
       'Zero data retention',
     ],
-    cta:         'Start for $9/mo',
+    cta:         'Start for $49/mo',
     href:        '/auth/login',
     highlighted: false,
   },
   {
-    id:          'professional',
-    name:        'Professional',
-    monthlyPrice: 29,
-    annualPrice:  23,
-    description: 'For teams and power users who need full access to all 60 agents and higher usage.',
+    id:           'growth',
+    name:         'Growth',
+    monthlyPrice: 149,
+    annualPrice:  119,
+    description:  'For growing businesses that need full agent access, team collaboration, and analytics.',
     features: [
-      'All 60 AI agents unlocked',
-      '5,000 requests per month',
+      'All 60 SA agents unlocked',
+      '10,000 requests per month',
       'Priority data refresh cadence',
       'Team seats (up to 5 users)',
       'Priority email and chat support',
@@ -63,17 +63,17 @@ const PLANS: Plan[] = [
       'Usage analytics dashboard',
       'Custom agent configuration',
     ],
-    cta:         'Start for $29/mo',
-    href:        '/auth/login?plan=pro',
+    cta:         'Start for $149/mo',
+    href:        '/auth/login?plan=growth',
     highlighted: true,
     badge:       'Recommended',
   },
   {
-    id:          'enterprise',
-    name:        'Enterprise',
-    monthlyPrice: null,
-    annualPrice:  null,
-    description: 'Custom pricing for organizations that need dedicated support, SSO, and unlimited scale.',
+    id:           'partner',
+    name:         'Partner',
+    monthlyPrice: 499,
+    annualPrice:  399,
+    description:  'For organizations that need enterprise-grade scale, security, and dedicated support.',
     features: [
       'All 60 agents, unlimited seats',
       'Unlimited requests',
@@ -101,15 +101,15 @@ const BILLING_FAQS = [
   },
   {
     q: 'What payment methods do you accept?',
-    a: 'We accept all major credit cards (Visa, Mastercard, Amex) via Stripe. Enterprise customers may pay by invoice.',
+    a: 'We accept all major credit cards (Visa, Mastercard, Amex) via Stripe. Partner customers may pay by invoice.',
   },
   {
     q: 'Is there a free trial?',
-    a: 'The Starter plan includes 10 agents and is a low-cost way to evaluate the platform. Contact us if you need a trial of the Professional plan.',
+    a: 'The Starter plan is a low-cost way to evaluate the platform at $49/mo. Contact us if you need a trial of the Growth plan.',
   },
   {
     q: 'How does annual billing work?',
-    a: "You are billed once per year at the discounted rate. Annual plans save approximately 20% compared to monthly billing. You can switch to monthly at the end of your annual term.",
+    a: 'You are billed once per year at the discounted rate. Annual plans save approximately 20% compared to monthly billing — Starter drops from $49 to $39/mo, Growth from $149 to $119/mo, and Partner from $499 to $399/mo. You can switch to monthly at the end of your annual term.',
   },
 ]
 
@@ -146,7 +146,7 @@ function BillingFAQ() {
    PAGE
 ───────────────────────────────────────────────────────────────────────────── */
 
-const PLAN_ICONS = { starter: Shield, professional: Zap, enterprise: Building2 }
+const PLAN_ICONS = { starter: Shield, growth: Zap, partner: Building2 }
 
 export default function PricingPage() {
   const [annual, setAnnual] = useState(false)
@@ -162,7 +162,7 @@ export default function PricingPage() {
             Simple, transparent pricing
           </h1>
           <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
-            Deploy AI agents built for San Antonio. Start at $9/mo, no hidden fees.
+            Deploy AI agents built for San Antonio. Start at $49/mo, no hidden fees.
           </p>
 
           {/* Billing toggle */}
@@ -273,7 +273,6 @@ export default function PricingPage() {
                 {/* CTA */}
                 <Link
                   href={plan.href}
-                  {...(plan.href.startsWith('mailto') ? {} : {})}
                   className={clsx(
                     'block w-full text-center py-3 px-5 rounded-xl text-sm font-semibold transition-colors duration-150 mb-7',
                     plan.highlighted
@@ -309,11 +308,11 @@ export default function PricingPage() {
             All plans include end-to-end encryption, 24/7 availability, and browser-based access.
           </p>
           <p className="text-sm text-gray-400 mt-1">
-            Enterprise:{' '}
+            Need enterprise-grade scale?{' '}
             <a href="mailto:enterprise@aicowboys.com" className="text-navy-700 hover:text-navy-950 font-medium underline underline-offset-2">
               Contact us
             </a>
-            {' '}for custom pricing, SSO, and dedicated support.
+            {' '}for the Partner plan and custom pricing.
           </p>
         </div>
 

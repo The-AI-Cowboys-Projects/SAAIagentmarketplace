@@ -86,7 +86,7 @@ export function Hero() {
 
           {/* Trust micro-copy */}
           <p className="text-sm text-gray-400 mb-16">
-            Starting at $9/mo — deploy in under 60 seconds
+            Starting at $49/mo — deploy in under 60 seconds
           </p>
 
           {/* Stats strip */}

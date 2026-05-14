@@ -8,7 +8,7 @@ function mkAgent(
   longDescription?: string,
 ): Agent {
   const tierMap = { pro: 'PRO' as const, enterprise: 'ENTERPRISE' as const }
-  const priceMap = { PRO: { monthly: 2900, annual: 27900 }, ENTERPRISE: { monthly: 9900, annual: 95900 } }
+  const priceMap = { PRO: { monthly: 4900, annual: 47000 }, ENTERPRISE: { monthly: 49900, annual: 479000 } }
   const mapped = tierMap[tier]
   return {
     id, slug, name, category, tier: mapped, description, longDescription, icon, capabilities, rating, deployCount,

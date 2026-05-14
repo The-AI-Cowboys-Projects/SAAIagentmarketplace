@@ -118,7 +118,7 @@ export function Header() {
                 <Link href="/auth/login">
                   <Button variant="ghost" size="md">Sign In</Button>
                 </Link>
-                <Link href="/auth/login?plan=pro">
+                <Link href="/auth/login?plan=growth">
                   <Button variant="primary" size="md">Get Started</Button>
                 </Link>
               </>

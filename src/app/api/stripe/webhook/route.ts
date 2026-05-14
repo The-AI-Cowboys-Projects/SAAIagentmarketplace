@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
 
         // Determine plan from price
         let plan = 'starter'
-        if (priceId === process.env.STRIPE_PRO_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_PRO_ANNUAL_PRICE_ID) {
-          plan = 'all-access'
-        } else if (priceId === process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID) {
-          plan = 'team'
+        if (priceId === process.env.STRIPE_GROWTH_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_GROWTH_ANNUAL_PRICE_ID) {
+          plan = 'growth'
+        } else if (priceId === process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID || priceId === process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID) {
+          plan = 'partner'
         }
 
         await supabase.from('profiles').update({ plan }).eq('id', userId)

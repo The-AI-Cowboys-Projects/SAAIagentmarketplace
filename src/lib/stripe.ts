@@ -15,20 +15,23 @@ export function getStripe() {
 export const PLANS = {
   starter: {
     name: 'Starter',
-    monthlyPrice: 900,
-    annualPrice: 8900,
-    stripePriceId: process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
+    monthlyPrice: 4900,
+    annualPrice: 47000,
+    stripeMonthlyPriceId: process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
+    stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,
   },
-  pro: {
-    name: 'Operator',
-    monthlyPrice: 2900,
-    annualPrice: 27900,
-    stripePriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+  growth: {
+    name: 'Growth',
+    monthlyPrice: 14900,
+    annualPrice: 143000,
+    stripeMonthlyPriceId: process.env.STRIPE_GROWTH_MONTHLY_PRICE_ID,
+    stripeAnnualPriceId: process.env.STRIPE_GROWTH_ANNUAL_PRICE_ID,
   },
-  enterprise: {
-    name: 'Commander',
-    monthlyPrice: 9900,
-    annualPrice: 95900,
-    stripePriceId: process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
+  partner: {
+    name: 'Partner',
+    monthlyPrice: 49900,
+    annualPrice: 479000,
+    stripeMonthlyPriceId: process.env.STRIPE_PARTNER_MONTHLY_PRICE_ID,
+    stripeAnnualPriceId: process.env.STRIPE_PARTNER_ANNUAL_PRICE_ID,
   },
 } as const
