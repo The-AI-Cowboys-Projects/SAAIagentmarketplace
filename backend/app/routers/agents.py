@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from app.core.auth import get_current_user
 from app.core.database import get_db
 from app.models.models import ActiveDeployment, AgentCatalog, User
+from app.agents.engine import engine as agent_engine
 from app.services.stripe_service import TIER_UNLIMITED
 
 router = APIRouter(prefix="/api/agents", tags=["agents"])
@@ -65,6 +66,19 @@ class DeploymentOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ChatRequest(BaseModel):
+    message: str
+    agent_id: Optional[str] = None
+
+
+class ChatResponse(BaseModel):
+    agent: str
+    category: str
+    response: str
+    tool_results: list[Any] = []
+    slug: str
+
+
 class DeployRequest(BaseModel):
     config: Optional[dict[str, Any]] = None
 
@@ -115,6 +129,46 @@ def list_agents(
         q = q.filter(AgentCatalog.category == category)
     agents = q.order_by(AgentCatalog.name).all()
     return [AgentOut.from_orm_agent(a) for a in agents]
+
+
+@router.post(
+    "/chat",
+    response_model=ChatResponse,
+    summary="Chat with an agent or auto-route to best agent",
+)
+def chat_with_agent(body: ChatRequest) -> ChatResponse:
+    """Send a message to a specific agent (by slug via agent_id) or let the
+    intent classifier route to the best matching agent.
+
+    The agent_id can be either:
+    - A backend slug (e.g., '311-infrastructure-abatement')
+    - A frontend ID (e.g., 'civic-001') — will fall back to intent routing
+    """
+    result = None
+
+    if body.agent_id:
+        # Try direct slug match first
+        result = agent_engine.run_agent(body.agent_id, body.message)
+        if result.get("error"):
+            # Slug not found — fall back to intent routing
+            result = None
+
+    if result is None:
+        result = agent_engine.route_query(body.message)
+
+    if result.get("error"):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=result["error"],
+        )
+
+    return ChatResponse(
+        agent=result["agent"],
+        category=result["category"],
+        response=result["response"],
+        tool_results=result.get("tool_results", []),
+        slug=result["slug"],
+    )
 
 
 @router.get(

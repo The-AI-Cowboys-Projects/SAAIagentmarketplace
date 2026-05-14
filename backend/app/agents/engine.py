@@ -9,7 +9,13 @@ import json
 from typing import Optional
 
 from .agent_catalog import AGENT_CATALOG
-from .tools import ALL_TOOLS, TOOLS_BY_CATEGORY
+
+# Tools are optional — they require langchain which may not be installed
+try:
+    from .tools import ALL_TOOLS, TOOLS_BY_CATEGORY
+except ImportError:
+    ALL_TOOLS = {}
+    TOOLS_BY_CATEGORY = {}
 
 
 class MockLLM:

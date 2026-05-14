@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.core.database import Base, SessionLocal, engine
 from app.routers import agents, auth, billing, leads
 from app.services.agent_seed import seed_agents
+from app.etl.pipeline import run_all_pipelines
 
 
 # ---------------------------------------------------------------------------
@@ -31,6 +32,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         seed_agents(db)
     finally:
         db.close()
+
+    # Load ETL pipelines (mock data for agent tools)
+    try:
+        run_all_pipelines()
+    except Exception:
+        pass  # Non-fatal — agents work without ETL data
 
     yield
     # Nothing to tear down for SQLite; add cleanup here for production DBs.
@@ -61,8 +68,12 @@ def create_app() -> FastAPI:
         origins += [
             "http://localhost:3000",
             "http://localhost:5173",
+            "http://127.0.0.1:3000",
             "http://127.0.0.1:5173",
         ]
+    # Always allow the production frontend
+    if "sanantonioaiagents.com" not in settings.FRONTEND_ORIGIN:
+        origins.append("https://sanantonioaiagents.com")
 
     app.add_middleware(
         CORSMiddleware,

@@ -30,7 +30,8 @@ class Settings(BaseSettings):
 
     # App
     APP_ENV: str = "development"
-    FRONTEND_ORIGIN: str = "http://localhost:5173"
+    FRONTEND_ORIGIN: str = "http://localhost:3000"
+    BACKEND_API_KEY: str = ""
 
     @property
     def is_production(self) -> bool:

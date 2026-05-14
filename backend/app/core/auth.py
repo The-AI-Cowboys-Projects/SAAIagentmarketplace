@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
+import bcrypt as _bcrypt
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -14,20 +14,18 @@ from app.core.database import get_db
 from app.models.models import User
 
 # ---------------------------------------------------------------------------
-# Password hashing
+# Password hashing — use bcrypt directly (passlib+bcrypt 4.x incompatible)
 # ---------------------------------------------------------------------------
-
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(plain: str) -> str:
     """Return the bcrypt hash of *plain*."""
-    return _pwd_context.hash(plain)
+    return _bcrypt.hashpw(plain.encode(), _bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Return True if *plain* matches *hashed*."""
-    return _pwd_context.verify(plain, hashed)
+    return _bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 # ---------------------------------------------------------------------------
@@ -93,6 +91,20 @@ def get_current_user(
     if user is None:
         raise credentials_exc
     return user
+
+
+def verify_api_key(
+    x_api_key: Optional[str] = Header(None, alias="x-api-key"),
+) -> None:
+    """Verify an API key for service-to-service calls from the Next.js frontend.
+    Raises HTTP 401 if the key is missing or invalid."""
+    if not settings.BACKEND_API_KEY:
+        return  # No key configured — allow all (dev mode)
+    if x_api_key != settings.BACKEND_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+        )
 
 
 def get_optional_user(
