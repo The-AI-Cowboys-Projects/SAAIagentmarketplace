@@ -1,3 +1,11 @@
+/**
+ * Card.tsx — Light-mode card component
+ *
+ * Usage:
+ *   <Card hover>Content</Card>
+ *   <Card className="p-6">Custom padding</Card>
+ */
+
 import { clsx } from 'clsx'
 
 interface CardProps {
@@ -13,9 +21,9 @@ export function Card({ children, className, hover = false, glow = false, onClick
     <div
       onClick={onClick}
       className={clsx(
-        'rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm',
-        hover && 'cursor-pointer hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-300',
-        glow && 'card-glow card-glow-hover',
+        'rounded-xl border border-gray-200 bg-white',
+        hover && 'cursor-pointer hover:border-gray-300 hover:shadow-sm transition-all duration-200',
+        glow && 'shadow-sm',
         onClick && 'cursor-pointer',
         className
       )}

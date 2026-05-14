@@ -1,161 +1,325 @@
 'use client'
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Check, Zap, Shield, Star, Building2 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { SA_PLANS } from '@/lib/agents-data'
-import type { Plan } from '@/lib/types'
-import { clsx } from 'clsx'
-import Link from 'next/link'
 
-const planIcons: Record<string, typeof Shield> = { basic: Shield, pro: Zap, bundles: Star, enterprise: Building2 }
-const planColors: Record<string, { ring: string; bg: string; icon: string; badge: string }> = {
-  basic: { ring: 'ring-emerald-500/20', bg: 'from-emerald-500/10', icon: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  pro: { ring: 'ring-brand-500/30', bg: 'from-brand-500/10', icon: 'text-brand-400', badge: 'bg-brand-500/10 text-brand-400 border-brand-500/20' },
-  bundles: { ring: 'ring-sky-500/20', bg: 'from-sky-500/10', icon: 'text-sky-400', badge: 'bg-sky-500/10 text-sky-400 border-sky-500/20' },
-  enterprise: { ring: 'ring-violet-500/20', bg: 'from-violet-500/10', icon: 'text-violet-400', badge: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
+/**
+ * Pricing page — 3-tier clean layout
+ * Starter ($9/mo) | Professional ($29/mo, highlighted) | Enterprise (custom)
+ */
+
+import { useState } from 'react'
+import { Check, Shield, Zap, Building2, ChevronDown } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import Link from 'next/link'
+import { clsx } from 'clsx'
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PLAN DATA
+───────────────────────────────────────────────────────────────────────────── */
+
+type Plan = {
+  id:          string
+  name:        string
+  monthlyPrice: number | null   // null = custom
+  annualPrice:  number | null   // per month when billed annually
+  description: string
+  features:    string[]
+  cta:         string
+  href:        string
+  highlighted: boolean
+  badge?:      string
 }
 
+const PLANS: Plan[] = [
+  {
+    id:          'starter',
+    name:        'Starter',
+    monthlyPrice: 9,
+    annualPrice:  7,
+    description: 'Great for individuals and small businesses getting started with AI automation.',
+    features: [
+      '10 AI agents (all categories)',
+      '500 requests per month',
+      'Real-time SA data connections',
+      'Browser-based access',
+      'Email support',
+      'Zero data retention',
+    ],
+    cta:         'Start for $9/mo',
+    href:        '/auth/login',
+    highlighted: false,
+  },
+  {
+    id:          'professional',
+    name:        'Professional',
+    monthlyPrice: 29,
+    annualPrice:  23,
+    description: 'For teams and power users who need full access to all 60 agents and higher usage.',
+    features: [
+      'All 60 AI agents unlocked',
+      '5,000 requests per month',
+      'Priority data refresh cadence',
+      'Team seats (up to 5 users)',
+      'Priority email and chat support',
+      'Zero data retention',
+      'Usage analytics dashboard',
+      'Custom agent configuration',
+    ],
+    cta:         'Start for $29/mo',
+    href:        '/auth/login?plan=pro',
+    highlighted: true,
+    badge:       'Recommended',
+  },
+  {
+    id:          'enterprise',
+    name:        'Enterprise',
+    monthlyPrice: null,
+    annualPrice:  null,
+    description: 'Custom pricing for organizations that need dedicated support, SSO, and unlimited scale.',
+    features: [
+      'All 60 agents, unlimited seats',
+      'Unlimited requests',
+      'Dedicated account manager',
+      'SSO / SAML authentication',
+      'Custom data integrations',
+      'SLA-backed uptime guarantee',
+      'On-prem deployment options',
+      'Compliance reporting',
+    ],
+    cta:         'Contact Sales',
+    href:        'mailto:enterprise@aicowboys.com',
+    highlighted: false,
+  },
+]
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BILLING FAQ
+───────────────────────────────────────────────────────────────────────────── */
+
+const BILLING_FAQS = [
+  {
+    q: 'Can I switch plans at any time?',
+    a: 'Yes. You can upgrade, downgrade, or cancel at any time. Changes take effect at the start of your next billing cycle.',
+  },
+  {
+    q: 'What payment methods do you accept?',
+    a: 'We accept all major credit cards (Visa, Mastercard, Amex) via Stripe. Enterprise customers may pay by invoice.',
+  },
+  {
+    q: 'Is there a free trial?',
+    a: 'The Starter plan includes 10 agents and is a low-cost way to evaluate the platform. Contact us if you need a trial of the Professional plan.',
+  },
+  {
+    q: 'How does annual billing work?',
+    a: "You are billed once per year at the discounted rate. Annual plans save approximately 20% compared to monthly billing. You can switch to monthly at the end of your annual term.",
+  },
+]
+
+function BillingFAQ() {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <div className="space-y-2 mt-16">
+      <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">Billing questions</h2>
+      {BILLING_FAQS.map((faq, i) => (
+        <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-gray-50 transition-colors duration-150"
+            aria-expanded={open === i}
+          >
+            <span className="text-sm font-medium text-gray-900 pr-4">{faq.q}</span>
+            <ChevronDown
+              className={clsx('w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200', open === i && 'rotate-180')}
+              aria-hidden="true"
+            />
+          </button>
+          <div className={clsx('overflow-hidden transition-all duration-200', open === i ? 'max-h-40' : 'max-h-0')}>
+            <p className="px-5 pb-4 text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
+              {faq.a}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PAGE
+───────────────────────────────────────────────────────────────────────────── */
+
+const PLAN_ICONS = { starter: Shield, professional: Zap, enterprise: Building2 }
+
 export default function PricingPage() {
-  const plans = SA_PLANS
   const [annual, setAnnual] = useState(false)
 
   return (
-    <div className="min-h-screen pt-24 lg:pt-32 pb-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white pt-24 lg:pt-32 pb-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="text-center mb-12">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4"
-          >
-            Choose Your <span className="gradient-text">Plan</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-midnight-400 max-w-xl mx-auto mb-8"
-          >
-            Deploy AI agents built for San Antonio. Choose the plan that fits your needs.
-          </motion.p>
+          <p className="text-xs font-semibold text-navy-600 uppercase tracking-widest mb-3">Pricing</p>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            Simple, transparent pricing
+          </h1>
+          <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
+            Deploy AI agents built for San Antonio. Start at $9/mo, no hidden fees.
+          </p>
 
           {/* Billing toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-3 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]"
-          >
+          <div className="inline-flex items-center p-1 rounded-lg bg-gray-100 border border-gray-200">
             <button
               onClick={() => setAnnual(false)}
               className={clsx(
-                'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                !annual ? 'bg-brand-500/10 text-brand-400' : 'text-midnight-400 hover:text-white'
+                'px-4 py-2 rounded-md text-sm font-medium transition-all duration-150',
+                !annual
+                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
               )}
+              aria-pressed={!annual}
             >
               Monthly
             </button>
             <button
               onClick={() => setAnnual(true)}
               className={clsx(
-                'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                annual ? 'bg-brand-500/10 text-brand-400' : 'text-midnight-400 hover:text-white'
+                'px-4 py-2 rounded-md text-sm font-medium transition-all duration-150 flex items-center gap-2',
+                annual
+                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
               )}
+              aria-pressed={annual}
             >
-              Annual <span className="text-emerald-400 text-xs ml-1">Save 20%</span>
+              Annual
+              <span className="text-[11px] font-semibold text-green-700 bg-green-100 px-1.5 py-0.5 rounded-full">
+                Save 20%
+              </span>
             </button>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Plans */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {plans.map((plan, i) => {
-            const colors = planColors[plan.id] || planColors.basic
-            const Icon = planIcons[plan.id] || Shield
-            const price = annual ? plan.annual_price : plan.monthly_price
-            const isHighlighted = plan.highlighted
+        {/* Plans grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+          {PLANS.map((plan) => {
+            const Icon  = PLAN_ICONS[plan.id as keyof typeof PLAN_ICONS] ?? Shield
+            const price = annual ? plan.annualPrice : plan.monthlyPrice
+            const annualSavings = plan.monthlyPrice && plan.annualPrice
+              ? (plan.monthlyPrice - plan.annualPrice) * 12
+              : null
 
             return (
-              <motion.div
+              <div
                 key={plan.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.1 }}
                 className={clsx(
-                  'relative rounded-2xl border backdrop-blur-sm',
-                  isHighlighted
-                    ? 'border-brand-500/30 bg-gradient-to-b from-brand-500/5 to-transparent ring-1 ring-brand-500/10 scale-105 z-10'
-                    : 'border-white/[0.06] bg-white/[0.02]'
+                  'relative rounded-2xl border p-8 flex flex-col',
+                  plan.highlighted
+                    ? 'border-navy-950 bg-navy-950 text-white shadow-xl'
+                    : 'border-gray-200 bg-white'
                 )}
               >
-                {isHighlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="px-3 py-1 rounded-full bg-brand-500 text-midnight-950 text-xs font-bold">
-                      MOST POPULAR
+                {/* Recommended badge */}
+                {plan.badge && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="px-3 py-1 rounded-full bg-brand-500 text-navy-950 text-xs font-bold whitespace-nowrap shadow-sm">
+                      {plan.badge}
                     </span>
                   </div>
                 )}
 
-                <div className="p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 rounded-xl ${colors.badge} border flex items-center justify-center`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white">{plan.name}</h3>
-                      <p className="text-xs text-midnight-500">{plan.description}</p>
-                    </div>
+                {/* Plan header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={clsx(
+                    'w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0',
+                    plan.highlighted ? 'bg-white/10' : 'bg-navy-50 border border-navy-100'
+                  )}>
+                    <Icon className={clsx('w-4 h-4', plan.highlighted ? 'text-white' : 'text-navy-700')} aria-hidden="true" />
                   </div>
-
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-white">
-                        {price === 0 ? '$0' : `$${(price / 100).toFixed(0)}`}
-                      </span>
-                      {price > 0 && <span className="text-sm text-midnight-500">/{annual ? 'yr' : 'mo'}</span>}
-                    </div>
-                    {price > 0 && annual && (
-                      <p className="text-xs text-emerald-400 mt-1">
-                        ${((plan.monthly_price * 12 - plan.annual_price) / 100).toFixed(0)} saved annually
-                      </p>
-                    )}
-                  </div>
-
-                  <Link href={plan.id === 'basic' ? '/auth/login' : plan.id === 'enterprise' ? 'mailto:enterprise@aicowboys.com' : `/auth/login?plan=${plan.id}`}>
-                    <Button
-                      variant={isHighlighted ? 'primary' : 'outline'}
-                      size="lg"
-                      className="w-full mb-6"
-                    >
-                      {plan.id === 'basic' ? 'Start for $9/mo' : plan.id === 'enterprise' ? 'Contact Sales' : `Subscribe to ${plan.name}`}
-                    </Button>
-                  </Link>
-
-                  <div className="space-y-3">
-                    {(plan.features as string[]).map((feature, j) => (
-                      <div key={j} className="flex items-start gap-2.5">
-                        <Check className={`w-4 h-4 mt-0.5 shrink-0 ${colors.icon}`} />
-                        <span className="text-sm text-midnight-300">{feature}</span>
-                      </div>
-                    ))}
+                  <div>
+                    <h3 className={clsx('text-base font-bold', plan.highlighted ? 'text-white' : 'text-gray-900')}>
+                      {plan.name}
+                    </h3>
                   </div>
                 </div>
-              </motion.div>
+
+                {/* Description */}
+                <p className={clsx('text-sm leading-relaxed mb-6', plan.highlighted ? 'text-navy-200' : 'text-gray-500')}>
+                  {plan.description}
+                </p>
+
+                {/* Price */}
+                <div className="mb-6">
+                  {price !== null ? (
+                    <>
+                      <div className="flex items-baseline gap-1">
+                        <span className={clsx('text-4xl font-extrabold tabular-nums', plan.highlighted ? 'text-white' : 'text-gray-900')}>
+                          ${price}
+                        </span>
+                        <span className={clsx('text-sm', plan.highlighted ? 'text-navy-300' : 'text-gray-400')}>
+                          /mo{annual ? ' billed annually' : ''}
+                        </span>
+                      </div>
+                      {annual && annualSavings !== null && (
+                        <p className="text-xs text-green-400 mt-1 font-medium">
+                          You save ${annualSavings}/year
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div className={clsx('text-3xl font-extrabold', plan.highlighted ? 'text-white' : 'text-gray-900')}>
+                      Custom
+                    </div>
+                  )}
+                </div>
+
+                {/* CTA */}
+                <Link
+                  href={plan.href}
+                  {...(plan.href.startsWith('mailto') ? {} : {})}
+                  className={clsx(
+                    'block w-full text-center py-3 px-5 rounded-xl text-sm font-semibold transition-colors duration-150 mb-7',
+                    plan.highlighted
+                      ? 'bg-white text-navy-950 hover:bg-gray-100'
+                      : 'bg-navy-950 text-white hover:bg-navy-800'
+                  )}
+                >
+                  {plan.cta}
+                </Link>
+
+                {/* Features */}
+                <ul className="space-y-3 flex-1">
+                  {plan.features.map((feature, j) => (
+                    <li key={j} className="flex items-start gap-2.5">
+                      <Check
+                        className={clsx('w-4 h-4 mt-0.5 shrink-0', plan.highlighted ? 'text-brand-400' : 'text-green-600')}
+                        aria-hidden="true"
+                      />
+                      <span className={clsx('text-sm', plan.highlighted ? 'text-navy-100' : 'text-gray-600')}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )
           })}
         </div>
 
-        {/* Comparison detail */}
-        <div className="mt-16 text-center">
-          <p className="text-sm text-midnight-500">
-            All plans include: End-to-end encryption, 24/7 availability, browser-based access, and mobile support.
+        {/* Universal inclusions note */}
+        <div className="mt-10 text-center">
+          <p className="text-sm text-gray-400">
+            All plans include end-to-end encryption, 24/7 availability, and browser-based access.
           </p>
-          <p className="text-sm text-midnight-500 mt-2">
-            Enterprise customers: <a href="mailto:enterprise@aicowboys.com" className="text-brand-400 hover:text-brand-300">Contact us</a> for custom pricing, SSO, and dedicated support.
+          <p className="text-sm text-gray-400 mt-1">
+            Enterprise:{' '}
+            <a href="mailto:enterprise@aicowboys.com" className="text-navy-700 hover:text-navy-950 font-medium underline underline-offset-2">
+              Contact us
+            </a>
+            {' '}for custom pricing, SSO, and dedicated support.
           </p>
         </div>
+
+        {/* Billing FAQ */}
+        <BillingFAQ />
+
       </div>
     </div>
   )

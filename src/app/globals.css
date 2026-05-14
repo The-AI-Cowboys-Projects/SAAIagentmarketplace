@@ -2,60 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   KEYFRAMES
+   KEYFRAMES — kept minimal
 ───────────────────────────────────────────────────────────────────────────── */
-@keyframes spin-border {
-  0%   { --border-angle: 0turn; }
-  100% { --border-angle: 1turn; }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
-
-@keyframes particle-float {
-  0%, 100% { transform: translateY(0px) translateX(0px) scale(1);   opacity: 0.4; }
-  25%       { transform: translateY(-18px) translateX(8px) scale(1.1); opacity: 0.7; }
-  50%       { transform: translateY(-8px) translateX(-6px) scale(0.9); opacity: 0.5; }
-  75%       { transform: translateY(-22px) translateX(4px) scale(1.05); opacity: 0.6; }
-}
-
-@keyframes text-glow-pulse {
-  0%, 100% { text-shadow: 0 0 10px rgba(245, 158, 11, 0.3), 0 0 30px rgba(245, 158, 11, 0.15); }
-  50%       { text-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 0 60px rgba(245, 158, 11, 0.25), 0 0 100px rgba(245, 158, 11, 0.1); }
-}
-
-@keyframes underline-grow {
-  0%   { width: 0; left: 50%; }
-  100% { width: 100%; left: 0; }
-}
-
-@keyframes pulse-ring-anim {
-  0%   { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-@keyframes page-enter {
-  0%   { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scan-line-move {
-  0%   { background-position: 0 0; }
-  100% { background-position: 0 100%; }
-}
-
-@keyframes spotlight-rotate {
-  0%   { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-@keyframes count-up {
-  from { opacity: 0; transform: translateY(8px); }
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -64,77 +17,38 @@
   100% { transform: translateX(-50%); }
 }
 
-@keyframes border-spin {
-  to { --angle: 360deg; }
-}
-
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes badge-float {
-  0%, 100% { transform: translateY(0px) rotate(-1deg); }
-  50%       { transform: translateY(-8px) rotate(1deg); }
-}
-
-@keyframes typewriter-blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
-@keyframes terminal-line {
-  from { width: 0; }
-  to   { width: 100%; }
-}
-
 /* ─────────────────────────────────────────────────────────────────────────────
    BASE LAYER
 ───────────────────────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 0 0% 3%;
-    --foreground: 210 40% 98%;
-    --angle: 0deg;
-  }
-
-  @property --angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  @property --border-angle {
-    syntax: '<angle>';
-    initial-value: 0turn;
-    inherits: false;
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
   }
 
   body {
-    @apply bg-midnight-950 text-midnight-100 antialiased;
-    animation: page-enter 0.4s ease-out both;
+    @apply bg-white text-gray-900 antialiased;
   }
 
   ::selection {
-    @apply bg-brand-500/30 text-white;
+    @apply bg-navy-200 text-navy-950;
   }
 
   ::-webkit-scrollbar {
     width: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-midnight-900;
+    @apply bg-gray-100;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-midnight-600 rounded-full;
+    @apply bg-gray-300 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-midnight-500;
+    @apply bg-gray-400;
   }
 
-  /* Better focus states */
   *:focus-visible {
-    outline: 2px solid rgba(245, 158, 11, 0.7);
+    outline: 2px solid rgba(0, 33, 69, 0.6);
     outline-offset: 3px;
     border-radius: 6px;
     transition: outline 0.15s ease;
@@ -150,217 +64,20 @@
 ───────────────────────────────────────────────────────────────────────────── */
 @layer components {
 
-  /* ── Existing classes (preserved) ───────────────────────────────────────── */
-  .glass {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.06];
+  /* ── Clean card surface ────────────────────────────────────────────────── */
+  .surface-card {
+    @apply bg-white border border-gray-200 rounded-xl;
   }
-  .glass-hover {
-    @apply hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-300;
-  }
-  .gradient-text {
-    @apply bg-gradient-to-r from-brand-400 via-brand-300 to-amber-300 bg-clip-text text-transparent;
-  }
-  .gradient-border {
-    @apply border border-transparent bg-gradient-to-r from-brand-500/20 to-amber-500/20;
-  }
-  .card-glow {
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.05), 0 4px 24px rgba(0, 0, 0, 0.3);
-  }
-  .card-glow-hover:hover {
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15), 0 8px 40px rgba(245, 158, 11, 0.08);
-  }
-  .hero-gradient {
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.14), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 50%, rgba(217, 119, 6, 0.07), transparent),
-      radial-gradient(ellipse 60% 40% at 20% 50%, rgba(180, 83, 9, 0.07), transparent);
-  }
-  .grid-pattern {
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-  }
-  .noise-overlay::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
-    pointer-events: none;
+  .surface-card-hover {
+    @apply hover:border-gray-300 hover:shadow-sm transition-all duration-200;
   }
 
-  /* ── Animated gradient border ────────────────────────────────────────────── */
-  /*
-   * Usage: <div class="animated-border"> ... </div>
-   * Wrap content in an inner div if you need a solid background behind the border.
-   */
-  .animated-border {
-    position: relative;
-    border-radius: 16px;
-    padding: 1px;
-    background: conic-gradient(
-      from var(--angle),
-      transparent 0deg,
-      rgba(245, 158, 11, 0.8) 60deg,
-      rgba(251, 191, 36, 0.9) 120deg,
-      rgba(245, 158, 11, 0.8) 180deg,
-      transparent 240deg,
-      transparent 360deg
-    );
-    animation: border-spin 4s linear infinite;
-  }
-  .animated-border > * {
-    border-radius: 15px;
-    background: #020617;
+  /* ── Section divider ───────────────────────────────────────────────────── */
+  .section-divider {
+    @apply border-t border-gray-100;
   }
 
-  /* ── Shimmer / skeleton loading ──────────────────────────────────────────── */
-  /*
-   * Usage: <div class="shimmer h-6 rounded-lg" />
-   */
-  .shimmer {
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.03) 0%,
-      rgba(255, 255, 255, 0.08) 40%,
-      rgba(255, 255, 255, 0.03) 80%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.6s ease-in-out infinite;
-  }
-
-  /* ── Scan-line tactical overlay ──────────────────────────────────────────── */
-  /*
-   * Usage: add .scan-lines to any section for subtle CRT / radar feel.
-   * Uses ::after so it layers on top without blocking pointer events.
-   */
-  .scan-lines {
-    position: relative;
-    overflow: hidden;
-  }
-  .scan-lines::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.08) 2px,
-      rgba(0, 0, 0, 0.08) 4px
-    );
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  /* ── Floating particle ───────────────────────────────────────────────────── */
-  /*
-   * Usage: <span class="particle" style="--delay: 1.2s; --size: 4px; top: 30%; left: 60%" />
-   */
-  .particle {
-    position: absolute;
-    width: var(--size, 3px);
-    height: var(--size, 3px);
-    border-radius: 50%;
-    background: rgba(245, 158, 11, 0.6);
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
-    animation: particle-float 5s ease-in-out infinite;
-    animation-delay: var(--delay, 0s);
-    pointer-events: none;
-  }
-
-  /* ── Text glow for headings ──────────────────────────────────────────────── */
-  /*
-   * Usage: <h1 class="gradient-text text-glow"> ... </h1>
-   */
-  .text-glow {
-    animation: text-glow-pulse 3s ease-in-out infinite;
-  }
-
-  /* ── Premium glass card with animated gradient border ────────────────────── */
-  /*
-   * Usage: <div class="glass-premium"> ... </div>
-   * Contains its own animated border + glass backdrop + glow.
-   */
-  .glass-premium {
-    position: relative;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.025);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow:
-      0 0 0 1px rgba(245, 158, 11, 0.1),
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-  }
-  .glass-premium::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 21px;
-    padding: 1px;
-    background: conic-gradient(
-      from var(--angle),
-      transparent 0deg,
-      rgba(245, 158, 11, 0.5) 90deg,
-      rgba(251, 191, 36, 0.7) 180deg,
-      rgba(245, 158, 11, 0.5) 270deg,
-      transparent 360deg
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: border-spin 6s linear infinite;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-  .glass-premium:hover::before {
-    opacity: 1;
-  }
-  .glass-premium:hover {
-    box-shadow:
-      0 0 0 1px rgba(245, 158, 11, 0.2),
-      0 16px 48px rgba(0, 0, 0, 0.5),
-      0 0 40px rgba(245, 158, 11, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.07);
-    transform: translateY(-2px);
-  }
-
-  /* ── Radial spotlight background effect ─────────────────────────────────── */
-  /*
-   * Usage: <div class="spotlight"> ... </div>
-   * The spotlight follows hover via a CSS-only radial approach.
-   * For JS-tracked version, combine with a data-x/data-y driven custom prop.
-   */
-  .spotlight {
-    position: relative;
-    overflow: hidden;
-  }
-  .spotlight::before {
-    content: '';
-    position: absolute;
-    top: var(--spotlight-y, 50%);
-    left: var(--spotlight-x, 50%);
-    width: 600px;
-    height: 600px;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(
-      circle,
-      rgba(245, 158, 11, 0.06) 0%,
-      rgba(245, 158, 11, 0.02) 40%,
-      transparent 70%
-    );
-    pointer-events: none;
-    transition: top 0.3s ease, left 0.3s ease;
-    z-index: 0;
-  }
-
-  /* ── Animated underline hover for links ──────────────────────────────────── */
-  /*
-   * Usage: <a class="hover-underline"> Link text </a>
-   */
+  /* ── Animated underline hover for nav links ───────────────────────────── */
   .hover-underline {
     position: relative;
     text-decoration: none;
@@ -369,60 +86,28 @@
     content: '';
     position: absolute;
     bottom: -2px;
-    left: 50%;
+    left: 0;
     width: 0;
     height: 1.5px;
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    transition: width 0.3s ease, left 0.3s ease;
+    background: #002145;
+    transition: width 0.25s ease;
     border-radius: 1px;
   }
   .hover-underline:hover::after {
     width: 100%;
-    left: 0;
   }
 
-  /* ── Pulse ring for live / status indicators ─────────────────────────────── */
-  /*
-   * Usage: <span class="pulse-ring" /> — absolutely position it around a dot
-   */
-  .pulse-ring {
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(245, 158, 11, 0.6);
-    animation: pulse-ring-anim 1.8s ease-out infinite;
-  }
-  .pulse-ring-green {
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(34, 197, 94, 0.6);
-    animation: pulse-ring-anim 1.8s ease-out infinite;
-  }
-
-  /* ── Number counter animation support ───────────────────────────────────── */
-  /*
-   * Apply to the number element; trigger .is-counting via JS IntersectionObserver
-   */
-  .counter-value {
-    display: inline-block;
-    transition: all 0.1s ease;
-  }
-  .counter-value.is-counting {
-    animation: count-up 0.3s ease-out both;
+  /* ── Fade in up utility ─────────────────────────────────────────────────── */
+  .fade-in-up {
+    animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--stagger, 0) * 80ms);
   }
 
   /* ── Marquee ticker ──────────────────────────────────────────────────────── */
-  /*
-   * Usage:
-   *   <div class="marquee-track">
-   *     <div class="marquee-content"> ... duplicated content ... </div>
-   *   </div>
-   */
   .marquee-track {
     overflow: hidden;
-    mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
-    -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
   }
   .marquee-content {
     display: flex;
@@ -433,78 +118,11 @@
     animation-play-state: paused;
   }
 
-  /* ── Floating badge ──────────────────────────────────────────────────────── */
-  /*
-   * Usage: <div class="floating-badge" style="--float-delay: 0.5s"> SOC2 </div>
-   */
-  .floating-badge {
-    animation: badge-float 4s ease-in-out infinite;
-    animation-delay: var(--float-delay, 0s);
-  }
-
-  /* ── Typewriter cursor blink ─────────────────────────────────────────────── */
-  .typewriter-cursor {
-    display: inline-block;
-    width: 3px;
-    height: 1.1em;
-    background: #f59e0b;
-    margin-left: 2px;
-    vertical-align: text-bottom;
-    border-radius: 1px;
-    animation: typewriter-blink 0.8s step-end infinite;
-  }
-
-  /* ── Terminal line typing animation ─────────────────────────────────────── */
-  .terminal-line {
-    overflow: hidden;
-    white-space: nowrap;
-    animation: terminal-line 0.6s steps(40, end) both;
-  }
-
-  /* ── Page transition wrapper ─────────────────────────────────────────────── */
-  .page-transition {
-    animation: page-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  /* ── Glow button wrapper ─────────────────────────────────────────────────── */
-  /*
-   * Wraps any button to add a radial glow on hover.
-   * Usage: <div class="btn-glow-wrap"> <Button ...> </div>
-   */
-  .btn-glow-wrap {
-    position: relative;
-    display: inline-flex;
-  }
-  .btn-glow-wrap::before {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border-radius: 20px;
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-  .btn-glow-wrap:hover::before {
-    opacity: 1;
-  }
-
-  /* ── Fade-in-up stagger helper ───────────────────────────────────────────── */
-  /*
-   * Usage: <div class="fade-in-up" style="--stagger: 2"> ... </div>
-   * Each unit of --stagger = 100ms delay.
-   */
-  .fade-in-up {
-    animation: fade-in-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: calc(var(--stagger, 0) * 100ms);
-  }
-
-  /* ── Tactical grid (finer, brighter nodes) ───────────────────────────────── */
-  .grid-pattern-tactical {
+  /* ── Hero subtle grid pattern ─────────────────────────────────────────── */
+  .grid-pattern-light {
     background-image:
-      radial-gradient(circle, rgba(245, 158, 11, 0.15) 1px, transparent 1px),
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 40px 40px, 40px 40px, 40px 40px;
+      linear-gradient(rgba(0, 33, 69, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 33, 69, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
   }
 }

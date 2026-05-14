@@ -69,21 +69,22 @@ export interface Profile {
   stripe_customer_id: string | null
 }
 
+// Text labels with color dots — no emojis
 export const CATEGORY_CONFIG: Record<AgentCategory, { label: string; color: string; bgColor: string; icon: string }> = {
-  Civic: { label: 'Civic', color: 'text-blue-400', bgColor: 'bg-blue-500/10 border-blue-500/20', icon: '🏛️' },
-  Business: { label: 'Business', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10 border-emerald-500/20', icon: '💼' },
-  Military: { label: 'Military', color: 'text-amber-400', bgColor: 'bg-amber-500/10 border-amber-500/20', icon: '🎖️' },
-  Healthcare: { label: 'Healthcare', color: 'text-rose-400', bgColor: 'bg-rose-500/10 border-rose-500/20', icon: '🏥' },
-  Tourism: { label: 'Tourism', color: 'text-violet-400', bgColor: 'bg-violet-500/10 border-violet-500/20', icon: '🗺️' },
+  Civic:      { label: 'Civic',      color: 'text-blue-600',   bgColor: 'bg-blue-50 border-blue-200',   icon: 'CI' },
+  Business:   { label: 'Business',   color: 'text-amber-600',  bgColor: 'bg-amber-50 border-amber-200', icon: 'BU' },
+  Military:   { label: 'Military',   color: 'text-green-700',  bgColor: 'bg-green-50 border-green-200', icon: 'MI' },
+  Healthcare: { label: 'Healthcare', color: 'text-rose-600',   bgColor: 'bg-rose-50 border-rose-200',   icon: 'HC' },
+  Tourism:    { label: 'Tourism',    color: 'text-violet-600', bgColor: 'bg-violet-50 border-violet-200',icon: 'TO' },
 }
 
 // Keep BRANCH_CONFIG as alias for backward compatibility
 export const BRANCH_CONFIG = CATEGORY_CONFIG
 
 export const TIER_CONFIG: Record<PriceTier, { label: string; color: string; bgColor: string }> = {
-  FREE: { label: 'Free', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10 border-emerald-500/20' },
-  PRO: { label: 'Pro', color: 'text-brand-400', bgColor: 'bg-brand-500/10 border-brand-500/20' },
-  ENTERPRISE: { label: 'Enterprise', color: 'text-violet-400', bgColor: 'bg-violet-500/10 border-violet-500/20' },
+  FREE:       { label: 'Free',       color: 'text-green-700',  bgColor: 'bg-green-50 border-green-200'   },
+  PRO:        { label: 'Pro',        color: 'text-navy-700',   bgColor: 'bg-navy-50 border-navy-200'     },
+  ENTERPRISE: { label: 'Enterprise', color: 'text-violet-700', bgColor: 'bg-violet-50 border-violet-200' },
 }
 
 // Keep MilitaryBranch as type alias for backward compat

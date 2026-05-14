@@ -1,9 +1,17 @@
 'use client'
+
+/**
+ * Footer.tsx — Clean light-mode footer
+ *
+ * Usage:
+ *   import { Footer } from '@/components/layout/Footer'
+ *   <Footer />
+ */
+
 import Link from 'next/link'
 import { Shield, MapPin, Zap } from 'lucide-react'
 import { useState } from 'react'
 
-// Social icon SVGs (inline, no extra deps)
 function GithubIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -41,135 +49,128 @@ export function Footer() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-      setSubscribed(true)
-      setEmail('')
     } catch {
-      // Silently fail — still show success to avoid blocking UX
-      setSubscribed(true)
-      setEmail('')
+      // Silently fail
     }
+    setSubscribed(true)
+    setEmail('')
   }
 
   return (
-    <footer className="relative bg-midnight-950 overflow-hidden">
-      {/* Gradient separator line at top */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent" />
-
-      {/* Subtle background glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-brand-500/4 rounded-full blur-[80px] pointer-events-none" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+    <footer className="bg-gray-50 border-t border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
 
         {/* Main grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16 mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16 mb-12">
 
           {/* Brand column */}
-          <div className="col-span-2 md:col-span-1 space-y-5">
-            <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-amber-500 flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/50 transition-all duration-300 group-hover:scale-105">
-                <Shield className="w-5 h-5 text-midnight-950" />
+          <div className="col-span-2 md:col-span-1 space-y-4">
+            <Link href="/" className="inline-flex items-center gap-2.5 group" aria-label="SA Agent Marketplace">
+              <div className="w-9 h-9 rounded-lg bg-navy-950 flex items-center justify-center group-hover:bg-navy-800 transition-colors duration-200 flex-shrink-0">
+                <Shield className="w-4 h-4 text-white" aria-hidden="true" />
               </div>
               <div>
-                <div className="text-base font-bold text-white leading-tight">SA Agent</div>
-                <div className="text-base font-bold gradient-text leading-tight">Marketplace</div>
+                <div className="text-sm font-bold text-gray-900 leading-tight">SA Agent</div>
+                <div className="text-sm font-bold text-brand-500 leading-tight">Marketplace</div>
               </div>
             </Link>
 
-            <p className="text-sm text-midnight-400 leading-relaxed max-w-xs">
-              AI agents built for San Antonio — civic services, business, military, healthcare, and tourism.
-              60 specialized agents across 5 categories.
+            <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
+              AI agents built for San Antonio — civic services, business, military,
+              healthcare, and tourism. 60 specialized agents across 5 categories.
             </p>
 
             {/* Social links */}
-            <div className="flex items-center gap-3">
-              <a
-                href="https://github.com/aicowboys"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06] text-midnight-400 hover:text-white hover:bg-white/[0.08] hover:border-brand-500/30 transition-all duration-200"
-              >
-                <GithubIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://linkedin.com/company/aicowboys"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06] text-midnight-400 hover:text-white hover:bg-white/[0.08] hover:border-blue-500/30 transition-all duration-200"
-              >
-                <LinkedinIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://twitter.com/aicowboys"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="X / Twitter"
-                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06] text-midnight-400 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-all duration-200"
-              >
-                <TwitterXIcon className="w-4 h-4" />
-              </a>
+            <div className="flex items-center gap-2">
+              {[
+                { href: 'https://github.com/aicowboys',          label: 'GitHub',    Icon: GithubIcon   },
+                { href: 'https://linkedin.com/company/aicowboys', label: 'LinkedIn',  Icon: LinkedinIcon  },
+                { href: 'https://twitter.com/aicowboys',          label: 'X/Twitter', Icon: TwitterXIcon  },
+              ].map(({ href, label, Icon }) => (
+                <a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300 transition-all duration-150"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Platform links */}
           <div>
-            <h4 className="text-xs font-semibold text-white uppercase tracking-widest mb-5">Platform</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/agents" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">
-                  Browse Agents
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link href="/#categories" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">
-                  Categories
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">
-                  Dashboard
-                </Link>
-              </li>
+            <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-widest mb-4">Platform</h4>
+            <ul className="space-y-2.5">
+              {[
+                { href: '/agents',      label: 'Browse Agents' },
+                { href: '/pricing',     label: 'Pricing'       },
+                { href: '/#categories', label: 'Categories'    },
+                { href: '/dashboard',   label: 'Dashboard'     },
+              ].map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="text-sm text-gray-500 hover:text-navy-950 transition-colors duration-150">
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Categories links */}
           <div>
-            <h4 className="text-xs font-semibold text-white uppercase tracking-widest mb-5">Categories</h4>
-            <ul className="space-y-3">
-              <li><Link href="/agents?branch=Civic"      className="text-sm text-midnight-400 hover:text-blue-400    transition-colors duration-200">Civic</Link></li>
-              <li><Link href="/agents?branch=Business"   className="text-sm text-midnight-400 hover:text-emerald-400 transition-colors duration-200">Business</Link></li>
-              <li><Link href="/agents?branch=Military"   className="text-sm text-midnight-400 hover:text-amber-400   transition-colors duration-200">Military</Link></li>
-              <li><Link href="/agents?branch=Healthcare" className="text-sm text-midnight-400 hover:text-rose-400    transition-colors duration-200">Healthcare</Link></li>
-              <li><Link href="/agents?branch=Tourism"    className="text-sm text-midnight-400 hover:text-violet-400  transition-colors duration-200">Tourism</Link></li>
+            <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-widest mb-4">Categories</h4>
+            <ul className="space-y-2.5">
+              {[
+                { href: '/agents?branch=Civic',      label: 'Civic'      },
+                { href: '/agents?branch=Business',   label: 'Business'   },
+                { href: '/agents?branch=Military',   label: 'Military'   },
+                { href: '/agents?branch=Healthcare', label: 'Healthcare' },
+                { href: '/agents?branch=Tourism',    label: 'Tourism'    },
+              ].map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="text-sm text-gray-500 hover:text-navy-950 transition-colors duration-150">
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Company + newsletter */}
           <div className="col-span-2 md:col-span-1 space-y-6">
             <div>
-              <h4 className="text-xs font-semibold text-white uppercase tracking-widest mb-5">Company</h4>
-              <ul className="space-y-3">
-                <li><a href="https://aicowboys.com" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">AI Cowboys</a></li>
-                <li><Link href="#" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">Privacy Policy</Link></li>
-                <li><Link href="#" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">Terms of Service</Link></li>
-                <li><Link href="#" className="text-sm text-midnight-400 hover:text-brand-400 transition-colors duration-200">Contact</Link></li>
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-widest mb-4">Company</h4>
+              <ul className="space-y-2.5">
+                {[
+                  { href: 'https://aicowboys.com', label: 'AI Cowboys',      external: true },
+                  { href: '#',                     label: 'Privacy Policy',  external: false },
+                  { href: '#',                     label: 'Terms of Service',external: false },
+                  { href: '#',                     label: 'Contact',         external: false },
+                ].map(({ href, label, external }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      className="text-sm text-gray-500 hover:text-navy-950 transition-colors duration-150"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Newsletter */}
             <div>
-              <h4 className="text-xs font-semibold text-white uppercase tracking-widest mb-3">Stay Updated</h4>
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-widest mb-3">Stay Updated</h4>
               {subscribed ? (
-                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                  <Zap className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span className="text-sm text-emerald-300">You're in. Welcome aboard.</span>
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-green-50 border border-green-200">
+                  <Zap className="w-4 h-4 text-green-600 flex-shrink-0" aria-hidden="true" />
+                  <span className="text-sm text-green-700">You're subscribed.</span>
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex flex-col gap-2">
@@ -179,11 +180,12 @@ export function Footer() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     required
-                    className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-midnight-500 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all duration-200"
+                    aria-label="Email address for newsletter"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-gray-300 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-navy-500 focus:ring-2 focus:ring-navy-500/20 transition-all duration-150"
                   />
                   <button
                     type="submit"
-                    className="w-full px-3 py-2 rounded-lg bg-gradient-to-r from-brand-500 to-amber-500 text-midnight-950 text-sm font-semibold hover:from-brand-400 hover:to-amber-400 transition-all duration-200 shadow-lg shadow-brand-500/15"
+                    className="w-full px-3 py-2 rounded-lg bg-navy-950 text-white text-sm font-semibold hover:bg-navy-800 transition-colors duration-150"
                   >
                     Subscribe
                   </button>
@@ -194,31 +196,23 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="relative pt-6">
-          {/* Thin gradient separator */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5 text-xs text-gray-400">
+            <span>&copy; {new Date().getFullYear()} AI Cowboys, Inc. All rights reserved.</span>
+            <span className="hidden sm:inline text-gray-300" aria-hidden="true">|</span>
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-brand-500" aria-hidden="true" />
+              Built in San Antonio, TX
+            </span>
+          </div>
 
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5 text-xs text-midnight-500">
-              <span>&copy; {new Date().getFullYear()} AI Cowboys, Inc. All rights reserved.</span>
-              <span className="hidden sm:inline text-midnight-700">|</span>
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3 h-3 text-brand-500" />
-                Built with love in San Antonio, TX{' '}
-                <span role="img" aria-label="Texas star">&#11088;</span>
-              </span>
-            </div>
-
-            {/* Live agents indicator — prominent pulse ring */}
-            <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-500/8 border border-emerald-500/15">
-              <span className="relative flex items-center justify-center w-3 h-3">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50 animate-ping" />
-                <span className="relative inline-block w-2 h-2 rounded-full bg-emerald-400" />
-              </span>
-              <span className="text-xs font-semibold text-emerald-300 tracking-wide">60 agents online</span>
-            </div>
+          {/* Status indicator */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" aria-hidden="true" />
+            <span className="text-xs font-medium text-green-700">60 agents online</span>
           </div>
         </div>
+
       </div>
     </footer>
   )

@@ -1,32 +1,8 @@
 'use client'
-import { Search, X, RotateCcw, TrendingUp, Star, DollarSign, SortAsc, Zap, Shield, Building2 } from 'lucide-react'
-import { useMarketplace } from '@/lib/store'
-import { BRANCH_CONFIG, TIER_CONFIG, type MilitaryBranch, type PriceTier } from '@/lib/types'
-import { clsx } from 'clsx'
 
-// Solid accent colors used for category pill active borders/backgrounds
-const CATEGORY_ACTIVE_STYLE: Record<string, { bg: string; border: string; text: string }> = {
-  Civic:      { bg: 'bg-blue-500/15',    border: 'border-blue-500/40',    text: 'text-blue-300'    },
-  Business:   { bg: 'bg-emerald-500/15', border: 'border-emerald-500/40', text: 'text-emerald-300' },
-  Military:   { bg: 'bg-amber-500/15',   border: 'border-amber-500/40',   text: 'text-amber-300'   },
-  Healthcare: { bg: 'bg-rose-500/15',    border: 'border-rose-500/40',    text: 'text-rose-300'    },
-  Tourism:    { bg: 'bg-violet-500/15',  border: 'border-violet-500/40',  text: 'text-violet-300'  },
-}
-
-const SORT_OPTIONS: { value: 'rating' | 'usage' | 'name' | 'price'; label: string; icon: React.ReactNode }[] = [
-  { value: 'rating', label: 'Top Rated',  icon: <Star className="w-3 h-3" /> },
-  { value: 'usage',  label: 'Most Used',  icon: <TrendingUp className="w-3 h-3" /> },
-  { value: 'name',   label: 'Name',       icon: <SortAsc className="w-3 h-3" /> },
-  { value: 'price',  label: 'Price',      icon: <DollarSign className="w-3 h-3" /> },
-]
-
-const TIER_ICONS: Record<string, React.ReactNode> = {
-  FREE:       <Zap className="w-3 h-3" />,
-  PRO:        <Shield className="w-3 h-3" />,
-  ENTERPRISE: <Building2 className="w-3 h-3" />,
-}
-
-/*
+/**
+ * AgentFilters.tsx — Light-mode filter bar for the agents page
+ *
  * Usage:
  *   <AgentFilters />
  *
@@ -34,6 +10,34 @@ const TIER_ICONS: Record<string, React.ReactNode> = {
  *   selectedBranch, selectedTier, searchQuery, sortBy, isAnnual, filteredAgents, agents
  *   setBranch, setTier, setSearch, setSortBy, toggleBilling
  */
+
+import { Search, X, RotateCcw, TrendingUp, Star, DollarSign, SortAsc, Zap, Shield, Building2 } from 'lucide-react'
+import { useMarketplace } from '@/lib/store'
+import { BRANCH_CONFIG, TIER_CONFIG, type MilitaryBranch, type PriceTier } from '@/lib/types'
+import { clsx } from 'clsx'
+
+const SORT_OPTIONS: { value: 'rating' | 'usage' | 'name' | 'price'; label: string; icon: React.ReactNode }[] = [
+  { value: 'rating', label: 'Top Rated', icon: <Star className="w-3 h-3"      aria-hidden="true" /> },
+  { value: 'usage',  label: 'Most Used', icon: <TrendingUp className="w-3 h-3" aria-hidden="true" /> },
+  { value: 'name',   label: 'Name',      icon: <SortAsc className="w-3 h-3"    aria-hidden="true" /> },
+  { value: 'price',  label: 'Price',     icon: <DollarSign className="w-3 h-3" aria-hidden="true" /> },
+]
+
+const TIER_ICONS: Record<string, React.ReactNode> = {
+  FREE:       <Zap      className="w-3 h-3" aria-hidden="true" />,
+  PRO:        <Shield   className="w-3 h-3" aria-hidden="true" />,
+  ENTERPRISE: <Building2 className="w-3 h-3" aria-hidden="true" />,
+}
+
+// Category dot colors for the filter pills
+const CATEGORY_DOT: Record<string, string> = {
+  Civic:      'bg-blue-500',
+  Business:   'bg-amber-500',
+  Military:   'bg-green-600',
+  Healthcare: 'bg-rose-500',
+  Tourism:    'bg-violet-500',
+}
+
 export function AgentFilters() {
   const {
     selectedBranch, selectedTier, searchQuery, sortBy,
@@ -42,11 +46,11 @@ export function AgentFilters() {
   } = useMarketplace()
 
   const branches = Object.entries(BRANCH_CONFIG) as [MilitaryBranch, typeof BRANCH_CONFIG[MilitaryBranch]][]
-  const tiers = Object.entries(TIER_CONFIG) as [PriceTier, typeof TIER_CONFIG[PriceTier]][]
+  const tiers    = Object.entries(TIER_CONFIG)    as [PriceTier,     typeof TIER_CONFIG[PriceTier]][]
 
   const isFiltered =
     selectedBranch !== 'ALL' ||
-    selectedTier !== 'ALL' ||
+    selectedTier   !== 'ALL' ||
     searchQuery.trim().length > 0 ||
     sortBy !== 'rating'
 
@@ -60,72 +64,73 @@ export function AgentFilters() {
   return (
     <div className="space-y-5">
 
-      {/* ── Search input ── */}
-      <div className="relative group/search">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-midnight-500 pointer-events-none transition-colors group-focus-within/search:text-brand-400" />
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
         <input
           type="text"
           placeholder="Search 60 agents..."
           value={searchQuery}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search agents"
           className={clsx(
-            'w-full h-11 pl-10 pr-9 rounded-xl text-sm text-white',
-            'bg-white/[0.03] border border-white/[0.07]',
-            'placeholder:text-midnight-600',
-            'transition-all duration-200',
-            'focus:outline-none focus:border-brand-500/50',
-            'focus:ring-2 focus:ring-brand-500/15 focus:bg-white/[0.05]',
+            'w-full h-10 pl-10 pr-9 rounded-lg text-sm text-gray-900',
+            'bg-white border border-gray-300',
+            'placeholder:text-gray-400',
+            'transition-all duration-150',
+            'focus:outline-none focus:border-navy-500',
+            'focus:ring-2 focus:ring-navy-500/20',
           )}
         />
         {searchQuery && (
           <button
             onClick={() => setSearch('')}
             aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center bg-midnight-700 hover:bg-midnight-600 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 transition-colors duration-150"
           >
-            <X className="w-3 h-3 text-midnight-300" />
+            <X className="w-3 h-3 text-gray-600" aria-hidden="true" />
           </button>
         )}
       </div>
 
-      {/* ── Branch pill selectors ── */}
+      {/* Category pills */}
       <div>
-        <h3 className="text-[10px] font-semibold text-midnight-500 uppercase tracking-widest mb-2.5">
+        <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-2.5">
           Category
         </h3>
         <div className="flex flex-wrap gap-1.5">
-          {/* "All" pill */}
+          {/* All pill */}
           <button
             onClick={() => setBranch('ALL')}
             className={clsx(
               'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium',
-              'border transition-all duration-200 select-none',
+              'border transition-all duration-150 select-none',
               selectedBranch === 'ALL'
-                ? 'bg-brand-500/15 border-brand-500/40 text-brand-300 shadow-[0_0_10px_rgba(245,158,11,0.12)]'
-                : 'bg-white/[0.03] border-white/[0.08] text-midnight-400 hover:bg-white/[0.06] hover:text-white hover:border-white/[0.15]'
+                ? 'bg-navy-950 border-navy-950 text-white'
+                : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900'
             )}
           >
             All
-            <span className="text-[9px] opacity-60 tabular-nums">({agents.length})</span>
+            <span className="text-[9px] opacity-70 tabular-nums">({agents.length})</span>
           </button>
 
           {branches.map(([key, config]) => {
-            const count = agents.filter((a) => a.category === key).length
+            const count  = agents.filter((a) => a.category === key).length
             const active = selectedBranch === key
-            const s = CATEGORY_ACTIVE_STYLE[key]
+            const dot    = CATEGORY_DOT[key] ?? 'bg-gray-400'
             return (
               <button
                 key={key}
                 onClick={() => setBranch(key)}
                 className={clsx(
                   'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium',
-                  'border transition-all duration-200 select-none',
+                  'border transition-all duration-150 select-none',
                   active
-                    ? `${s.bg} ${s.border} ${s.text} shadow-[0_0_10px_rgba(0,0,0,0.3)]`
-                    : 'bg-white/[0.03] border-white/[0.08] text-midnight-400 hover:bg-white/[0.06] hover:text-white hover:border-white/[0.15]'
+                    ? 'bg-navy-950 border-navy-950 text-white'
+                    : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900'
                 )}
               >
-                <span className="text-sm leading-none">{config.icon}</span>
+                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-white/60' : dot}`} aria-hidden="true" />
                 {config.label}
                 <span className="text-[9px] opacity-60 tabular-nums">({count})</span>
               </button>
@@ -134,20 +139,19 @@ export function AgentFilters() {
         </div>
       </div>
 
-      {/* ── Tier segmented control ── */}
+      {/* Tier segmented control */}
       <div>
-        <h3 className="text-[10px] font-semibold text-midnight-500 uppercase tracking-widest mb-2.5">
+        <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-2.5">
           Tier
         </h3>
-        <div className="inline-flex items-center gap-px p-1 rounded-xl bg-white/[0.03] border border-white/[0.07]">
-          {/* All option */}
+        <div className="inline-flex items-center gap-px p-1 rounded-lg bg-gray-100 border border-gray-200">
           <button
             onClick={() => setTier('ALL')}
             className={clsx(
-              'px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 select-none',
+              'px-3.5 py-1.5 rounded-md text-xs font-medium transition-all duration-150 select-none',
               selectedTier === 'ALL'
-                ? 'bg-brand-500/20 text-brand-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
-                : 'text-midnight-500 hover:text-midnight-300'
+                ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                : 'text-gray-500 hover:text-gray-700'
             )}
           >
             All
@@ -158,11 +162,11 @@ export function AgentFilters() {
               key={key}
               onClick={() => setTier(key)}
               className={clsx(
-                'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium',
-                'transition-all duration-200 select-none',
+                'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-medium',
+                'transition-all duration-150 select-none',
                 selectedTier === key
-                  ? `${config.bgColor} ${config.color} shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]`
-                  : 'text-midnight-500 hover:text-midnight-300'
+                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
               )}
             >
               {TIER_ICONS[key]}
@@ -172,25 +176,25 @@ export function AgentFilters() {
         </div>
       </div>
 
-      {/* ── Sort + Billing row ── */}
+      {/* Sort + Billing row */}
       <div className="flex items-end gap-4 flex-wrap">
 
-        {/* Sort select */}
+        {/* Sort */}
         <div className="flex-1 min-w-[160px]">
-          <h3 className="text-[10px] font-semibold text-midnight-500 uppercase tracking-widest mb-2.5">
+          <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-2.5">
             Sort by
           </h3>
-          <div className="inline-flex items-center gap-px p-1 rounded-xl bg-white/[0.03] border border-white/[0.07] w-full">
+          <div className="inline-flex items-center gap-px p-1 rounded-lg bg-gray-100 border border-gray-200 w-full">
             {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setSortBy(opt.value)}
                 className={clsx(
-                  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium flex-1 justify-center',
-                  'transition-all duration-200 select-none',
+                  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium flex-1 justify-center',
+                  'transition-all duration-150 select-none',
                   sortBy === opt.value
-                    ? 'bg-brand-500/20 text-brand-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
-                    : 'text-midnight-500 hover:text-midnight-300'
+                    ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                    : 'text-gray-500 hover:text-gray-700'
                 )}
               >
                 {opt.icon}
@@ -202,50 +206,52 @@ export function AgentFilters() {
 
         {/* Billing toggle */}
         <div>
-          <h3 className="text-[10px] font-semibold text-midnight-500 uppercase tracking-widest mb-2.5">
+          <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-2.5">
             Billing
           </h3>
           <button
             onClick={toggleBilling}
             aria-pressed={isAnnual}
             className={clsx(
-              'relative inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium',
-              'border transition-all duration-200 select-none',
+              'relative inline-flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-xs font-medium',
+              'border transition-all duration-150 select-none',
               isAnnual
-                ? 'bg-brand-500/15 border-brand-500/35 text-brand-300'
-                : 'bg-white/[0.03] border-white/[0.08] text-midnight-400 hover:text-white hover:border-white/[0.15]'
+                ? 'bg-navy-950 border-navy-950 text-white'
+                : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900'
             )}
           >
             {/* Track */}
             <span
               className={clsx(
-                'relative inline-flex w-8 h-4 rounded-full border transition-all duration-300 flex-shrink-0',
+                'relative inline-flex w-8 h-4 rounded-full border transition-all duration-200 flex-shrink-0',
                 isAnnual
-                  ? 'bg-brand-500/40 border-brand-500/60'
-                  : 'bg-white/[0.05] border-white/[0.12]'
+                  ? 'bg-white/30 border-white/40'
+                  : 'bg-gray-200 border-gray-300'
               )}
+              aria-hidden="true"
             >
               {/* Thumb */}
               <span
                 className={clsx(
-                  'absolute top-0.5 w-3 h-3 rounded-full shadow-sm transition-all duration-300',
+                  'absolute top-0.5 w-3 h-3 rounded-full shadow-sm transition-all duration-200',
                   isAnnual
-                    ? 'left-[17px] bg-brand-400'
-                    : 'left-0.5 bg-midnight-400'
+                    ? 'left-[17px] bg-white'
+                    : 'left-0.5 bg-gray-400'
                 )}
               />
             </span>
 
             <span>{isAnnual ? 'Annual' : 'Monthly'}</span>
 
-            {/* Save badge — appears when annual is on */}
+            {/* Save badge */}
             <span
               className={clsx(
                 'absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide',
-                'bg-emerald-500 text-white shadow-[0_0_8px_rgba(34,197,94,0.4)]',
-                'transition-all duration-300',
+                'bg-green-500 text-white',
+                'transition-all duration-200',
                 isAnnual ? 'opacity-100 scale-100' : 'opacity-0 scale-75 pointer-events-none'
               )}
+              aria-label={isAnnual ? 'Save 20% with annual billing' : undefined}
             >
               SAVE 20%
             </span>
@@ -253,13 +259,13 @@ export function AgentFilters() {
         </div>
       </div>
 
-      {/* ── Results count + Reset ── */}
+      {/* Results count + Reset */}
       <div className="flex items-center justify-between pt-1">
-        <p className="text-xs text-midnight-500">
+        <p className="text-xs text-gray-500">
           Showing{' '}
-          <span className="text-white font-semibold tabular-nums">{filteredAgents.length}</span>
+          <span className="text-gray-900 font-semibold tabular-nums">{filteredAgents.length}</span>
           {' '}of{' '}
-          <span className="text-midnight-300 tabular-nums">{agents.length}</span>
+          <span className="text-gray-700 tabular-nums">{agents.length}</span>
           {' '}agents
         </p>
 
@@ -268,12 +274,12 @@ export function AgentFilters() {
             onClick={resetFilters}
             className={clsx(
               'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium',
-              'border border-white/[0.08] bg-white/[0.03] text-midnight-400',
-              'hover:bg-white/[0.06] hover:text-white hover:border-white/[0.15]',
-              'transition-all duration-200'
+              'border border-gray-300 bg-white text-gray-500',
+              'hover:bg-gray-50 hover:text-gray-700 hover:border-gray-400',
+              'transition-all duration-150'
             )}
           >
-            <RotateCcw className="w-3 h-3" />
+            <RotateCcw className="w-3 h-3" aria-hidden="true" />
             Reset
           </button>
         )}

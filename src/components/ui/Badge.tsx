@@ -13,16 +13,16 @@ export function Badge({ children, variant = 'default', size = 'sm', className }:
       className={clsx(
         'inline-flex items-center font-medium rounded-full border',
         {
-          'bg-midnight-800/80 text-midnight-300 border-midnight-700': variant === 'default',
-          'bg-emerald-500/10 text-emerald-400 border-emerald-500/20': variant === 'success',
-          'bg-brand-500/10 text-brand-400 border-brand-500/20': variant === 'warning',
-          'bg-red-500/10 text-red-400 border-red-500/20': variant === 'danger',
-          'bg-sky-500/10 text-sky-400 border-sky-500/20': variant === 'info',
-          'bg-violet-500/10 text-violet-400 border-violet-500/20': variant === 'purple',
+          'bg-gray-100 text-gray-600 border-gray-200':          variant === 'default',
+          'bg-green-50 text-green-700 border-green-200':        variant === 'success',
+          'bg-amber-50 text-amber-700 border-amber-200':        variant === 'warning',
+          'bg-red-50 text-red-700 border-red-200':              variant === 'danger',
+          'bg-sky-50 text-sky-700 border-sky-200':              variant === 'info',
+          'bg-violet-50 text-violet-700 border-violet-200':     variant === 'purple',
         },
         {
           'px-2 py-0.5 text-[10px]': size === 'sm',
-          'px-2.5 py-1 text-xs': size === 'md',
+          'px-2.5 py-1 text-xs':     size === 'md',
         },
         className
       )}

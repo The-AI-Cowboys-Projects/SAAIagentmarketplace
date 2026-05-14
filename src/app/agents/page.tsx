@@ -1,4 +1,5 @@
 'use client'
+
 import { Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useMarketplace } from '@/lib/store'
@@ -21,13 +22,15 @@ function AgentsContent() {
   }, [searchParams])
 
   return (
-    <div className="min-h-screen pt-24 lg:pt-28 pb-16">
+    <div className="min-h-screen bg-white pt-24 lg:pt-28 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-            Agent <span className="gradient-text">Marketplace</span>
+
+        {/* Page header */}
+        <div className="mb-8 border-b border-gray-100 pb-6">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1.5">
+            Agent Marketplace
           </h1>
-          <p className="text-midnight-400">
+          <p className="text-gray-500 text-base">
             60 specialized AI agents built for San Antonio
           </p>
         </div>
@@ -42,19 +45,20 @@ function AgentsContent() {
 
         {filteredAgents.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-lg text-midnight-400">No agents match your filters.</p>
+            <p className="text-base text-gray-500 mb-4">No agents match your filters.</p>
             <button
               onClick={() => {
                 useMarketplace.getState().setBranch('ALL')
                 useMarketplace.getState().setTier('ALL')
                 useMarketplace.getState().setSearch('')
               }}
-              className="mt-4 text-brand-400 hover:text-brand-300 text-sm"
+              className="text-navy-700 hover:text-navy-950 text-sm font-medium underline underline-offset-2 transition-colors duration-150"
             >
               Clear all filters
             </button>
           </div>
         )}
+
       </div>
     </div>
   )
@@ -63,8 +67,8 @@ function AgentsContent() {
 export default function AgentsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen pt-28 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-white pt-28 flex items-center justify-center">
+        <div className="w-7 h-7 border-2 border-navy-950 border-t-transparent rounded-full animate-spin" aria-label="Loading agents" />
       </div>
     }>
       <AgentsContent />
