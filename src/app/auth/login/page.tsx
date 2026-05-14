@@ -13,15 +13,27 @@ function LoginContent() {
   const [error, setError] = useState('')
   const searchParams = useSearchParams()
   const plan = searchParams.get('plan')
+  const agent = searchParams.get('agent')
   const supabase = createClient()
 
-  const redirectTo = `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback${plan ? `?plan=${plan}` : ''}`
+  // Supabase OAuth strips custom query params from redirectTo, so we persist
+  // plan/agent intent in localStorage and retrieve it in the callback page.
+  const callbackUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : '/auth/callback'
+
+  function persistIntent() {
+    if (typeof window === 'undefined') return
+    if (plan) localStorage.setItem('auth_plan_intent', plan)
+    else localStorage.removeItem('auth_plan_intent')
+    if (agent) localStorage.setItem('auth_agent_intent', agent)
+    else localStorage.removeItem('auth_agent_intent')
+  }
 
   const signInWithOAuth = async (provider: 'google' | 'github') => {
     setLoading(true)
+    persistIntent()
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo },
+      options: { redirectTo: callbackUrl },
     })
     if (error) { setError(error.message); setLoading(false) }
   }
@@ -31,9 +43,10 @@ function LoginContent() {
     if (!email) return
     setLoading(true)
     setError('')
+    persistIntent()
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: redirectTo },
+      options: { emailRedirectTo: callbackUrl },
     })
     if (error) { setError(error.message); setLoading(false) }
     else { setSent(true); setLoading(false) }
