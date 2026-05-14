@@ -10,7 +10,6 @@
 
 import { useState, useEffect } from 'react'
 import { Check, Shield, Zap, Building2, ChevronDown, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'

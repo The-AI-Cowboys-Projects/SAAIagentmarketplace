@@ -15,7 +15,7 @@ const STATUS_CONFIG: Record<AgentStatus, { label: string; variant: 'success' | '
 }
 import { SA_AGENTS } from '@/lib/agents-data'
 import {
-  ArrowLeft, Bot, Shield, Users, Zap, Clock, CheckCircle2,
+  ArrowLeft, Shield, Users, Zap, Clock, CheckCircle2,
   Star, MessageSquare, TrendingUp, Lock, Send
 } from 'lucide-react'
 import Link from 'next/link'

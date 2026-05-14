@@ -175,7 +175,7 @@ export function Footer() {
               {subscribed ? (
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-green-50 border border-green-200">
                   <Zap className="w-4 h-4 text-green-600 flex-shrink-0" aria-hidden="true" />
-                  <span className="text-sm text-green-700">You're subscribed.</span>
+                  <span className="text-sm text-green-700">You&apos;re subscribed.</span>
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex flex-col gap-2">
