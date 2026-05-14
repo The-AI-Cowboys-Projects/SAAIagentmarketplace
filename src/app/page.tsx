@@ -1,4 +1,3 @@
-'use client'
 import { Hero }          from '@/components/home/Hero'
 import { HowItWorks }    from '@/components/home/HowItWorks'
 import { BranchShowcase } from '@/components/home/BranchShowcase'

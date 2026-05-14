@@ -270,9 +270,11 @@ export default function AgentDetailPage() {
                   or ${(agent.annual_price / 100).toFixed(2)}/yr&nbsp;
                   (save {Math.round((1 - agent.annual_price / (agent.monthly_price * 12)) * 100)}%)
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  One-time: ${(agent.one_time_price / 100).toFixed(2)}
-                </p>
+                {agent.one_time_price > 0 && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    One-time: ${(agent.one_time_price / 100).toFixed(2)}
+                  </p>
+                )}
               </div>
 
               {/* CTAs */}

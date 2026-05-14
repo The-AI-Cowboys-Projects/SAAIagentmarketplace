@@ -74,8 +74,8 @@ const categories: {
 }[] = [
   {
     key: 'CIVIC',
-    agents: 10,
-    suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing'],
+    agents: 20,
+    suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing', 'Schools', 'Utilities'],
     featuredAgent: 'SA Permit Navigator',
   },
   {
@@ -112,10 +112,10 @@ export function BranchShowcase() {
         {/* Section header */}
         <div className="max-w-2xl mx-auto text-center mb-14">
           <p className="text-xs font-semibold text-navy-600 uppercase tracking-widest mb-3">
-            60 Agents Total
+            70 Agents Total
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            5 Categories. 60 Agents. One City.
+            5 Categories. 70 Agents. One City.
           </h2>
           <p className="text-gray-500 text-lg leading-relaxed">
             Specialized agents organized into 5 service areas — each connected to
@@ -199,7 +199,7 @@ export function BranchShowcase() {
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center border-t border-gray-100 pt-10">
           {[
             { label: 'Categories',          value: '5'   },
-            { label: 'Specialized Agents',  value: '60'  },
+            { label: 'Specialized Agents',  value: '70'  },
             { label: 'Service Suites',       value: '25'  },
             { label: 'Local Data Sources',   value: '40+' },
           ].map((stat) => (

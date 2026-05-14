@@ -31,7 +31,7 @@ function AgentsContent() {
             Agent Marketplace
           </h1>
           <p className="text-gray-500 text-base">
-            60 specialized AI agents built for San Antonio
+            70 specialized AI agents built for San Antonio
           </p>
         </div>
 

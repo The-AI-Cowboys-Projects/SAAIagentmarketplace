@@ -69,7 +69,7 @@ export function AgentFilters() {
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
         <input
           type="text"
-          placeholder="Search 60 agents..."
+          placeholder="Search 70 agents..."
           value={searchQuery}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search agents"

@@ -14,7 +14,7 @@ const STEPS = [
     icon: Search,
     title: 'Choose an Agent',
     description:
-      'Browse 60 specialized agents across civic, business, military, healthcare, and tourism. Filter by category, tier, or use case.',
+      'Browse 70 specialized agents across civic, business, military, healthcare, and tourism. Filter by category, tier, or use case.',
   },
   {
     number: '02',

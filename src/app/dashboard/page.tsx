@@ -31,7 +31,7 @@ export default function DashboardPage() {
       const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (profileData) setProfile(profileData as Profile)
 
-      const topAgents = SA_AGENTS.sort((a, b) => b.rating - a.rating).slice(0, 6)
+      const topAgents = [...SA_AGENTS].sort((a, b) => b.rating - a.rating).slice(0, 6)
       setRecentAgents(topAgents)
 
       setLoading(false)
@@ -51,7 +51,7 @@ export default function DashboardPage() {
   const stats = [
     {
       label: 'Available Agents',
-      value: '60',
+      value: String(SA_AGENTS.length),
       icon: Bot,
       iconClass: 'text-brand-500',
       bgClass: 'bg-brand-50',
@@ -131,9 +131,9 @@ export default function DashboardPage() {
           <div className="bg-navy-50 border border-navy-200 rounded-xl p-6 mb-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-base font-semibold text-navy-950 mb-1">Unlock all 60 agents</h3>
+                <h3 className="text-base font-semibold text-navy-950 mb-1">Unlock all {SA_AGENTS.length} agents</h3>
                 <p className="text-sm text-navy-700">
-                  Upgrade to the Growth plan for $149/mo and access all 60 agents with unlimited usage.
+                  Upgrade to the Growth plan for $149/mo and access all {SA_AGENTS.length} agents with unlimited usage.
                 </p>
               </div>
               <Link href="/pricing" className="shrink-0">

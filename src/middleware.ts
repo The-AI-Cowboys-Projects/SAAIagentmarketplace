@@ -23,10 +23,7 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session
-  await supabase.auth.getUser()
-
-  // Protect dashboard
+  // Refresh session + protect dashboard
   const { data: { user } } = await supabase.auth.getUser()
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
     return NextResponse.redirect(new URL('/auth/login', request.url))

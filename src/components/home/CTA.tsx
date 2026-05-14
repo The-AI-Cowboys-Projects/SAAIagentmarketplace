@@ -44,7 +44,7 @@ export function CTA() {
             <Button
               variant="primary"
               size="xl"
-              className="group"
+              className="group bg-white text-navy-950 hover:bg-gray-100"
               aria-label="Get started with SA AI Agent Marketplace"
             >
               Get Started
@@ -61,7 +61,7 @@ export function CTA() {
               size="xl"
               className="border-navy-700 text-navy-200 hover:border-navy-500 hover:text-white"
             >
-              Browse 60 Agents
+              Browse Agents
             </Button>
           </Link>
         </div>

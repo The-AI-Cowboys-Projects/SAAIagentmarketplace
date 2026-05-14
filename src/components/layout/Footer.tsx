@@ -44,16 +44,17 @@ export function Footer() {
     e.preventDefault()
     if (!email.trim()) return
     try {
-      await fetch('/api/newsletter', {
+      const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
+      if (!res.ok) return
+      setSubscribed(true)
+      setEmail('')
     } catch {
-      // Silently fail
+      // Network error — don't show success
     }
-    setSubscribed(true)
-    setEmail('')
   }
 
   return (
@@ -77,7 +78,7 @@ export function Footer() {
 
             <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
               AI agents built for San Antonio — civic services, business, military,
-              healthcare, and tourism. 60 specialized agents across 5 categories.
+              healthcare, and tourism. 70 specialized agents across 5 categories.
             </p>
 
             {/* Social links */}
@@ -147,9 +148,9 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {[
                   { href: 'https://aicowboys.com', label: 'AI Cowboys',      external: true },
-                  { href: '#',                     label: 'Privacy Policy',  external: false },
-                  { href: '#',                     label: 'Terms of Service',external: false },
-                  { href: '#',                     label: 'Contact',         external: false },
+                  { href: '/privacy',              label: 'Privacy Policy',  external: false },
+                  { href: '/terms',                label: 'Terms of Service',external: false },
+                  { href: 'mailto:hello@aicowboys.com', label: 'Contact',   external: false },
                 ].map(({ href, label, external }) => (
                   <li key={label}>
                     <a
@@ -209,7 +210,7 @@ export function Footer() {
           {/* Status indicator */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" aria-hidden="true" />
-            <span className="text-xs font-medium text-green-700">60 agents online</span>
+            <span className="text-xs font-medium text-green-700">70 agents online</span>
           </div>
         </div>
 

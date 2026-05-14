@@ -36,7 +36,7 @@ const PLANS: Plan[] = [
     annualPrice:  39,
     description:  'For individuals and small teams getting started with AI-powered SA intelligence.',
     features: [
-      'All 60 SA agents',
+      'All 70 SA agents',
       '1,000 requests per month',
       'Real-time SA data connections',
       'Browser-based access',
@@ -54,7 +54,7 @@ const PLANS: Plan[] = [
     annualPrice:  119,
     description:  'For growing businesses that need full agent access, team collaboration, and analytics.',
     features: [
-      'All 60 SA agents unlocked',
+      'All 70 SA agents unlocked',
       '10,000 requests per month',
       'Priority data refresh cadence',
       'Team seats (up to 5 users)',
@@ -75,7 +75,7 @@ const PLANS: Plan[] = [
     annualPrice:  399,
     description:  'For organizations that need enterprise-grade scale, security, and dedicated support.',
     features: [
-      'All 60 agents, unlimited seats',
+      'All 70 agents, unlimited seats',
       'Unlimited requests',
       'Dedicated account manager',
       'SSO / SAML authentication',

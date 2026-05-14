@@ -15,7 +15,7 @@ import { clsx } from 'clsx'
 const faqs = [
   {
     q: 'What is the SA AI Agent Marketplace?',
-    a: "The SA AI Agent Marketplace is San Antonio's first local AI platform. We offer 60 specialized AI agents across 5 categories — Civic, Business, Military/JBSA, Healthcare, and Tourism — each connected to real SA data sources to help you get things done faster.",
+    a: "The SA AI Agent Marketplace is San Antonio's first local AI platform. We offer 70 specialized AI agents across 5 categories — Civic, Business, Military/JBSA, Healthcare, and Tourism — each connected to real SA data sources to help you get things done faster.",
   },
   {
     q: 'How do the agents work?',
@@ -31,7 +31,7 @@ const faqs = [
   },
   {
     q: 'How much does it cost?',
-    a: 'Plans start at $49/month for the Starter tier. Growth ($149/mo) and Partner ($499/mo) plans unlock all 60 agents with higher usage limits, priority support, and team features. Annual billing saves 20%.',
+    a: 'Plans start at $49/month for the Starter tier. Growth ($149/mo) and Partner ($499/mo) plans unlock all 70 agents with higher usage limits, priority support, and team features. Annual billing saves 20%.',
   },
   {
     q: 'Are military and veteran agents discounted?',
@@ -43,7 +43,7 @@ const faqs = [
   },
   {
     q: 'How do I get started?',
-    a: 'Create an account, browse the 60 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Plans start at $49/month.',
+    a: 'Create an account, browse the 70 agents, and deploy your first agent in under 60 seconds. No software to install, no IT department needed. Plans start at $49/month.',
   },
 ]
 
