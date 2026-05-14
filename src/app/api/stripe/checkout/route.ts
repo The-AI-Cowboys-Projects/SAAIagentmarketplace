@@ -72,6 +72,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[stripe/checkout]', {
+      type: err.type,
+      code: err.code,
+      statusCode: err.statusCode,
+      requestId: err.requestId,
+      message: err.message,
+    })
+    return NextResponse.json({ error: err.message }, { status: err.statusCode || 500 })
   }
 }
