@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
             amount: amountPaid,
             planName,
             stripeInvoiceId: invoice.id,
-            stripeSubscriptionId: typeof invoice.subscription === 'string' ? invoice.subscription : '',
+            stripeSubscriptionId: 'subscription' in invoice && typeof invoice.subscription === 'string' ? invoice.subscription : '',
           },
           status: 'pending',
           next_retry_at: new Date().toISOString(),

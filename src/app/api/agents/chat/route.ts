@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { backendFetch, isBackendAvailable } from '@/lib/backend'
 import { createServerSupabase, createServiceRoleClient } from '@/lib/supabase/server'
-import { getRequestLimit } from '@/lib/entitlements'
+import { checkEntitlement } from '@/lib/check-entitlement'
 import { SA_AGENTS } from '@/lib/agents-data'
 import type { AgentStatus } from '@/lib/types'
 import { logger } from '@/lib/logger'
@@ -33,9 +33,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Entitlement enforcement — monthly quota check for authenticated users
+    // Entitlement enforcement — monthly quota + agent min_plan check
     const serviceClient = createServiceRoleClient()
     let userPlan = 'free'
+
+    // Resolve agent slug for min_plan gate check
+    const localAgentForSlug = SA_AGENTS.find((a) => a.id === agentId)
+    const agentSlug = localAgentForSlug?.slug
 
     if (user) {
       const { data: profile } = await serviceClient
@@ -45,24 +49,19 @@ export async function POST(request: NextRequest) {
         .single()
       userPlan = profile?.plan || 'free'
 
-      const monthlyLimit = getRequestLimit(userPlan)
-      if (monthlyLimit !== Infinity) {
-        const { data: usage } = await serviceClient.rpc('monthly_agent_usage', { p_user_id: user.id })
-        const currentCount = usage?.[0]?.request_count || 0
-        if (currentCount >= monthlyLimit) {
-          return NextResponse.json(
-            { error: `Monthly request limit (${monthlyLimit}) reached. Upgrade your plan at /pricing.` },
-            { status: 429 }
-          )
-        }
+      const entitlement = await checkEntitlement(user.id, agentSlug)
+      if (!entitlement.allowed) {
+        return NextResponse.json(
+          { error: entitlement.reason, usage: entitlement.usage, limit: entitlement.limit },
+          { status: 429 }
+        )
       }
     }
 
     // Block chat for agents that aren't live or beta
-    const localAgent = SA_AGENTS.find((a) => a.id === agentId)
-    if (localAgent) {
+    if (localAgentForSlug) {
       const blockedStatuses: AgentStatus[] = ['coming_soon']
-      if (blockedStatuses.includes(localAgent.agentStatus)) {
+      if (blockedStatuses.includes(localAgentForSlug.agentStatus)) {
         return NextResponse.json(
           { error: 'This agent is not yet available. Check back soon.' },
           { status: 403 }
