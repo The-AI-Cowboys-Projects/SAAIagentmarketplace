@@ -22,14 +22,27 @@ const redis = getRedis()
 
 type Duration = Parameters<typeof Ratelimit.slidingWindow>[1]
 
-function createLimiter(prefix: string, requests: number, window: Duration) {
-  if (!redis) return null
-  return new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(requests, window),
-    analytics: true,
-    prefix: `rl:${prefix}`,
-  })
+// ---------------------------------------------------------------------------
+// Limiter config — pairs a Redis-backed Ratelimit instance (or null when
+// Redis is unavailable) with the prefix string needed for the in-memory
+// fallback.  This ensures every limiter uses the correct limits even when
+// Redis is not configured.
+// ---------------------------------------------------------------------------
+export interface LimiterConfig {
+  instance: Ratelimit | null
+  prefix: string
+}
+
+function createLimiter(prefix: string, requests: number, window: Duration): LimiterConfig {
+  const instance = redis
+    ? new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(requests, window),
+        analytics: true,
+        prefix: `rl:${prefix}`,
+      })
+    : null
+  return { instance, prefix }
 }
 
 export const apiGlobalLimit = createLimiter('api:global', 60, '1m')
@@ -102,25 +115,19 @@ setInterval(() => {
 // Exported check function
 // ---------------------------------------------------------------------------
 
-// Map limiter instances back to their prefix for fallback lookup
-const limiterPrefixMap = new WeakMap<Ratelimit, string>()
-if (apiGlobalLimit) limiterPrefixMap.set(apiGlobalLimit, 'api:global')
-if (chatDemoLimit) limiterPrefixMap.set(chatDemoLimit, 'chat:demo')
-if (chatAuthLimit) limiterPrefixMap.set(chatAuthLimit, 'chat:auth')
-if (contactLimit) limiterPrefixMap.set(contactLimit, 'contact')
-if (newsletterLimit) limiterPrefixMap.set(newsletterLimit, 'newsletter')
-if (waitlistLimit) limiterPrefixMap.set(waitlistLimit, 'waitlist')
-
 export async function checkLimit(
-  limiter: Ratelimit | null,
+  config: LimiterConfig,
   key: string
 ): Promise<{ success: boolean; remaining?: number }> {
-  if (!limiter) {
-    // Redis not configured — use in-memory fallback instead of allowing all
-    // Determine prefix from context; default to global limit
-    return checkInMemoryLimit('api:global', key)
+  if (!config.instance) {
+    // Redis not configured — use in-memory fallback with the correct prefix
+    return checkInMemoryLimit(config.prefix, key)
   }
-  const result = await limiter.limit(key)
-  return { success: result.success, remaining: result.remaining }
+  try {
+    const result = await config.instance.limit(key)
+    return { success: result.success, remaining: result.remaining }
+  } catch {
+    // Redis call failed at runtime — fall back to in-memory with correct prefix
+    return checkInMemoryLimit(config.prefix, key)
+  }
 }
-

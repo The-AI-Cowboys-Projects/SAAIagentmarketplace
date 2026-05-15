@@ -33,8 +33,9 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event
   try {
     event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch (err: any) {
-    logger.error('Stripe webhook signature verification failed', { error: err.message })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    logger.error('Stripe webhook signature verification failed', { error: message })
     return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 })
   }
 
@@ -65,8 +66,7 @@ export async function POST(request: NextRequest) {
         if (!userId) break
 
         if (session.mode === 'subscription' && session.subscription) {
-          const subResponse = await getStripe().subscriptions.retrieve(session.subscription as string)
-          const sub = subResponse as any as Stripe.Subscription
+          const sub = await getStripe().subscriptions.retrieve(session.subscription as string)
           const priceId = sub.items.data[0]?.price.id
           const plan = resolvePlanFromPriceId(priceId)
 
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
             amount: amountPaid,
             planName,
             stripeInvoiceId: invoice.id,
-            stripeSubscriptionId: String((invoice as any).subscription || ''),
+            stripeSubscriptionId: typeof invoice.subscription === 'string' ? invoice.subscription : '',
           },
           status: 'pending',
           next_retry_at: new Date().toISOString(),
@@ -199,11 +199,12 @@ export async function POST(request: NextRequest) {
       completed_at: new Date().toISOString(),
     }).eq('event_id', event.id)
 
-  } catch (err: any) {
-    logger.error('Stripe webhook processing error', { eventId: event.id, eventType: event.type, error: err.message })
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    logger.error('Stripe webhook processing error', { eventId: event.id, eventType: event.type, error: errMsg })
     await supabase.from('stripe_events').update({
       processing_status: 'failed',
-      error_message: err.message?.slice(0, 500),
+      error_message: errMsg.slice(0, 500),
     }).eq('event_id', event.id)
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }

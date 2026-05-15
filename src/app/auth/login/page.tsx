@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
@@ -18,7 +18,7 @@ function LoginContent() {
   const supabase = createClient()
 
   // Show auth callback errors
-  useState(() => {
+  useEffect(() => {
     if (authError) {
       const messages: Record<string, string> = {
         auth_failed: 'Authentication failed. Please try again.',
@@ -26,7 +26,7 @@ function LoginContent() {
       }
       setError(messages[authError] || 'An error occurred. Please try again.')
     }
-  })
+  }, [authError])
 
   // Supabase OAuth strips custom query params from redirectTo, so we persist
   // plan/agent intent in localStorage and retrieve it in the callback page.

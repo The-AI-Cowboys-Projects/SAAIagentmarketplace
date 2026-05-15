@@ -53,7 +53,8 @@ export async function GET(request: NextRequest) {
         completed_at: new Date().toISOString(),
       }).eq('id', job.id)
       processed++
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err)
       const nextAttempt = job.attempts + 1
       const isMaxed = nextAttempt >= job.max_attempts
 
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
 
       await supabase.from('qbo_sync_jobs').update({
         status: isMaxed ? 'failed' : 'pending',
-        error_message: err.message?.slice(0, 500),
+        error_message: errMsg.slice(0, 500),
         next_retry_at: nextRetry,
       }).eq('id', job.id)
       failed++

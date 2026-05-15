@@ -193,8 +193,8 @@ export default function PricingPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Checkout failed')
       if (data.url) window.location.href = data.url
-    } catch (err: any) {
-      setCheckoutError(err.message)
+    } catch (err: unknown) {
+      setCheckoutError(err instanceof Error ? err.message : 'Checkout failed')
     } finally {
       setLoadingPlan(null)
     }

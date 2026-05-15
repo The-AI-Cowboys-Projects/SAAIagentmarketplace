@@ -3,6 +3,7 @@ import { createServiceRoleClient } from '@/lib/supabase/server'
 import { backendFetch } from '@/lib/backend'
 import { waitlistLimit, checkLimit } from '@/lib/rate-limit'
 import { isValidEmail } from '@/lib/validation'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     )
 
     if (error) {
-      console.error('[waitlist] Supabase error:', error.message)
+      logger.error('Waitlist signup failed', { error: error.message })
       return NextResponse.json({ error: 'Unable to join waitlist. Please try again.' }, { status: 500 })
     }
 

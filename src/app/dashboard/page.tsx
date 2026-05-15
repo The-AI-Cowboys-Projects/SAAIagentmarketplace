@@ -80,7 +80,10 @@ export default function DashboardPage() {
   ]
 
   async function handleSignOut() {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('[dashboard] Sign out failed:', error.message)
+    }
     router.push('/')
   }
 
@@ -207,7 +210,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {plan !== 'starter' && (
+                {plan !== 'free' && (
                   <Button
                     variant="outline"
                     size="sm"

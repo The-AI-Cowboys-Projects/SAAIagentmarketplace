@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { newsletterLimit, checkLimit } from '@/lib/rate-limit'
 import { isValidEmail } from '@/lib/validation'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     )
 
     if (error) {
-      console.error('[newsletter] Supabase error:', error.message)
+      logger.error('Newsletter subscription failed', { error: error.message })
       return NextResponse.json({ error: 'Unable to subscribe. Please try again.' }, { status: 500 })
     }
     return NextResponse.json({ success: true })

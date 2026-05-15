@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe, PLANS } from '@/lib/stripe'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 // Server-side plan validation — never trust client-supplied priceId
 type PlanId = 'starter' | 'growth' | 'partner'
@@ -71,8 +72,9 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (err: any) {
-    console.error('[stripe/checkout]', err.message)
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    logger.error('Stripe checkout session creation failed', { error: message })
     return NextResponse.json({ error: 'Unable to create checkout session' }, { status: 500 })
   }
 }

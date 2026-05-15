@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
       disclaimer: 'This is a demo response. Subscribe to a plan for full AI-powered agent capabilities.',
       timestamp: new Date().toISOString(),
     })
-  } catch (err: any) {
+  } catch {
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 })
   }
 }
