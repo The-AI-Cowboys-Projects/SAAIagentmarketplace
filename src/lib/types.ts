@@ -92,9 +92,6 @@ export const CATEGORY_CONFIG: Record<AgentCategory, CategoryStyle> = {
   Connect360: { label: 'Connect-360', color: 'text-navy-700',   bgColor: 'bg-navy-50 border-navy-200',    icon: 'C3', borderColor: 'border-l-navy-700',   dotColor: 'bg-navy-700',   textColor: 'text-navy-700',   iconBg: 'bg-navy-100',   href: '/agents?branch=Connect360' },
 }
 
-// Keep BRANCH_CONFIG as alias for backward compatibility
-export const BRANCH_CONFIG = CATEGORY_CONFIG
-
 export const STATUS_CONFIG: Record<AgentStatus, { label: string; variant: 'success' | 'warning' | 'default' | 'purple'; canDeploy: boolean }> = {
   live:        { label: 'Live',        variant: 'success', canDeploy: true  },
   beta:        { label: 'Beta',        variant: 'warning', canDeploy: true  },
@@ -107,5 +104,3 @@ export const TIER_CONFIG: Record<PriceTier, { label: string; color: string; bgCo
   ENTERPRISE: { label: 'Enterprise', color: 'text-violet-700', bgColor: 'bg-violet-50 border-violet-200' },
 }
 
-// Keep MilitaryBranch as type alias for backward compat
-export type MilitaryBranch = AgentCategory

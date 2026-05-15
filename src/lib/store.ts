@@ -19,7 +19,6 @@ interface MarketplaceState {
   setSearch: (query: string) => void
   setSortBy: (sort: 'name' | 'rating' | 'usage' | 'price') => void
   toggleBilling: () => void
-  applyFilters: () => void
 }
 
 function computeFiltered(state: {
@@ -106,8 +105,4 @@ export const useMarketplace = create<MarketplaceState>((set, get) => ({
     set({ sortBy: sort, filteredAgents: computeFiltered(state) })
   },
   toggleBilling: () => set((s) => ({ isAnnual: !s.isAnnual })),
-
-  applyFilters: () => {
-    set({ filteredAgents: computeFiltered(get()) })
-  },
 }))

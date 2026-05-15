@@ -5,10 +5,10 @@ interface LogEntry {
   message: string
   timestamp: string
   service: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
-function log(level: LogLevel, message: string, meta: Record<string, any> = {}) {
+function log(level: LogLevel, message: string, meta: Record<string, unknown> = {}) {
   const entry: LogEntry = {
     level,
     message,
@@ -28,7 +28,7 @@ function log(level: LogLevel, message: string, meta: Record<string, any> = {}) {
 }
 
 export const logger = {
-  info: (msg: string, meta?: Record<string, any>) => log('info', msg, meta),
-  warn: (msg: string, meta?: Record<string, any>) => log('warn', msg, meta),
-  error: (msg: string, meta?: Record<string, any>) => log('error', msg, meta),
+  info: (msg: string, meta?: Record<string, unknown>) => log('info', msg, meta),
+  warn: (msg: string, meta?: Record<string, unknown>) => log('warn', msg, meta),
+  error: (msg: string, meta?: Record<string, unknown>) => log('error', msg, meta),
 }

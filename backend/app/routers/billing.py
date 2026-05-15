@@ -3,6 +3,7 @@ from __future__ import annotations
 """Billing and Stripe subscription endpoints."""
 
 import logging
+import time
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,6 @@ _IDEMPOTENCY_TTL = 3600  # 1 hour
 
 def _is_event_processed(event_id: str) -> bool:
     """Return True if this event has already been processed."""
-    import time
     now = time.time()
     # Prune expired entries periodically
     if len(_processed_events) > 500:
@@ -46,7 +46,7 @@ def _is_event_processed(event_id: str) -> bool:
 
 
 def _mark_event_processed(event_id: str) -> None:
-    import time
+    """Record an event ID as processed with the current timestamp."""
     _processed_events[event_id] = time.time()
 
 

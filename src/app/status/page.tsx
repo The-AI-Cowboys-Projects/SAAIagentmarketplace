@@ -38,16 +38,13 @@ export default function StatusPage() {
       setChecking(true)
       try {
         const res = await fetch('/api/health', { cache: 'no-store' })
-        const updated = [...services]
-        updated[0] = {
-          name: 'API Server',
-          status: res.ok ? 'operational' : 'down',
-        }
-        setServices(updated)
+        setServices((prev) => prev.map((s, i) =>
+          i === 0 ? { ...s, status: res.ok ? 'operational' as const : 'down' as const } : s
+        ))
       } catch {
-        const updated = [...services]
-        updated[0] = { name: 'API Server', status: 'down' }
-        setServices(updated)
+        setServices((prev) => prev.map((s, i) =>
+          i === 0 ? { ...s, status: 'down' as const } : s
+        ))
       } finally {
         setLastChecked(new Date().toLocaleString())
         setChecking(false)
@@ -55,7 +52,6 @@ export default function StatusPage() {
     }
 
     checkHealth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const allOperational = services.every((s) => s.status === 'operational')

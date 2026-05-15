@@ -30,11 +30,13 @@ export default function AuthCompletePage() {
     if (plan) {
       setStatus('checkout')
       // Create Stripe Checkout session and redirect
-      const { apiFetch } = await import('@/lib/api-client')
-      apiFetch('/api/stripe/checkout', {
-        method: 'POST',
-        body: JSON.stringify({ plan, billing: 'monthly' }),
-      })
+      import('@/lib/api-client')
+        .then(({ apiFetch }) =>
+          apiFetch('/api/stripe/checkout', {
+            method: 'POST',
+            body: JSON.stringify({ plan, billing: 'monthly' }),
+          })
+        )
         .then(async (res) => {
           if (!res.ok) {
             const data = await res.json().catch(() => ({}))
@@ -49,7 +51,7 @@ export default function AuthCompletePage() {
             throw new Error('No checkout URL returned')
           }
         })
-        .catch((err) => {
+        .catch((err: Error) => {
           setStatus('error')
           setErrorMsg(err.message || 'Failed to create checkout session')
         })

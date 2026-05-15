@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Agent catalogue and deployment endpoints."""
+
+from __future__ import annotations
 
 import json
 import logging
@@ -44,20 +44,6 @@ class AgentOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
-
-    @classmethod
-    def from_orm_agent(cls, agent: AgentCatalog) -> "AgentOut":
-        return cls(
-            id=agent.id,
-            name=agent.name,
-            slug=agent.slug,
-            category=agent.category,
-            description=agent.description,
-            icon_name=agent.icon_name,
-            tools=agent.tools,
-            is_active=agent.is_active,
-            created_at=agent.created_at,
-        )
 
 
 class DeploymentOut(BaseModel):
@@ -135,7 +121,7 @@ def list_agents(
     if category:
         q = q.filter(AgentCatalog.category == category)
     agents = q.order_by(AgentCatalog.name).all()
-    return [AgentOut.from_orm_agent(a) for a in agents]
+    return [AgentOut.model_validate(a) for a in agents]
 
 
 @router.post(
@@ -206,7 +192,7 @@ def list_deployments(
             status=d.status,
             deployed_at=d.deployed_at,
             last_active=d.last_active,
-            agent=AgentOut.from_orm_agent(d.agent),
+            agent=AgentOut.model_validate(d.agent),
             config=d.deployment_config,
         )
         for d in deployments
@@ -229,7 +215,7 @@ def get_agent(slug: str, db: Session = Depends(get_db)) -> AgentOut:
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Agent {slug!r} not found.",
         )
-    return AgentOut.from_orm_agent(agent)
+    return AgentOut.model_validate(agent)
 
 
 @router.post(
@@ -290,7 +276,7 @@ def deploy_agent(
         status=deployment.status,
         deployed_at=deployment.deployed_at,
         last_active=deployment.last_active,
-        agent=AgentOut.from_orm_agent(agent),
+        agent=AgentOut.model_validate(agent),
         config=deployment.deployment_config,
     )
 

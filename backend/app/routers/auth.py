@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,6 @@ _login_attempts: dict[str, list[float]] = {}
 
 def _check_login_rate_limit(email: str) -> None:
     """Raise 429 if the email has exceeded the max login attempts."""
-    import time
     now = time.time()
     cutoff = now - _LOGIN_WINDOW_SECONDS
 
@@ -48,7 +48,6 @@ def _check_login_rate_limit(email: str) -> None:
 
 def _record_failed_login(email: str) -> None:
     """Record a failed login attempt."""
-    import time
     _login_attempts.setdefault(email, []).append(time.time())
 
 
@@ -135,7 +134,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     email_str = str(body.email).lower()
     _check_login_rate_limit(email_str)
 
-    user = db.query(User).filter(User.email == body.email).first()
+    user = db.query(User).filter(User.email == email_str).first()
     if user is None or not verify_password(body.password, user.hashed_password):
         _record_failed_login(email_str)
         logger.warning("Failed login attempt for %s", email_str)

@@ -110,7 +110,7 @@ export function Testimonials() {
           </p>
 
           {/* Aggregate rating */}
-          <div className="mt-6 inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-gray-200 shadow-sm">
+          <div className="mt-6 inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-gray-200 shadow-sm" aria-label="4.9 out of 5 stars from early adopters">
             <div className="flex items-center gap-0.5" aria-hidden="true">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />

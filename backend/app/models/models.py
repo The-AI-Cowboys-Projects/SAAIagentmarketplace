@@ -125,7 +125,7 @@ class AgentCatalog(Base):
     )
 
     @property
-    def tools(self) -> Any:
+    def tools(self) -> list[dict[str, Any]]:
         """Deserialise tools_config JSON, returning an empty list on failure."""
         if not self.tools_config:
             return []
@@ -175,7 +175,7 @@ class ActiveDeployment(Base):
     )
 
     @property
-    def deployment_config(self) -> Any:
+    def deployment_config(self) -> dict[str, Any]:
         """Deserialise config JSON, returning an empty dict on failure."""
         if not self.config:
             return {}

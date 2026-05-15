@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Seed the 50 San Antonio AI agents from the agent catalog.
+"""Seed the 70 San Antonio AI agents from the agent catalog.
 
 The on_startup handler in main.py calls ``seed_agents()`` once per
 process boot; it is idempotent (uses slug as the unique key, upserts

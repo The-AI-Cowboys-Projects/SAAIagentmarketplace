@@ -14,12 +14,12 @@ function AgentsContent() {
 
   useEffect(() => {
     setAgents(SA_AGENTS)
-  }, [])
+  }, [setAgents])
 
   useEffect(() => {
     const branch = searchParams.get('branch')
     if (branch) setBranch(branch as AgentCategory)
-  }, [searchParams])
+  }, [searchParams, setBranch])
 
   return (
     <div className="min-h-screen bg-white pt-24 lg:pt-28 pb-16">

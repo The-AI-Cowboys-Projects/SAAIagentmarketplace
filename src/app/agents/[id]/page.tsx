@@ -90,6 +90,8 @@ function AgentChat({ agentId, agentName }: { agentId: string; agentName: string 
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={`Ask ${agentName}...`}
+          maxLength={2000}
+          aria-label={`Message ${agentName}`}
           className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 transition-all"
         />
         <button
@@ -123,7 +125,7 @@ export default function AgentDetailPage() {
 
   if (loading) return (
     <div className="min-h-screen pt-28 flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" role="status" aria-label="Loading agent details" />
     </div>
   )
 

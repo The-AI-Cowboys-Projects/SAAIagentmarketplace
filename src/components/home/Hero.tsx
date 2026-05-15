@@ -41,7 +41,6 @@ export function Hero() {
           {/* Eyebrow badge */}
           <div
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-navy-200 bg-navy-50 text-navy-700 text-xs font-semibold uppercase tracking-widest mb-8"
-            style={{ animationDelay: '0ms' }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" aria-hidden="true" />
             Now Live — 70 Agents Across 6 Categories

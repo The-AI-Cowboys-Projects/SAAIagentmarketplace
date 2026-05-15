@@ -13,7 +13,7 @@
 
 import { Search, X, RotateCcw, TrendingUp, Star, DollarSign, SortAsc, Shield, Building2 } from 'lucide-react'
 import { useMarketplace } from '@/lib/store'
-import { BRANCH_CONFIG, TIER_CONFIG, type MilitaryBranch, type PriceTier } from '@/lib/types'
+import { CATEGORY_CONFIG, TIER_CONFIG, type AgentCategory, type PriceTier } from '@/lib/types'
 import { clsx } from 'clsx'
 
 const SORT_OPTIONS: { value: 'rating' | 'usage' | 'name' | 'price'; label: string; icon: React.ReactNode }[] = [
@@ -28,15 +28,6 @@ const TIER_ICONS: Record<string, React.ReactNode> = {
   ENTERPRISE: <Building2 className="w-3 h-3" aria-hidden="true" />,
 }
 
-// Category dot colors for the filter pills
-const CATEGORY_DOT: Record<string, string> = {
-  Civic:      'bg-blue-500',
-  Business:   'bg-amber-500',
-  Military:   'bg-green-600',
-  Healthcare: 'bg-rose-500',
-  Tourism:    'bg-violet-500',
-  Connect360: 'bg-navy-700',
-}
 
 export function AgentFilters() {
   const {
@@ -45,7 +36,7 @@ export function AgentFilters() {
     setBranch, setTier, setSearch, setSortBy, toggleBilling,
   } = useMarketplace()
 
-  const branches = Object.entries(BRANCH_CONFIG) as [MilitaryBranch, typeof BRANCH_CONFIG[MilitaryBranch]][]
+  const branches = Object.entries(CATEGORY_CONFIG) as [AgentCategory, typeof CATEGORY_CONFIG[AgentCategory]][]
   const tiers    = Object.entries(TIER_CONFIG)    as [PriceTier,     typeof TIER_CONFIG[PriceTier]][]
 
   const isFiltered =
@@ -117,7 +108,7 @@ export function AgentFilters() {
           {branches.map(([key, config]) => {
             const count  = agents.filter((a) => a.category === key).length
             const active = selectedBranch === key
-            const dot    = CATEGORY_DOT[key] ?? 'bg-gray-400'
+            const dot    = config.dotColor
             return (
               <button
                 key={key}

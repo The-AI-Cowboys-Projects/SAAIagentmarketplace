@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { isValidEmail } from '@/lib/validation'
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,14 +10,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 })
     }
 
-    // Validate email format
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!isValidEmail(email)) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
     }
 
-    // In production, this would send an email or create a support ticket.
-    // For now, log it and return success.
-    console.log(`[Contact] ${subject} from ${name} <${email}>: ${message.slice(0, 200)}`)
+    // TODO: In production, send an email or create a support ticket.
+    logger.info('[Contact] Form submission received', { subject, name, email })
 
     return NextResponse.json({ success: true })
   } catch {

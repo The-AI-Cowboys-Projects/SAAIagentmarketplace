@@ -6,6 +6,8 @@
  *   QBO_CLIENT_ID, QBO_CLIENT_SECRET, QBO_REFRESH_TOKEN, QBO_REALM_ID
  */
 
+import { logger } from '@/lib/logger'
+
 const QBO_BASE = 'https://quickbooks.api.intuit.com'
 
 interface QBOTokens {
@@ -54,7 +56,7 @@ async function getAccessToken(): Promise<string> {
   // Persist rotated refresh token if Intuit returned a new one
   if (data.refresh_token && data.refresh_token !== refreshToken) {
     currentRefreshToken = data.refresh_token
-    console.log('[QBO] Refresh token rotated — update QBO_REFRESH_TOKEN in env/secrets store')
+    logger.warn('[QBO] Refresh token rotated — update QBO_REFRESH_TOKEN in env/secrets store')
   }
 
   return data.access_token
@@ -70,7 +72,7 @@ export async function recordStripePayment(params: {
 }) {
   const realmId = process.env.QBO_REALM_ID
   if (!realmId || !process.env.QBO_CLIENT_ID) {
-    console.log('[QBO] QuickBooks not configured, skipping payment sync')
+    logger.info('[QBO] QuickBooks not configured, skipping payment sync')
     return
   }
 
@@ -116,13 +118,13 @@ export async function recordStripePayment(params: {
 
     if (!res.ok) {
       const text = await res.text()
-      console.error(`[QBO] Failed to create sales receipt: ${res.status} ${text}`)
+      logger.error(`[QBO] Failed to create sales receipt: ${res.status} ${text}`)
       return
     }
 
     const result = await res.json()
-    console.log(`[QBO] Sales receipt created: ${result.SalesReceipt?.Id} for $${params.amount / 100}`)
+    logger.info(`[QBO] Sales receipt created: ${result.SalesReceipt?.Id} for $${params.amount / 100}`)
   } catch (err) {
-    console.error('[QBO] Error syncing payment:', err)
+    logger.error('[QBO] Error syncing payment', { error: String(err) })
   }
 }

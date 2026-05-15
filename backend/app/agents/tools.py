@@ -1,5 +1,5 @@
 """
-San Antonio AI Agent Marketplace - 50 LangChain Tool Definitions
+San Antonio AI Agent Marketplace - LangChain Tool Definitions
 
 Each tool has exhaustive docstrings specifying exactly when the LLM should
 and should not invoke it. All tools return mock data for demo purposes.
@@ -8,7 +8,7 @@ and should not invoke it. All tools return mock data for demo purposes.
 import json
 import hashlib
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from langchain_core.tools import tool
 
 
@@ -17,7 +17,7 @@ def _ticket_id(prefix: str, seed: str) -> str:
 
 
 def _future_date(days_min: int = 3, days_max: int = 14) -> str:
-    d = datetime.now() + timedelta(days=random.randint(days_min, days_max))
+    d = datetime.now(timezone.utc) + timedelta(days=random.randint(days_min, days_max))
     return d.strftime("%Y-%m-%d")
 
 

@@ -45,8 +45,8 @@ export default function DashboardPage() {
     </div>
   )
 
-  const plan = profile?.plan || 'starter'
-  const planLabel = plan === 'growth' ? 'Growth' : plan === 'partner' ? 'Partner' : 'Starter'
+  const plan = profile?.plan || 'free'
+  const planLabel = plan === 'growth' ? 'Growth' : plan === 'partner' ? 'Partner' : plan === 'starter' ? 'Starter' : 'Free'
 
   const stats = [
     {
@@ -97,7 +97,7 @@ export default function DashboardPage() {
             <p className="text-gray-500 text-base">Your agent command center</p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <Badge variant={plan === 'starter' ? 'default' : 'warning'} size="md">
+            <Badge variant={plan === 'starter' || plan === 'free' ? 'default' : 'warning'} size="md">
               <Crown className="w-3 h-3 mr-1" />
               {planLabel} Plan
             </Badge>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Upgrade banner — starter users only */}
-        {plan === 'starter' && (
+        {(plan === 'starter' || plan === 'free') && (
           <div className="bg-navy-50 border border-navy-200 rounded-xl p-6 mb-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
@@ -223,7 +223,7 @@ export default function DashboardPage() {
                     Manage Billing
                   </Button>
                 )}
-                {plan === 'starter' && (
+                {(plan === 'starter' || plan === 'free') && (
                   <Link href="/pricing">
                     <Button variant="outline" size="sm">Upgrade</Button>
                   </Link>

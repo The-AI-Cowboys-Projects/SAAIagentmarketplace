@@ -20,11 +20,13 @@ function getRedis(): Redis | null {
 
 const redis = getRedis()
 
-function createLimiter(prefix: string, requests: number, window: string) {
+type Duration = Parameters<typeof Ratelimit.slidingWindow>[1]
+
+function createLimiter(prefix: string, requests: number, window: Duration) {
   if (!redis) return null
   return new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(requests, window as any),
+    limiter: Ratelimit.slidingWindow(requests, window),
     analytics: true,
     prefix: `rl:${prefix}`,
   })
@@ -122,15 +124,3 @@ export async function checkLimit(
   return { success: result.success, remaining: result.remaining }
 }
 
-// Overload that accepts a prefix hint for accurate fallback limiting
-export async function checkLimitWithPrefix(
-  limiter: Ratelimit | null,
-  key: string,
-  prefix: string
-): Promise<{ success: boolean; remaining?: number }> {
-  if (!limiter) {
-    return checkInMemoryLimit(prefix, key)
-  }
-  const result = await limiter.limit(key)
-  return { success: result.success, remaining: result.remaining }
-}

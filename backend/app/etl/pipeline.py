@@ -6,9 +6,9 @@ municipal, commercial, and public data sources into vector stores
 for RAG-powered agent responses.
 """
 
-import json
 import hashlib
-from datetime import datetime
+from abc import abstractmethod
+from datetime import datetime, timezone
 from typing import Optional
 from dataclasses import dataclass, field
 
@@ -22,7 +22,7 @@ class Document:
 
     def __post_init__(self):
         if not self.doc_id:
-            self.doc_id = hashlib.md5(self.content[:200].encode()).hexdigest()
+            self.doc_id = hashlib.sha256(self.content[:200].encode()).hexdigest()[:32]
 
 
 class BaseETLPipeline:
@@ -33,8 +33,10 @@ class BaseETLPipeline:
         self.documents: list[Document] = []
         self.last_run: Optional[datetime] = None
 
+    @abstractmethod
     def extract(self) -> list[dict]:
-        raise NotImplementedError
+        """Extract raw data from the source. Subclasses must implement this."""
+        ...
 
     def transform(self, raw_data: list[dict]) -> list[Document]:
         documents = []
@@ -42,7 +44,7 @@ class BaseETLPipeline:
             content = item.get("content", str(item))
             metadata = {
                 "source": self.source_name,
-                "extracted_at": datetime.now().isoformat(),
+                "extracted_at": datetime.now(timezone.utc).isoformat(),
                 "category": item.get("category", "general"),
             }
             metadata.update({k: v for k, v in item.items() if k != "content"})
@@ -51,7 +53,7 @@ class BaseETLPipeline:
 
     def load(self, documents: list[Document], vector_store=None) -> int:
         self.documents.extend(documents)
-        self.last_run = datetime.now()
+        self.last_run = datetime.now(timezone.utc)
         if vector_store:
             vector_store.add_documents(documents)
         return len(documents)

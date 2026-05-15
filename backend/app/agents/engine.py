@@ -76,8 +76,9 @@ class IntentClassifier:
         for category, keywords in self.CATEGORY_KEYWORDS.items():
             scores[category] = sum(1 for kw in keywords if kw in query_lower)
         if max(scores.values()) == 0:
+            # Default to civic — the broadest category covering general resident queries
             return "civic"
-        return max(scores, key=scores.get)
+        return max(scores, key=lambda k: scores[k])
 
     def find_best_agent(self, query: str) -> Optional[dict]:
         category = self.classify(query)

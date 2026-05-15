@@ -11,14 +11,14 @@ import Link from 'next/link'
 import { ArrowRight, Users, TrendingUp } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { StarRating } from '@/components/ui/StarRating'
-import { BRANCH_CONFIG, STATUS_CONFIG, TIER_CONFIG, type Agent } from '@/lib/types'
+import { CATEGORY_CONFIG, STATUS_CONFIG, TIER_CONFIG, type Agent } from '@/lib/types'
 import { useMarketplace } from '@/lib/store'
 
 const TRENDING_THRESHOLD = 5000
 
 export function AgentCard({ agent }: { agent: Agent }) {
   const isAnnual = useMarketplace((s) => s.isAnnual)
-  const branch = BRANCH_CONFIG[agent.branch]
+  const branch = CATEGORY_CONFIG[agent.category]
   const tier = TIER_CONFIG[agent.tier]
   const price = isAnnual ? agent.annual_price : agent.monthly_price
   const isTrending = agent.usage_count > TRENDING_THRESHOLD
