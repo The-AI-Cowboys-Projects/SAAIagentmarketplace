@@ -30,9 +30,9 @@ export default function AuthCompletePage() {
     if (plan) {
       setStatus('checkout')
       // Create Stripe Checkout session and redirect
-      fetch('/api/stripe/checkout', {
+      const { apiFetch } = await import('@/lib/api-client')
+      apiFetch('/api/stripe/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan, billing: 'monthly' }),
       })
         .then(async (res) => {

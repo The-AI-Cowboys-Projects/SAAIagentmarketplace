@@ -5,8 +5,10 @@ Provides mock LLM responses for demo mode (no API key required).
 When OPENAI_API_KEY is set, uses real LLM for agent responses.
 """
 
-import json
+import logging
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 from .agent_catalog import AGENT_CATALOG
 
@@ -125,10 +127,26 @@ class AgentEngine:
         if tools:
             primary_tool = tools[0]
             try:
-                result = primary_tool.invoke({"query": user_message} if "query" in str(primary_tool.args_schema.schema()) else user_message)
+                # Use inspect to check for 'query' param instead of deprecated .schema()
+                import inspect
+                tool_params = inspect.signature(primary_tool.func).parameters
+                if "query" in tool_params:
+                    result = primary_tool.invoke({"query": user_message})
+                else:
+                    result = primary_tool.invoke(user_message)
                 tool_results.append({"tool": primary_tool.name, "result": result})
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(
+                    "Tool %r failed for agent %r: %s",
+                    primary_tool.name,
+                    slug,
+                    exc,
+                )
+                tool_results.append({
+                    "tool": primary_tool.name,
+                    "error": str(exc),
+                    "result": None,
+                })
 
         response = self.llm.invoke(user_message, agent_config)
 

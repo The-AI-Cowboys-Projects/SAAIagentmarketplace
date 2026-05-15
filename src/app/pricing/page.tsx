@@ -185,9 +185,9 @@ export default function PricingPage() {
     setLoadingPlan(planId)
     setCheckoutError('')
     try {
-      const res = await fetch('/api/stripe/checkout', {
+      const { apiFetch } = await import('@/lib/api-client')
+      const res = await apiFetch('/api/stripe/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan: planId, billing: annual ? 'annual' : 'monthly' }),
       })
       const data = await res.json()

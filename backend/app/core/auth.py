@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import hmac
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import bcrypt as _bcrypt
+import jwt
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from jwt.exceptions import PyJWTError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -50,16 +52,18 @@ def create_access_token(subject: str | int) -> str:
         "sub": str(subject),
         "exp": expire,
         "iat": datetime.now(timezone.utc),
+        "iss": "sa-ai-marketplace",
     }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_token(token: str) -> dict:
-    """Decode and validate a JWT.  Raises ``JWTError`` on failure."""
+    """Decode and validate a JWT.  Raises ``PyJWTError`` on failure."""
     return jwt.decode(
         token,
         settings.JWT_SECRET,
         algorithms=[settings.JWT_ALGORITHM],
+        issuer="sa-ai-marketplace",
     )
 
 
@@ -84,7 +88,7 @@ def get_current_user(
         user_id: Optional[str] = payload.get("sub")
         if user_id is None:
             raise credentials_exc
-    except JWTError:
+    except PyJWTError:
         raise credentials_exc
 
     user = db.get(User, int(user_id))
@@ -98,13 +102,16 @@ def verify_api_key(
 ) -> None:
     """Verify an API key for service-to-service calls from the Next.js frontend.
 
-    In development (no BACKEND_API_KEY set), all requests are allowed.
-    In production, BACKEND_API_KEY is required (enforced at startup in config.py).
+    Uses constant-time comparison to prevent timing side-channel attacks.
+    Requires BACKEND_API_KEY to be set — startup check in config.py enforces
+    this for non-development environments.
     """
     if not settings.BACKEND_API_KEY:
-        # Dev mode — no key configured. Production startup blocks this case.
-        return
-    if x_api_key != settings.BACKEND_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="API key not configured on server",
+        )
+    if not x_api_key or not hmac.compare_digest(x_api_key, settings.BACKEND_API_KEY):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",
@@ -126,5 +133,5 @@ def get_optional_user(
         if user_id is None:
             return None
         return db.get(User, int(user_id))
-    except JWTError:
+    except PyJWTError:
         return None

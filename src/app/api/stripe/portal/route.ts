@@ -18,13 +18,15 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: 'No billing account found. Subscribe to a plan first.' }, { status: 400 })
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sanantonioaiagents.com'
+
     const session = await getStripe().billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
-      return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+      return_url: `${siteUrl}/dashboard`,
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: 'Unable to open billing portal. Please try again.' }, { status: 500 })
   }
 }

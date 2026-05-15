@@ -2,7 +2,10 @@ from __future__ import annotations
 
 """Billing and Stripe subscription endpoints."""
 
+import logging
 from typing import Any, Optional
+
+logger = logging.getLogger(__name__)
 
 import stripe
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 """FastAPI application entry point for the SA AI Agent Marketplace backend."""
 
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -9,10 +10,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.logging_config import setup_logging
+
+# Initialize logging before any other module emits log messages
+setup_logging()
+
 from app.core.database import Base, SessionLocal, engine
 from app.routers import agents, auth, billing, leads
 from app.services.agent_seed import seed_agents
 from app.etl.pipeline import run_all_pipelines
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -41,8 +49,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Load ETL pipelines (mock data for agent tools)
     try:
         run_all_pipelines()
+        logger.info("ETL pipelines loaded successfully")
     except Exception:
-        pass  # Non-fatal — agents work without ETL data
+        logger.warning("ETL pipeline failed — agents will operate without enriched data", exc_info=True)
 
     yield
     # Nothing to tear down for SQLite; add cleanup here for production DBs.
@@ -88,8 +97,8 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=origins,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization", "x-api-key", "X-Requested-With"],
     )
 
     # Routers

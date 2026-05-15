@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 
+logger = logging.getLogger(__name__)
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
 from app.core.auth import (
@@ -17,6 +20,37 @@ from app.models.models import User
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
+# ── Brute force protection ────────────────────────────────────────────────
+# Simple in-memory rate limiter for login attempts. Tracks failed attempts
+# per email and locks out after MAX_ATTEMPTS within the WINDOW.
+_MAX_LOGIN_ATTEMPTS = 5
+_LOGIN_WINDOW_SECONDS = 900  # 15 minutes
+_login_attempts: dict[str, list[float]] = {}
+
+
+def _check_login_rate_limit(email: str) -> None:
+    """Raise 429 if the email has exceeded the max login attempts."""
+    import time
+    now = time.time()
+    cutoff = now - _LOGIN_WINDOW_SECONDS
+
+    attempts = _login_attempts.get(email, [])
+    # Prune old attempts
+    attempts = [t for t in attempts if t > cutoff]
+    _login_attempts[email] = attempts
+
+    if len(attempts) >= _MAX_LOGIN_ATTEMPTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many login attempts. Please try again in 15 minutes.",
+        )
+
+
+def _record_failed_login(email: str) -> None:
+    """Record a failed login attempt."""
+    import time
+    _login_attempts.setdefault(email, []).append(time.time())
+
 
 # ---------------------------------------------------------------------------
 # Pydantic schemas
@@ -24,14 +58,14 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 class RegisterRequest(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=100)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=8, max_length=128)
 
 
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=1, max_length=128)
 
 
 class TokenResponse(BaseModel):
@@ -98,13 +132,21 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)) -> TokenRespo
 )
 def login(body: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     """Validate credentials and return an access token."""
+    email_str = str(body.email).lower()
+    _check_login_rate_limit(email_str)
+
     user = db.query(User).filter(User.email == body.email).first()
     if user is None or not verify_password(body.password, user.hashed_password):
+        _record_failed_login(email_str)
+        logger.warning("Failed login attempt for %s", email_str)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    # Clear failed attempts on successful login
+    _login_attempts.pop(email_str, None)
 
     token = create_access_token(user.id)
     return TokenResponse(

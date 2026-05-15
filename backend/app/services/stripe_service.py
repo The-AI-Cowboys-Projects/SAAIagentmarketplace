@@ -10,11 +10,14 @@ Responsibilities:
 - Construct and verify webhook events
 """
 
+import logging
 from datetime import datetime, timezone
 from typing import Any, Optional
 
 import stripe
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import settings
 from app.models.models import Subscription, User
@@ -187,7 +190,12 @@ def handle_subscription_created_or_updated(
     """
     meta: dict = dict(stripe_subscription.get("metadata") or {})
     user_id_str: Optional[str] = meta.get("user_id")
-    tier: str = meta.get("tier", "pro")
+    tier: str = meta.get("tier") or "starter"
+    if not meta.get("tier"):
+        logger.warning(
+            "Stripe subscription %s has no 'tier' metadata; defaulting to 'starter'",
+            stripe_subscription.get("id", "unknown"),
+        )
 
     if not user_id_str:
         # Fall back to looking up via Stripe customer ID

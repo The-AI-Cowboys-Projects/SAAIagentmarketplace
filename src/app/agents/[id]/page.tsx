@@ -34,9 +34,9 @@ function AgentChat({ agentId, agentName }: { agentId: string; agentName: string 
     setConversation(prev => [...prev, { role: 'user', text: userMsg }])
     setSending(true)
     try {
-      const res = await fetch('/api/agents/chat', {
+      const { apiFetch } = await import('@/lib/api-client')
+      const res = await apiFetch('/api/agents/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agentId, message: userMsg }),
       })
       const data = await res.json()

@@ -8,6 +8,9 @@
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
 const BACKEND_API_KEY = process.env.BACKEND_API_KEY || ''
 
+/** Default timeout for backend requests (10 seconds). */
+const DEFAULT_TIMEOUT_MS = 10_000
+
 export async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const url = `${BACKEND_URL}${path}`
   const headers: Record<string, string> = {
@@ -16,13 +19,21 @@ export async function backendFetch(path: string, options: RequestInit = {}): Pro
     ...(options.headers as Record<string, string> || {}),
   }
 
-  return fetch(url, {
-    ...options,
-    headers,
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
+
+  try {
+    return await fetch(url, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    })
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
-export async function backendJSON<T = any>(path: string, options: RequestInit = {}): Promise<T> {
+export async function backendJSON<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await backendFetch(path, options)
   if (!res.ok) {
     const body = await res.text()
@@ -31,11 +42,26 @@ export async function backendJSON<T = any>(path: string, options: RequestInit = 
   return res.json()
 }
 
+// ── Cached backend availability check ────────────────────────────────────
+// Avoids making a health check on every single API request. Caches the
+// result for CACHE_TTL_MS before re-checking.
+const CACHE_TTL_MS = 30_000 // 30 seconds
+let _cachedAvailable: boolean | null = null
+let _cacheExpiry = 0
+
 export async function isBackendAvailable(): Promise<boolean> {
+  const now = Date.now()
+  if (_cachedAvailable !== null && now < _cacheExpiry) {
+    return _cachedAvailable
+  }
+
   try {
     const res = await backendFetch('/health', { method: 'GET' })
-    return res.ok
+    _cachedAvailable = res.ok
   } catch {
-    return false
+    _cachedAvailable = false
   }
+
+  _cacheExpiry = now + CACHE_TTL_MS
+  return _cachedAvailable
 }

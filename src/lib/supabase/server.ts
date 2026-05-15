@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 // Fallback values prevent @supabase/ssr from throwing during static
@@ -31,13 +32,13 @@ export async function createServerSupabase() {
 }
 
 export function createServiceRoleClient() {
-  return createServerClient(
+  return createClient(
     SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder',
     {
-      cookies: {
-        getAll() { return [] },
-        setAll() {},
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
       },
     }
   )

@@ -2,21 +2,27 @@ from __future__ import annotations
 
 """Lead capture and management endpoints."""
 
+import logging
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, verify_api_key
 from app.core.database import get_db
 from app.models.models import Lead, User
 from app.services.lead_scorer import LeadScorer
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 
 _scorer = LeadScorer()
+
+# Admin tiers that can access lead management endpoints
+_ADMIN_TIERS = {"partner"}
 
 
 # ---------------------------------------------------------------------------
@@ -37,7 +43,7 @@ class LeadCreateRequest(BaseModel):
 
 
 class LeadStatusUpdate(BaseModel):
-    status: str
+    status: Literal["new", "contacted", "qualified", "disqualified", "converted", "lost"]
 
 
 class LeadOut(BaseModel):
@@ -110,15 +116,25 @@ def create_lead(
     return LeadOut.model_validate(lead)
 
 
+def _require_admin(user: User) -> None:
+    """Raise 403 if the user is not an admin (partner tier) or above."""
+    if user.subscription_tier not in _ADMIN_TIERS:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required. Only partner-tier users can manage leads.",
+        )
+
+
 @router.get(
     "",
     response_model=list[LeadOut],
-    summary="List all leads (authenticated)",
+    summary="List all leads (admin only)",
 )
 def list_leads(
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[LeadOut]:
+    _require_admin(current_user)
     leads = db.query(Lead).order_by(Lead.created_at.desc()).all()
     return [LeadOut.model_validate(l) for l in leads]
 
@@ -126,13 +142,14 @@ def list_leads(
 @router.get(
     "/{lead_id}",
     response_model=LeadOut,
-    summary="Retrieve a single lead by ID (authenticated)",
+    summary="Retrieve a single lead by ID (admin only)",
 )
 def get_lead(
     lead_id: int,
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> LeadOut:
+    _require_admin(current_user)
     lead = db.get(Lead, lead_id)
     if lead is None:
         raise HTTPException(
@@ -145,14 +162,15 @@ def get_lead(
 @router.put(
     "/{lead_id}/status",
     response_model=LeadOut,
-    summary="Update a lead's status (authenticated)",
+    summary="Update a lead's status (admin only)",
 )
 def update_lead_status(
     lead_id: int,
     body: LeadStatusUpdate,
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> LeadOut:
+    _require_admin(current_user)
     lead = db.get(Lead, lead_id)
     if lead is None:
         raise HTTPException(

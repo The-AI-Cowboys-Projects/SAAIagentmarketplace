@@ -3,11 +3,14 @@ from __future__ import annotations
 """Agent catalogue and deployment endpoints."""
 
 import json
+import logging
 from datetime import datetime, timezone
 from typing import Any, Optional
 
+logger = logging.getLogger(__name__)
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user, verify_api_key
@@ -70,8 +73,8 @@ class DeploymentOut(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    message: str
-    agent_id: Optional[str] = None
+    message: str = Field(min_length=1, max_length=4096)
+    agent_id: Optional[str] = Field(default=None, pattern=r"^[a-zA-Z0-9\-_]{1,80}$")
 
 
 class ChatResponse(BaseModel):

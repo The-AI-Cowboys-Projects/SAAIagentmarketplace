@@ -29,10 +29,10 @@ class Settings(BaseSettings):
     # OpenAI
     OPENAI_API_KEY: str = ""
 
-    # JWT
-    JWT_SECRET: str = "change-me-before-deploying"
+    # JWT — no insecure default; must be set explicitly in all environments
+    JWT_SECRET: str = ""
     JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    JWT_EXPIRE_MINUTES: int = 60 * 24  # 24 hours (use refresh tokens for longer sessions)
 
     # App
     APP_ENV: str = "development"
@@ -46,19 +46,29 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.APP_ENV == "production"
 
+    @property
+    def is_development(self) -> bool:
+        return self.APP_ENV == "development"
+
 
 settings = Settings()
 
-# ── Production safety checks ──────────────────────────────────────────────
-# Fail fast at import time so misconfigured production deploys don't serve
-# traffic with insecure defaults.
-if settings.is_production:
-    if settings.JWT_SECRET == "change-me-before-deploying" or not settings.JWT_SECRET:
-        print("FATAL: JWT_SECRET must be set to a secure value in production.", file=sys.stderr)
-        sys.exit(1)
+# ── Safety checks ─────────────────────────────────────────────────────────
+# Fail fast at import time so misconfigured deploys don't serve traffic with
+# insecure defaults. JWT_SECRET is required in ALL environments (no insecure
+# default). Additional checks apply to any non-development environment.
+if not settings.JWT_SECRET:
+    print(
+        "FATAL: JWT_SECRET must be set to a secure random value. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(64))\"",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+if not settings.is_development:
     if not settings.BACKEND_API_KEY:
-        print("FATAL: BACKEND_API_KEY must be set in production.", file=sys.stderr)
+        print("FATAL: BACKEND_API_KEY must be set in non-development environments.", file=sys.stderr)
         sys.exit(1)
     if "sqlite" in settings.DATABASE_URL.lower():
-        print("FATAL: SQLite is not supported in production. Set DATABASE_URL to a Postgres connection string.", file=sys.stderr)
+        print("FATAL: SQLite is not supported outside development. Set DATABASE_URL to a Postgres connection string.", file=sys.stderr)
         sys.exit(1)

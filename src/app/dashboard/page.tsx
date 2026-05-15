@@ -213,7 +213,8 @@ export default function DashboardPage() {
                     size="sm"
                     onClick={async () => {
                       try {
-                        const res = await fetch('/api/stripe/portal', { method: 'POST' })
+                        const { apiFetch } = await import('@/lib/api-client')
+                        const res = await apiFetch('/api/stripe/portal', { method: 'POST' })
                         const data = await res.json()
                         if (data.url) window.location.href = data.url
                       } catch {}

@@ -13,13 +13,23 @@ _connect_args: dict = {}
 if settings.DATABASE_URL.startswith("sqlite"):
     _connect_args["check_same_thread"] = False
 
+_is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+
+_pool_kwargs: dict = {}
+if not _is_sqlite:
+    # PostgreSQL pool configuration for production reliability
+    _pool_kwargs = {
+        "pool_pre_ping": True,      # detect stale connections before use
+        "pool_size": 10,             # base pool size
+        "max_overflow": 20,          # max connections above pool_size
+        "pool_recycle": 3600,        # recycle connections after 1 hour
+    }
+
 engine = create_engine(
     settings.DATABASE_URL,
     connect_args=_connect_args,
-    # Pool settings — SQLite does not support pool_size, but these are
-    # safe no-ops for it and will be used if the URL is swapped to
-    # PostgreSQL later.
     echo=settings.APP_ENV == "development",
+    **_pool_kwargs,
 )
 
 
@@ -48,9 +58,12 @@ class Base(DeclarativeBase):
 
 def get_db() -> Generator[Session, None, None]:
     """FastAPI dependency that yields a database session and ensures it is
-    closed after each request, even when an exception is raised."""
+    properly rolled back on error and closed after each request."""
     db = SessionLocal()
     try:
         yield db
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()

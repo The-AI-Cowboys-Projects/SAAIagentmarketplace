@@ -44,9 +44,9 @@ export function Footer() {
     e.preventDefault()
     if (!email.trim()) return
     try {
-      const res = await fetch('/api/newsletter', {
+      const { apiFetch } = await import('@/lib/api-client')
+      const res = await apiFetch('/api/newsletter', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
       if (!res.ok) return

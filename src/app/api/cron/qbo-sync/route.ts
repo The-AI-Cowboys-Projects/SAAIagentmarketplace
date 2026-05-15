@@ -6,9 +6,15 @@ import { recordStripePayment } from '@/lib/quickbooks'
 const CRON_SECRET = process.env.CRON_SECRET
 
 export async function GET(request: NextRequest) {
-  // Verify cron secret
+  // Verify cron secret — fail closed if not configured
+  if (!CRON_SECRET) {
+    return NextResponse.json(
+      { error: 'Cron secret not configured' },
+      { status: 503 }
+    )
+  }
   const authHeader = request.headers.get('authorization')
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
