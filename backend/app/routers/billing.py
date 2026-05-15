@@ -26,6 +26,29 @@ from app.services.stripe_service import (
 
 router = APIRouter(prefix="/api/billing", tags=["billing"])
 
+# Simple in-memory idempotency cache for webhook events.
+# Prevents double-processing if Stripe retries a delivery.
+_processed_events: dict[str, float] = {}
+_IDEMPOTENCY_TTL = 3600  # 1 hour
+
+
+def _is_event_processed(event_id: str) -> bool:
+    """Return True if this event has already been processed."""
+    import time
+    now = time.time()
+    # Prune expired entries periodically
+    if len(_processed_events) > 500:
+        cutoff = now - _IDEMPOTENCY_TTL
+        expired = [k for k, v in _processed_events.items() if v < cutoff]
+        for k in expired:
+            del _processed_events[k]
+    return event_id in _processed_events
+
+
+def _mark_event_processed(event_id: str) -> None:
+    import time
+    _processed_events[event_id] = time.time()
+
 
 # ---------------------------------------------------------------------------
 # Pydantic schemas
@@ -146,7 +169,13 @@ async def webhook(
             detail="Webhook signature verification failed.",
         ) from exc
 
+    event_id: str = event.get("id", "")
     event_type: str = event["type"]
+
+    # Idempotency — skip events we have already processed
+    if event_id and _is_event_processed(event_id):
+        logger.info("Skipping already-processed webhook event %s", event_id)
+        return {"status": "ok"}
 
     if event_type in (
         "customer.subscription.created",
@@ -156,6 +185,9 @@ async def webhook(
 
     elif event_type == "customer.subscription.deleted":
         handle_subscription_deleted(event["data"]["object"], db)
+
+    if event_id:
+        _mark_event_processed(event_id)
 
     # Acknowledge all other events silently — Stripe will stop retrying.
     return {"status": "ok"}

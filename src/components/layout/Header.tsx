@@ -9,7 +9,7 @@
  */
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Menu, X, Shield, User, LogOut, Zap, DollarSign, GitBranch, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
@@ -42,7 +42,40 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [user, setUser]             = useState<SupaUser | null>(null)
   const [scrolled, setScrolled]     = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const mobileToggleRef = useRef<HTMLButtonElement>(null)
   const supabase = createClient()
+
+  // Focus trap for mobile menu
+  const handleMenuKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!mobileOpen) return
+    if (e.key === 'Escape') {
+      setMobileOpen(false)
+      mobileToggleRef.current?.focus()
+      return
+    }
+    if (e.key !== 'Tab') return
+    const menu = mobileMenuRef.current
+    if (!menu) return
+    const focusable = menu.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+    if (focusable.length === 0) return
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }, [mobileOpen])
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleMenuKeyDown)
+    return () => document.removeEventListener('keydown', handleMenuKeyDown)
+  }, [handleMenuKeyDown])
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
@@ -127,6 +160,7 @@ export function Header() {
 
           {/* Mobile toggle */}
           <button
+            ref={mobileToggleRef}
             className="lg:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
@@ -145,6 +179,7 @@ export function Header() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div
+          ref={mobileMenuRef}
           id="mobile-menu"
           className="lg:hidden bg-white border-t border-gray-200"
           role="navigation"

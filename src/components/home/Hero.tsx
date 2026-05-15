@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * Hero.tsx — Clean, conversion-focused hero for SA Agent Marketplace
  *

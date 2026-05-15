@@ -43,13 +43,6 @@ class User(Base):
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(
         String(255), unique=True, nullable=True
     )
-    # Rate-limiting helpers for the free tier
-    daily_generation_count: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=0
-    )
-    last_generation_date: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_utcnow
     )

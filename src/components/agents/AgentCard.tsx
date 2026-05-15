@@ -11,35 +11,8 @@ import Link from 'next/link'
 import { ArrowRight, Users, TrendingUp } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { StarRating } from '@/components/ui/StarRating'
-import { BRANCH_CONFIG, TIER_CONFIG, type Agent, type AgentStatus } from '@/lib/types'
+import { BRANCH_CONFIG, STATUS_CONFIG, TIER_CONFIG, type Agent } from '@/lib/types'
 import { useMarketplace } from '@/lib/store'
-
-const STATUS_BADGE: Record<AgentStatus, { label: string; variant: 'success' | 'warning' | 'default' | 'purple' }> = {
-  live:        { label: 'Live',        variant: 'success' },
-  beta:        { label: 'Beta',        variant: 'warning' },
-  demo:        { label: 'Demo',        variant: 'default' },
-  coming_soon: { label: 'Coming Soon', variant: 'purple'  },
-}
-
-// Category-specific left-border accent colors
-const CATEGORY_BORDER: Record<string, string> = {
-  Civic:      'border-l-blue-500',
-  Business:   'border-l-amber-500',
-  Military:   'border-l-green-600',
-  Healthcare: 'border-l-rose-500',
-  Tourism:    'border-l-violet-500',
-  Connect360: 'border-l-navy-700',
-}
-
-// Category icon background colors
-const CATEGORY_ICON_BG: Record<string, string> = {
-  Civic:      'bg-blue-100',
-  Business:   'bg-amber-100',
-  Military:   'bg-green-100',
-  Healthcare: 'bg-rose-100',
-  Tourism:    'bg-violet-100',
-  Connect360: 'bg-navy-100',
-}
 
 const TRENDING_THRESHOLD = 5000
 
@@ -49,8 +22,8 @@ export function AgentCard({ agent }: { agent: Agent }) {
   const tier = TIER_CONFIG[agent.tier]
   const price = isAnnual ? agent.annual_price : agent.monthly_price
   const isTrending = agent.usage_count > TRENDING_THRESHOLD
-  const borderAccent = CATEGORY_BORDER[agent.category] ?? 'border-l-gray-300'
-  const iconBg = CATEGORY_ICON_BG[agent.category] ?? 'bg-gray-100'
+  const borderAccent = branch.borderColor
+  const iconBg = branch.iconBg
 
   return (
     <Link
@@ -68,8 +41,8 @@ export function AgentCard({ agent }: { agent: Agent }) {
       {/* Status + trending badges */}
       <div className="flex items-center gap-2 mb-3">
         {agent.agentStatus && agent.agentStatus !== 'live' && (
-          <Badge variant={STATUS_BADGE[agent.agentStatus].variant} size="sm">
-            {STATUS_BADGE[agent.agentStatus].label}
+          <Badge variant={STATUS_CONFIG[agent.agentStatus].variant} size="sm">
+            {STATUS_CONFIG[agent.agentStatus].label}
           </Badge>
         )}
         {isTrending && (

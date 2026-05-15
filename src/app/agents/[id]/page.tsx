@@ -5,14 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { StarRating } from '@/components/ui/StarRating'
 import { Card } from '@/components/ui/Card'
-import { CATEGORY_CONFIG, TIER_CONFIG, type Agent, type AgentStatus } from '@/lib/types'
-
-const STATUS_CONFIG: Record<AgentStatus, { label: string; variant: 'success' | 'warning' | 'default' | 'purple'; canDeploy: boolean }> = {
-  live:        { label: 'Live',        variant: 'success', canDeploy: true  },
-  beta:        { label: 'Beta',        variant: 'warning', canDeploy: true  },
-  demo:        { label: 'Demo',        variant: 'default', canDeploy: false },
-  coming_soon: { label: 'Coming Soon', variant: 'purple',  canDeploy: false },
-}
+import { CATEGORY_CONFIG, STATUS_CONFIG, TIER_CONFIG, type Agent } from '@/lib/types'
 import { SA_AGENTS } from '@/lib/agents-data'
 import {
   ArrowLeft, Shield, Users, Zap, Clock, CheckCircle2,
@@ -23,15 +16,18 @@ import Link from 'next/link'
 // AgentChat — light-mode chat widget embedded in the detail page
 function AgentChat({ agentId, agentName }: { agentId: string; agentName: string }) {
   const [message, setMessage] = useState('')
-  const [conversation, setConversation] = useState<{ role: 'user' | 'agent'; text: string }[]>([])
+  const [conversation, setConversation] = useState<{ id: string; role: 'user' | 'agent'; text: string }[]>([])
   const [sending, setSending] = useState(false)
+  const [msgId, setMsgId] = useState(0)
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!message.trim() || sending) return
     const userMsg = message.trim()
     setMessage('')
-    setConversation(prev => [...prev, { role: 'user', text: userMsg }])
+    const userMsgId = `msg-${msgId}`
+    setMsgId(prev => prev + 1)
+    setConversation(prev => [...prev, { id: userMsgId, role: 'user', text: userMsg }])
     setSending(true)
     try {
       const { apiFetch } = await import('@/lib/api-client')
@@ -40,13 +36,17 @@ function AgentChat({ agentId, agentName }: { agentId: string; agentName: string 
         body: JSON.stringify({ agentId, message: userMsg }),
       })
       const data = await res.json()
+      const replyId = `msg-${msgId + 1}`
+      setMsgId(prev => prev + 1)
       if (data.error) {
-        setConversation(prev => [...prev, { role: 'agent', text: data.error }])
+        setConversation(prev => [...prev, { id: replyId, role: 'agent', text: data.error }])
       } else {
-        setConversation(prev => [...prev, { role: 'agent', text: data.response || 'No response received.' }])
+        setConversation(prev => [...prev, { id: replyId, role: 'agent', text: data.response || 'No response received.' }])
       }
     } catch {
-      setConversation(prev => [...prev, { role: 'agent', text: 'Unable to reach agent. Please try again.' }])
+      const errId = `msg-${msgId + 1}`
+      setMsgId(prev => prev + 1)
+      setConversation(prev => [...prev, { id: errId, role: 'agent', text: 'Unable to reach agent. Please try again.' }])
     } finally {
       setSending(false)
     }
@@ -59,8 +59,8 @@ function AgentChat({ agentId, agentName }: { agentId: string; agentName: string 
         {conversation.length === 0 && (
           <p className="text-sm text-gray-400 italic">Ask {agentName} anything...</p>
         )}
-        {conversation.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+        {conversation.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm ${
               msg.role === 'user'
                 ? 'bg-navy-950 text-white border border-navy-800'

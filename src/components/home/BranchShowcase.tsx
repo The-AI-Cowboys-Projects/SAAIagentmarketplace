@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * BranchShowcase.tsx — Category overview section
  *
@@ -10,108 +8,53 @@
 
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-
-type CategoryKey = 'CIVIC' | 'BUSINESS' | 'MILITARY' | 'HEALTHCARE' | 'TOURISM' | 'CONNECT360'
-
-const CATEGORY_CONFIG: Record<
-  CategoryKey,
-  {
-    label: string
-    borderColor: string
-    dotColor: string
-    textColor: string
-    bgColor: string
-    href: string
-  }
-> = {
-  CIVIC: {
-    label: 'Civic Services',
-    borderColor: 'border-l-blue-500',
-    dotColor: 'bg-blue-500',
-    textColor: 'text-blue-700',
-    bgColor: 'bg-blue-50',
-    href: '/agents?branch=Civic',
-  },
-  BUSINESS: {
-    label: 'Business',
-    borderColor: 'border-l-amber-500',
-    dotColor: 'bg-amber-500',
-    textColor: 'text-amber-700',
-    bgColor: 'bg-amber-50',
-    href: '/agents?branch=Business',
-  },
-  MILITARY: {
-    label: 'Military / JBSA',
-    borderColor: 'border-l-green-600',
-    dotColor: 'bg-green-600',
-    textColor: 'text-green-700',
-    bgColor: 'bg-green-50',
-    href: '/agents?branch=Military',
-  },
-  HEALTHCARE: {
-    label: 'Healthcare',
-    borderColor: 'border-l-rose-500',
-    dotColor: 'bg-rose-500',
-    textColor: 'text-rose-700',
-    bgColor: 'bg-rose-50',
-    href: '/agents?branch=Healthcare',
-  },
-  TOURISM: {
-    label: 'Tourism',
-    borderColor: 'border-l-violet-500',
-    dotColor: 'bg-violet-500',
-    textColor: 'text-violet-700',
-    bgColor: 'bg-violet-50',
-    href: '/agents?branch=Tourism',
-  },
-  CONNECT360: {
-    label: 'Connect-360',
-    borderColor: 'border-l-navy-700',
-    dotColor: 'bg-navy-700',
-    textColor: 'text-navy-700',
-    bgColor: 'bg-navy-50',
-    href: '/agents?branch=Connect360',
-  },
-}
+import { CATEGORY_CONFIG, type AgentCategory } from '@/lib/types'
 
 const categories: {
-  key: CategoryKey
+  key: AgentCategory
+  showcaseLabel: string
   agents: number
   suites: string[]
   featuredAgent: string
 }[] = [
   {
-    key: 'CIVIC',
+    key: 'Civic',
+    showcaseLabel: 'Civic Services',
     agents: 10,
     suites: ['Permits', '311 Services', 'Transit', 'Parks', 'Housing'],
     featuredAgent: 'SA Permit Navigator',
   },
   {
-    key: 'BUSINESS',
+    key: 'Business',
+    showcaseLabel: 'Business',
     agents: 20,
     suites: ['Licensing', 'Market Intel', 'HR', 'Grants', 'Tax', 'Real Estate', 'Franchises'],
     featuredAgent: 'SA Business License Pro',
   },
   {
-    key: 'MILITARY',
+    key: 'Military',
+    showcaseLabel: 'Military / JBSA',
     agents: 10,
     suites: ['JBSA Benefits', 'VA Claims', 'Transition', 'GI Bill', 'Housing'],
     featuredAgent: 'JBSA Benefits Navigator',
   },
   {
-    key: 'HEALTHCARE',
+    key: 'Healthcare',
+    showcaseLabel: 'Healthcare',
     agents: 10,
     suites: ['Care Navigation', 'Rx', 'Mental Health', 'Insurance', 'Senior Care'],
     featuredAgent: 'SA Care Navigator',
   },
   {
-    key: 'TOURISM',
+    key: 'Tourism',
+    showcaseLabel: 'Tourism',
     agents: 10,
     suites: ['Riverwalk', 'Alamo', 'Hotels', 'Food', 'Events'],
     featuredAgent: 'Riverwalk Concierge',
   },
   {
-    key: 'CONNECT360',
+    key: 'Connect360',
+    showcaseLabel: 'Connect-360',
     agents: 10,
     suites: ['Relocation', 'Utilities', 'Schools', 'Neighborhoods', 'Water'],
     featuredAgent: 'Newcomer Onboarding',
@@ -152,7 +95,7 @@ export function BranchShowcase() {
                   hover:border-gray-300 hover:shadow-md transition-all duration-200
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2
                 `}
-                aria-label={`Browse ${config.label} agents`}
+                aria-label={`Browse ${category.showcaseLabel} agents`}
               >
                 {/* Category label + count */}
                 <div>
@@ -162,7 +105,7 @@ export function BranchShowcase() {
                       aria-hidden="true"
                     />
                     <h3 className={`text-sm font-semibold ${config.textColor}`}>
-                      {config.label}
+                      {category.showcaseLabel}
                     </h3>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 tabular-nums">

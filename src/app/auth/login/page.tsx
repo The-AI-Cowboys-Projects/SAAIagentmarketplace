@@ -14,7 +14,19 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const plan = searchParams.get('plan')
   const agent = searchParams.get('agent')
+  const authError = searchParams.get('error')
   const supabase = createClient()
+
+  // Show auth callback errors
+  useState(() => {
+    if (authError) {
+      const messages: Record<string, string> = {
+        auth_failed: 'Authentication failed. Please try again.',
+        callback_error: 'Something went wrong during sign-in. Please try again.',
+      }
+      setError(messages[authError] || 'An error occurred. Please try again.')
+    }
+  })
 
   // Supabase OAuth strips custom query params from redirectTo, so we persist
   // plan/agent intent in localStorage and retrieve it in the callback page.
@@ -131,11 +143,14 @@ function LoginContent() {
         </div>
 
         <form onSubmit={signInWithMagicLink} className="space-y-4">
+          <label htmlFor="login-email" className="sr-only">Email address</label>
           <input
+            id="login-email"
             type="email"
             placeholder="your@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             className="w-full h-12 px-4 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-colors"
           />
           <Button variant="primary" size="lg" className="w-full" loading={loading}>

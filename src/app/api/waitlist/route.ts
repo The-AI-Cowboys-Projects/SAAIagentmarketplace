@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { backendFetch } from '@/lib/backend'
 import { waitlistLimit, checkLimit } from '@/lib/rate-limit'
+import { isValidEmail } from '@/lib/validation'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,13 +13,8 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, name, branch } = await request.json()
-    if (!email || typeof email !== 'string') {
+    if (!isValidEmail(email)) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 })
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email) || email.length > 254) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
     }
 
     const sanitizedName = typeof name === 'string' ? name.slice(0, 100).trim() : null

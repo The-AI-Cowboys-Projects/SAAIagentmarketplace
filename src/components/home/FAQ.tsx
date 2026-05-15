@@ -90,6 +90,7 @@ export function FAQ() {
               <div
                 id={`faq-answer-${i}`}
                 role="region"
+                aria-hidden={open !== i}
                 className={clsx(
                   'overflow-hidden transition-all duration-200',
                   open === i ? 'max-h-96' : 'max-h-0'
