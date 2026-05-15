@@ -57,7 +57,7 @@ export function Hero() {
 
           {/* Sub-headline */}
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Automate permits, VA claims, bookings, and more — with agents trained on local San Antonio data.
+            Automate permits, VA claims, bookings, and more — with agents built for San Antonio use cases.
           </p>
 
           {/* CTA buttons */}

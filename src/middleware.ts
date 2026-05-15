@@ -36,7 +36,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; frame-src https://js.stripe.com https://hooks.stripe.com; connect-src 'self' https://*.supabase.co https://api.stripe.com wss://*.supabase.co"
   )
-  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
   return response
 }
 
@@ -77,8 +77,12 @@ export async function middleware(request: NextRequest) {
 
   // Refresh session + protect dashboard
   const { data: { user } } = await supabase.auth.getUser()
+
+  // Protect dashboard routes
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    return addSecurityHeaders(NextResponse.redirect(new URL('/auth/login', request.url)))
+    const loginUrl = new URL('/auth/login', request.url)
+    loginUrl.searchParams.set('redirect', request.nextUrl.pathname)
+    return addSecurityHeaders(NextResponse.redirect(loginUrl))
   }
 
   return addSecurityHeaders(response)

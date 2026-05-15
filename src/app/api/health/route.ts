@@ -8,6 +8,7 @@ export async function GET() {
     status: 'ok',
     frontend: 'ok',
     backend: backendUp ? 'ok' : 'unavailable',
+    version: process.env.npm_package_version || '1.0.0',
     timestamp: new Date().toISOString(),
   })
 }

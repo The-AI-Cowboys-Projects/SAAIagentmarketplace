@@ -40,7 +40,11 @@ function AgentChat({ agentId, agentName }: { agentId: string; agentName: string 
         body: JSON.stringify({ agentId, message: userMsg }),
       })
       const data = await res.json()
-      setConversation(prev => [...prev, { role: 'agent', text: data.response || 'No response received.' }])
+      if (data.error) {
+        setConversation(prev => [...prev, { role: 'agent', text: data.error }])
+      } else {
+        setConversation(prev => [...prev, { role: 'agent', text: data.response || 'No response received.' }])
+      }
     } catch {
       setConversation(prev => [...prev, { role: 'agent', text: 'Unable to reach agent. Please try again.' }])
     } finally {
@@ -234,7 +238,15 @@ export default function AgentDetailPage() {
 
             {/* Try it out */}
             <Card className="p-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Try this agent</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Try this agent</h2>
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 uppercase tracking-wide">
+                  Demo Mode
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mb-4">
+                Demo responses show what this agent can do. Subscribe to a plan for full AI-powered capabilities.
+              </p>
               <AgentChat agentId={agent.id} agentName={agent.short_name} />
             </Card>
 

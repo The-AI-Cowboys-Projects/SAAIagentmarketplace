@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
     if (!agentId || !message) {
       return NextResponse.json({ error: 'agentId and message are required' }, { status: 400 })
     }
+    if (typeof message !== 'string' || message.length > 2000) {
+      return NextResponse.json({ error: 'Message must be a string under 2000 characters' }, { status: 400 })
+    }
 
     // Auth check — allow demo for unauthed users but with stricter limits
     const supabase = createServerSupabase()
@@ -75,37 +78,41 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Fallback: local mock response
+    // Fallback: local demo response
     const agent = SA_AGENTS.find((a) => a.id === agentId)
     if (!agent) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
     }
 
-    const response = generateMockResponse(agent.name, agent.category, agent.capabilities, message)
+    const response = generateDemoResponse(agent.name, agent.category, agent.capabilities, message)
 
     return NextResponse.json({
       agent: agent.name,
       category: agent.category,
       response,
-      source: 'mock',
+      mode: 'demo',
+      disclaimer: 'This is a demo response. Subscribe to a plan for full AI-powered agent capabilities.',
       timestamp: new Date().toISOString(),
     })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 })
   }
 }
 
-function generateMockResponse(name: string, category: string, capabilities: string[], message: string): string {
+function generateDemoResponse(name: string, category: string, capabilities: string[], message: string): string {
   const capList = capabilities.slice(0, 3).join(', ')
   return (
-    `[${name}] I've analyzed your request using San Antonio local data. ` +
-    `As a specialized ${category} agent with capabilities in ${capList}, here's what I found:\n\n` +
-    `Based on your query "${message.slice(0, 100)}${message.length > 100 ? '...' : ''}", ` +
-    `I recommend the following actions:\n` +
-    `1. Review the relevant San Antonio municipal resources\n` +
-    `2. Contact the appropriate local department for verification\n` +
-    `3. Follow up within 5-7 business days for status updates\n\n` +
-    `This response is generated in demo mode. Full autonomous agent capabilities ` +
-    `will be available when the platform connects to live LLM APIs.`
+    `[${name} - Demo Mode]\n\n` +
+    `As a specialized ${category} agent with capabilities in ${capList}, ` +
+    `here is how I can help with your query:\n\n` +
+    `"${message.slice(0, 100)}${message.length > 100 ? '...' : ''}"\n\n` +
+    `In production mode, I would:\n` +
+    `1. Search relevant San Antonio municipal and local resources\n` +
+    `2. Provide specific, actionable guidance with source citations\n` +
+    `3. Coordinate follow-up steps and track progress\n\n` +
+    `This is a demo response. Subscribe to a plan at /pricing for full AI-powered capabilities.\n\n` +
+    `Disclaimer: AI agent responses are informational only and should not be treated as ` +
+    `professional legal, medical, tax, or official government advice. Always verify with ` +
+    `authoritative sources.`
   )
 }

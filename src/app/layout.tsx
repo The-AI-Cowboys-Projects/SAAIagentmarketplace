@@ -6,11 +6,11 @@ import './globals.css'
 export const metadata: Metadata = {
   metadataBase: new URL('https://sanantonioaiagents.com'),
   title: 'SA AI Agent Marketplace | AI Cowboys',
-  description: 'Deploy AI agents built for San Antonio — automate permits, VA claims, bookings, and more. 70 specialized agents starting at $49/mo. Built by AI Cowboys.',
+  description: 'Deploy AI agents built for San Antonio — automate permits, VA claims, bookings, and more. 70 specialized agents across 6 categories. Built by AI Cowboys.',
   keywords: ['AI agents', 'San Antonio', 'AI Cowboys', 'civic', 'business', 'military', 'healthcare', 'tourism', 'JBSA', 'River Walk'],
   openGraph: {
     title: 'SA AI Agent Marketplace | AI Cowboys',
-    description: 'Deploy AI agents built for San Antonio — automate permits, VA claims, bookings, and more. Starting at $49/mo.',
+    description: 'Deploy AI agents built for San Antonio — automate permits, VA claims, bookings, and more. 70 agents across 6 categories.',
     type: 'website',
     url: 'https://sanantonioaiagents.com',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'SA AI Agent Marketplace | AI Cowboys',
-    description: '70 AI agents built for San Antonio across civic, business, military, healthcare, and tourism.',
+    description: '70 AI agents built for San Antonio across civic, business, military, healthcare, tourism, and Connect-360.',
   },
 }
 

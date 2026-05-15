@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const priceId = resolveStripePriceId(plan, billing)
     if (!priceId) {
       return NextResponse.json(
-        { error: `Stripe price not configured for ${plan}/${billing}. Contact support.` },
+        { error: 'Stripe price not configured for this plan. Contact support.' },
         { status: 500 }
       )
     }
@@ -72,13 +72,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url })
   } catch (err: any) {
-    console.error('[stripe/checkout]', {
-      type: err.type,
-      code: err.code,
-      statusCode: err.statusCode,
-      requestId: err.requestId,
-      message: err.message,
-    })
-    return NextResponse.json({ error: err.message }, { status: err.statusCode || 500 })
+    console.error('[stripe/checkout]', err.message)
+    return NextResponse.json({ error: 'Unable to create checkout session' }, { status: 500 })
   }
 }

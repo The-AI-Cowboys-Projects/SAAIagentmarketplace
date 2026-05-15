@@ -20,9 +20,9 @@ const features: Feature[] = [
   {
     icon: Database,
     iconBgColor: 'bg-navy-950',
-    title: 'San Antonio Local Data',
+    title: 'San Antonio Local Knowledge',
     description:
-      'Connected to CoSA open data, Bexar County records, CPS Energy, SAWS, and VIA Transit. Real local data, not generic web scraping.',
+      'Built with knowledge of CoSA services, Bexar County resources, CPS Energy, SAWS, and VIA Transit. Local context, not generic answers.',
   },
   {
     icon: MousePointerClick,
@@ -41,9 +41,9 @@ const features: Feature[] = [
   {
     icon: Zap,
     iconBgColor: 'bg-amber-600',
-    title: 'Real-Time Intelligence',
+    title: 'SA-Focused Intelligence',
     description:
-      'Live data from city APIs, tourism feeds, healthcare portals, and transit schedules. Always current, always accurate.',
+      'Agents built with deep knowledge of San Antonio city services, tourism, healthcare systems, and military installations.',
   },
   {
     icon: Shield,
@@ -55,9 +55,9 @@ const features: Feature[] = [
   {
     icon: HeartPulse,
     iconBgColor: 'bg-rose-700',
-    title: 'HIPAA Aware',
+    title: 'Privacy-First Healthcare',
     description:
-      'Healthcare agents designed with patient privacy in mind. Care navigation, Rx help, and insurance guidance without compromising PHI.',
+      'Healthcare agents designed with patient privacy in mind. Care navigation, Rx help, and insurance guidance — no PHI is stored or processed.',
   },
   {
     icon: MapPin,

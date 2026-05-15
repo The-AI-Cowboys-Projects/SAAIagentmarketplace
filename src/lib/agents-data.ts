@@ -86,7 +86,7 @@ export const SA_AGENTS: Agent[] = [
     4.6, 143,
   ),
 
-  // ═══ BUSINESS (10) ═══
+  // ═══ BUSINESS (20) ═══
   mkAgent('biz-001', 'sa-biz-license-pro', 'SA Business License Pro', 'Business', 'pro', 'Briefcase',
     'End-to-end business licensing, state registration, and ongoing compliance monitoring for San Antonio.',
     ['License applications', 'SOS filings', 'Compliance monitoring', 'Renewal automation'],
@@ -407,7 +407,7 @@ export const SA_AGENTS: Agent[] = [
   ),
 ]
 
-// ── Pricing Plans ────────────────────────────────────────────
+// ── Pricing Plans (must match pricing page and Stripe) ──────
 export const SA_PLANS: Plan[] = [
   {
     id: 'starter',
@@ -448,6 +448,7 @@ export const SA_PLANS: Plan[] = [
       'Team seats (up to 5 users)',
       'Priority email and chat support',
       'Usage analytics dashboard',
+      'Custom agent configuration',
     ],
     description: null,
     monthly_price: 14900,

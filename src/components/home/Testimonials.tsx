@@ -21,61 +21,61 @@ type Testimonial = {
 const testimonials: Testimonial[] = [
   {
     quote:
-      'Got my food truck permit approved in two days instead of two weeks. The Business License Pro agent walked me through every form, requirement, and fee.',
-    name: 'Maria G.',
-    role: 'Small Business Owner',
+      'The Business License Pro agent walks you through every form, requirement, and fee for San Antonio food truck permits. What used to take weeks of research takes minutes.',
+    name: 'Business Scenario',
+    role: 'Small Business Licensing',
     category: 'Business',
-    initials: 'MG',
+    initials: 'BL',
     avatarBg: 'bg-amber-100 text-amber-800',
     stars: 5,
   },
   {
     quote:
-      'After 20 years at Fort Sam, the transition was overwhelming. The JBSA Benefits Navigator helped me file my VA claim, optimize my GI Bill, and find housing. Rated at 90% on first attempt.',
-    name: 'Kevin P.',
-    role: 'Veteran, Fort Sam Houston',
+      'The JBSA Benefits Navigator helps military personnel navigate VA claims, GI Bill optimization, and housing — all the resources for the 250K+ JBSA community in one place.',
+    name: 'Military Scenario',
+    role: 'JBSA Benefits Navigation',
     category: 'Military',
-    initials: 'KP',
+    initials: 'MI',
     avatarBg: 'bg-green-100 text-green-800',
     stars: 5,
   },
   {
     quote:
-      'Planned our entire San Antonio trip with the Riverwalk Concierge. Restaurant reservations, Alamo tickets, Hill Country wineries — all booked in 10 minutes.',
-    name: 'Jason T.',
-    role: 'Visitor from Austin',
+      'Plan an entire San Antonio trip with the Riverwalk Concierge — restaurant recommendations, Alamo info, Hill Country day trips, and event schedules in one conversation.',
+    name: 'Tourism Scenario',
+    role: 'Visitor Trip Planning',
     category: 'Tourism',
-    initials: 'JT',
+    initials: 'TO',
     avatarBg: 'bg-violet-100 text-violet-800',
     stars: 5,
   },
   {
     quote:
-      'Finding in-network specialists for my patients used to take hours of phone calls. The Care Navigator pulls real-time availability, checks insurance, and books appointments.',
-    name: 'Dr. Patricia S.',
-    role: 'Healthcare Administrator',
+      'The Care Navigator helps find in-network specialists across SA health systems — University Health, Baptist, Methodist, Christus — with cost estimates and referral guidance.',
+    name: 'Healthcare Scenario',
+    role: 'Care Navigation',
     category: 'Healthcare',
-    initials: 'PS',
+    initials: 'HC',
     avatarBg: 'bg-rose-100 text-rose-800',
     stars: 5,
   },
   {
     quote:
-      'Called 311 three times about a pothole on my street. Nothing happened. Used the SA 311 Dispatcher agent and had a work order filed, tracked, and completed in 4 days.',
-    name: 'Robert M.',
-    role: 'SA Resident, Southtown',
+      'The SA 311 Dispatcher triages service requests — pothole reports, code violations, noise complaints — and routes them to the right city department automatically.',
+    name: 'Civic Scenario',
+    role: 'City Services',
     category: 'Civic',
-    initials: 'RM',
+    initials: 'CI',
     avatarBg: 'bg-blue-100 text-blue-800',
     stars: 5,
   },
   {
     quote:
-      'My husband deployed and I needed to find a job, childcare, and sort out Tricare — all at once. The Military Spouse Career Agent connected me to resources I did not even know existed.',
-    name: 'Amanda L.',
-    role: 'Military Spouse, Lackland AFB',
+      'The Military Spouse Career Agent connects spouses to remote jobs, license portability resources, MSEP employers, and certification programs — everything in one place.',
+    name: 'Military Scenario',
+    role: 'Spouse Career Support',
     category: 'Military',
-    initials: 'AL',
+    initials: 'MS',
     avatarBg: 'bg-green-100 text-green-800',
     stars: 5,
   },
@@ -99,14 +99,14 @@ export function Testimonials() {
         {/* Section header */}
         <div className="max-w-2xl mx-auto text-center mb-14">
           <p className="text-xs font-semibold text-navy-600 uppercase tracking-widest mb-3">
-            Real Users
+            Use Cases
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Trusted by San Antonians
+            Built for San Antonio
           </h2>
           <p className="text-gray-500 text-lg leading-relaxed">
-            From business owners to veterans, tourists to healthcare providers — real feedback
-            from people who use these agents every day.
+            From business owners to veterans, tourists to healthcare providers — see how
+            AI agents can streamline your San Antonio workflows.
           </p>
 
           {/* Aggregate rating */}
