@@ -1,31 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-
-// ── Simple in-memory rate limiter for API routes ────────────────────────
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-const RATE_LIMIT_WINDOW_MS = 60_000 // 1 minute
-const RATE_LIMIT_MAX = 60 // requests per window
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return false
-  }
-  entry.count++
-  return entry.count > RATE_LIMIT_MAX
-}
-
-// Periodic cleanup to prevent memory leak
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    const now = Date.now()
-    for (const [key, entry] of rateLimitMap) {
-      if (now > entry.resetAt) rateLimitMap.delete(key)
-    }
-  }, 30_000)
-}
+import { apiGlobalLimit, checkLimit } from '@/lib/rate-limit'
 
 function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-Frame-Options', 'DENY')
@@ -44,7 +19,8 @@ export async function middleware(request: NextRequest) {
   // ── Rate limiting on API routes ────────────────────────────────────────
   if (request.nextUrl.pathname.startsWith('/api/')) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    if (isRateLimited(ip)) {
+    const { success } = await checkLimit(apiGlobalLimit, ip)
+    if (!success) {
       return addSecurityHeaders(
         NextResponse.json(
           { error: 'Too many requests. Please try again later.' },

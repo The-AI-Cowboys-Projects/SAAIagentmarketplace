@@ -1,5 +1,11 @@
 {
   "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/qbo-sync",
+      "schedule": "*/5 * * * *"
+    }
+  ],
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "regions": ["iad1"],

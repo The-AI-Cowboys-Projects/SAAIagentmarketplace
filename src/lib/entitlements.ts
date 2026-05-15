@@ -3,7 +3,7 @@
  * Validates that a user's plan grants access to the requested resource.
  */
 
-export type PlanId = 'starter' | 'growth' | 'partner'
+export type PlanId = 'free' | 'starter' | 'growth' | 'partner'
 
 interface PlanLimits {
   maxRequestsPerMonth: number
@@ -13,6 +13,12 @@ interface PlanLimits {
 }
 
 const PLAN_LIMITS: Record<PlanId, PlanLimits> = {
+  free: {
+    maxRequestsPerMonth: 10,
+    maxTeamSeats: 1,
+    customConfig: false,
+    ssoEnabled: false,
+  },
   starter: {
     maxRequestsPerMonth: 1000,
     maxTeamSeats: 1,
@@ -34,7 +40,7 @@ const PLAN_LIMITS: Record<PlanId, PlanLimits> = {
 }
 
 export function getPlanLimits(plan: string): PlanLimits {
-  return PLAN_LIMITS[(plan as PlanId)] ?? PLAN_LIMITS.starter
+  return PLAN_LIMITS[(plan as PlanId)] ?? PLAN_LIMITS.free
 }
 
 export function canAccessFeature(plan: string, feature: 'customConfig' | 'ssoEnabled'): boolean {

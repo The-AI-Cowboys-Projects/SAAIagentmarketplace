@@ -14,7 +14,7 @@ function resolveStripePriceId(plan: PlanId, billing: BillingInterval): string | 
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerSupabase()
+    const supabase = await createServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

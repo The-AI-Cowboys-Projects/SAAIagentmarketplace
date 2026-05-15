@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { backendFetch, isBackendAvailable } from '@/lib/backend'
-import { createServerSupabase } from '@/lib/supabase/server'
+import { createServerSupabase, createServiceRoleClient } from '@/lib/supabase/server'
+import { getRequestLimit } from '@/lib/entitlements'
 import { SA_AGENTS } from '@/lib/agents-data'
 import type { AgentStatus } from '@/lib/types'
+import { logger } from '@/lib/logger'
 
-// Per-session chat rate limit (simple, per-IP, 10 msgs/min for unauthed)
-const chatLimitMap = new Map<string, { count: number; resetAt: number }>()
-function isChatRateLimited(key: string, maxPerMin: number): boolean {
-  const now = Date.now()
-  const entry = chatLimitMap.get(key)
-  if (!entry || now > entry.resetAt) {
-    chatLimitMap.set(key, { count: 1, resetAt: now + 60_000 })
-    return false
-  }
-  entry.count++
-  return entry.count > maxPerMin
-}
+import { chatDemoLimit, chatAuthLimit, checkLimit } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
   try {
     const { agentId, message } = await request.json()
     if (!agentId || !message) {
@@ -28,17 +20,42 @@ export async function POST(request: NextRequest) {
     }
 
     // Auth check — allow demo for unauthed users but with stricter limits
-    const supabase = createServerSupabase()
+    const supabase = await createServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
     const rateLimitKey = user ? `user:${user.id}` : `ip:${ip}`
-    const maxPerMin = user ? 30 : 5
 
-    if (isChatRateLimited(rateLimitKey, maxPerMin)) {
+    const { success: chatAllowed } = await checkLimit(user ? chatAuthLimit : chatDemoLimit, rateLimitKey)
+    if (!chatAllowed) {
       return NextResponse.json(
         { error: user ? 'Rate limit exceeded. Please slow down.' : 'Demo rate limit reached. Sign in for more access.' },
         { status: 429 }
       )
+    }
+
+    // Entitlement enforcement — monthly quota check for authenticated users
+    const serviceClient = createServiceRoleClient()
+    let userPlan = 'free'
+
+    if (user) {
+      const { data: profile } = await serviceClient
+        .from('profiles')
+        .select('plan')
+        .eq('id', user.id)
+        .single()
+      userPlan = profile?.plan || 'free'
+
+      const monthlyLimit = getRequestLimit(userPlan)
+      if (monthlyLimit !== Infinity) {
+        const { data: usage } = await serviceClient.rpc('monthly_agent_usage', { p_user_id: user.id })
+        const currentCount = usage?.[0]?.request_count || 0
+        if (currentCount >= monthlyLimit) {
+          return NextResponse.json(
+            { error: `Monthly request limit (${monthlyLimit}) reached. Upgrade your plan at /pricing.` },
+            { status: 429 }
+          )
+        }
+      }
     }
 
     // Block chat for agents that aren't live or beta
@@ -53,6 +70,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Open an agent_runs record before calling the backend
+    const { data: run } = await serviceClient
+      .from('agent_runs')
+      .insert({
+        user_id: user?.id || null,
+        agent_id: agentId,
+        status: 'running',
+        mode: user ? 'paid' : 'demo',
+      })
+      .select('id')
+      .single()
+
     // Try backend agent engine first
     const backendUp = await isBackendAvailable()
     if (backendUp) {
@@ -64,6 +93,20 @@ export async function POST(request: NextRequest) {
 
         if (res.ok) {
           const data = await res.json()
+
+          // Record successful run
+          if (run?.id) {
+            await serviceClient
+              .from('agent_runs')
+              .update({
+                status: 'succeeded',
+                latency_ms: Date.now() - startTime,
+                completed_at: new Date().toISOString(),
+              })
+              .eq('id', run.id)
+          }
+
+          logger.info('Agent chat request', { agentId, userId: user?.id, mode: 'backend', latencyMs: Date.now() - startTime })
           return NextResponse.json({
             agent: data.agent,
             category: data.category,
@@ -74,11 +117,31 @@ export async function POST(request: NextRequest) {
           })
         }
       } catch {
-        // Backend call failed — fall through to local mock
+        // Backend call failed — fall through
       }
     }
 
-    // Fallback: local demo response
+    // Backend unavailable or returned a non-ok status.
+    // Paid users (starter/growth/partner) must not receive demo responses.
+    const isPaidUser = user && userPlan !== 'free'
+    if (isPaidUser) {
+      if (run?.id) {
+        await serviceClient
+          .from('agent_runs')
+          .update({
+            status: 'failed',
+            latency_ms: Date.now() - startTime,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', run.id)
+      }
+      return NextResponse.json(
+        { error: 'Agent service is temporarily unavailable. Please try again shortly. Your usage was not counted.' },
+        { status: 503 }
+      )
+    }
+
+    // Fallback: local demo response for free/unauthenticated users
     const agent = SA_AGENTS.find((a) => a.id === agentId)
     if (!agent) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
@@ -86,6 +149,19 @@ export async function POST(request: NextRequest) {
 
     const response = generateDemoResponse(agent.name, agent.category, agent.capabilities, message)
 
+    // Record demo run as succeeded
+    if (run?.id) {
+      await serviceClient
+        .from('agent_runs')
+        .update({
+          status: 'succeeded',
+          latency_ms: Date.now() - startTime,
+          completed_at: new Date().toISOString(),
+        })
+        .eq('id', run.id)
+    }
+
+    logger.info('Agent chat request', { agentId, userId: user?.id, mode: 'demo', latencyMs: Date.now() - startTime })
     return NextResponse.json({
       agent: agent.name,
       category: agent.category,

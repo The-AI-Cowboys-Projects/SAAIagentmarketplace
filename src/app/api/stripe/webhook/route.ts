@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { recordStripePayment } from '@/lib/quickbooks'
 import Stripe from 'stripe'
+import { logger } from '@/lib/logger'
 
 // Resolve plan from Stripe price ID (supports new + legacy env var names)
 function resolvePlanFromPriceId(priceId: string | undefined): string {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   try {
     event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err: any) {
-    console.error('[stripe-webhook] Signature verification failed:', err.message)
+    logger.error('Stripe webhook signature verification failed', { error: err.message })
     return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 })
   }
 
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       // Duplicate event — already processed or in-progress
       return NextResponse.json({ received: true, deduplicated: true })
     }
-    console.error('[stripe-webhook] Failed to claim event:', claimError)
+    logger.error('Failed to claim stripe event', { eventId: event.id, error: claimError })
     return NextResponse.json({ error: 'Failed to process event' }, { status: 500 })
   }
 
@@ -132,15 +132,21 @@ export async function POST(request: NextRequest) {
         const lineItem = invoice.lines?.data?.[0]
         const planName = lineItem?.description || 'SA AI Agent Marketplace Subscription'
 
-        // Fire-and-forget QBO sync — don't block webhook response
-        recordStripePayment({
-          customerEmail: invoice.customer_email || 'unknown',
-          customerName: invoice.customer_name || invoice.customer_email || 'Unknown',
-          amount: amountPaid,
-          planName,
-          stripeInvoiceId: invoice.id,
-          stripeSubscriptionId: String((invoice as any).subscription || ''),
-        }).catch((err) => console.error('[QBO] Background sync error:', err))
+        // Queue durable QBO sync job instead of fire-and-forget
+        await supabase.from('qbo_sync_jobs').insert({
+          stripe_event_id: event.id,
+          stripe_invoice_id: invoice.id,
+          payload: {
+            customerEmail: invoice.customer_email || 'unknown',
+            customerName: invoice.customer_name || invoice.customer_email || 'Unknown',
+            amount: amountPaid,
+            planName,
+            stripeInvoiceId: invoice.id,
+            stripeSubscriptionId: String((invoice as any).subscription || ''),
+          },
+          status: 'pending',
+          next_retry_at: new Date().toISOString(),
+        })
         break
       }
 
@@ -194,7 +200,7 @@ export async function POST(request: NextRequest) {
     }).eq('event_id', event.id)
 
   } catch (err: any) {
-    console.error('[stripe-webhook] Processing error:', err.message)
+    logger.error('Stripe webhook processing error', { eventId: event.id, eventType: event.type, error: err.message })
     await supabase.from('stripe_events').update({
       processing_status: 'failed',
       error_message: err.message?.slice(0, 500),

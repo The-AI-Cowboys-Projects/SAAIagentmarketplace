@@ -1,11 +1,16 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export function createServerSupabase() {
-  const cookieStore = cookies()
+// Fallback values prevent @supabase/ssr from throwing during static
+// pre-rendering when env vars are only available at runtime (e.g. Vercel).
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+
+export async function createServerSupabase() {
+  const cookieStore = await cookies()
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -27,8 +32,8 @@ export function createServerSupabase() {
 
 export function createServiceRoleClient() {
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder',
     {
       cookies: {
         getAll() { return [] },

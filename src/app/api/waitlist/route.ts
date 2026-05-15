@@ -1,27 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { backendFetch } from '@/lib/backend'
-
-const RATE_LIMIT = new Map<string, { count: number; resetAt: number }>()
-const MAX_REQUESTS = 5
-const WINDOW_MS = 60 * 60 * 1000 // 1 hour
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = RATE_LIMIT.get(ip)
-  if (!entry || now > entry.resetAt) {
-    RATE_LIMIT.set(ip, { count: 1, resetAt: now + WINDOW_MS })
-    return true
-  }
-  if (entry.count >= MAX_REQUESTS) return false
-  entry.count++
-  return true
-}
+import { waitlistLimit, checkLimit } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    if (!checkRateLimit(ip)) {
+    const { success: waitlistAllowed } = await checkLimit(waitlistLimit, ip)
+    if (!waitlistAllowed) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
     }
 
