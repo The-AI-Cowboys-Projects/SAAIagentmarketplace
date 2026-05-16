@@ -1,0 +1,54 @@
+{
+    "family": "saai-backend",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "512",
+    "memory": "1024",
+    "executionRoleArn": "arn:aws:iam::236580259887:role/saai-ecs-execution-role",
+    "taskRoleArn": "arn:aws:iam::236580259887:role/saai-ecs-task-role",
+    "containerDefinitions": [
+        {
+            "name": "saai-backend",
+            "image": "236580259887.dkr.ecr.us-east-1.amazonaws.com/saai-backend:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "protocol": "tcp"
+                }
+            ],
+            "healthCheck": {
+                "command": ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 15
+            },
+            "secrets": [
+                {"name": "DATABASE_URL", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:DATABASE_URL::"},
+                {"name": "JWT_SECRET", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:JWT_SECRET::"},
+                {"name": "BACKEND_API_KEY", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:BACKEND_API_KEY::"},
+                {"name": "STRIPE_SECRET_KEY", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_SECRET_KEY::"},
+                {"name": "STRIPE_WEBHOOK_SECRET", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_WEBHOOK_SECRET::"},
+                {"name": "STRIPE_PRICE_STARTER_MONTHLY", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_PRICE_STARTER_MONTHLY::"},
+                {"name": "STRIPE_PRICE_STARTER_ANNUAL", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_PRICE_STARTER_ANNUAL::"},
+                {"name": "STRIPE_PRICE_GROWTH_MONTHLY", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_PRICE_GROWTH_MONTHLY::"},
+                {"name": "STRIPE_PRICE_GROWTH_ANNUAL", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_PRICE_GROWTH_ANNUAL::"},
+                {"name": "STRIPE_PRICE_PARTNER_MONTHLY", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_PRICE_PARTNER_MONTHLY::"},
+                {"name": "STRIPE_PRICE_PARTNER_ANNUAL", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:STRIPE_PRICE_PARTNER_ANNUAL::"},
+                {"name": "OPENAI_API_KEY", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:OPENAI_API_KEY::"},
+                {"name": "APP_ENV", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:APP_ENV::"},
+                {"name": "FRONTEND_ORIGIN", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:FRONTEND_ORIGIN::"},
+                {"name": "SEED_AGENTS_ON_STARTUP", "valueFrom": "arn:aws:secretsmanager:us-east-1:236580259887:secret:saai/backend/production-xzQ3vG:SEED_AGENTS_ON_STARTUP::"}
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/saai-backend",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ]
+}
